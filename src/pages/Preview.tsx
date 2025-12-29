@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { useProposalStore, caseStudies } from "@/lib/proposalStore";
 import { supabase } from "@/integrations/supabase/client";
+import jsPDF from "jspdf";
 import {
   FileText,
   Presentation,
@@ -21,6 +22,7 @@ import {
   Loader2,
   Sun,
   Moon,
+  FileDown,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -165,6 +167,194 @@ export default function Preview() {
     toast({
       title: "Downloaded",
       description: `${activeTab}.txt has been downloaded.`,
+    });
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+    });
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 20;
+    const maxWidth = pageWidth - margin * 2;
+    let y = margin;
+
+    const lines = currentContent.split("\n");
+
+    const addNewPageIfNeeded = (requiredSpace: number) => {
+      if (y + requiredSpace > pageHeight - margin) {
+        doc.addPage();
+        y = margin;
+      }
+    };
+
+    const stripMarkdown = (text: string): string => {
+      return text
+        .replace(/\*\*([^*]+)\*\*/g, '$1')
+        .replace(/\*([^*]+)\*/g, '$1');
+    };
+
+    lines.forEach((line) => {
+      // Skip empty lines but add spacing
+      if (line.trim() === "") {
+        y += 4;
+        return;
+      }
+
+      // Horizontal rule
+      if (line.trim() === "---" || line.trim() === "***") {
+        addNewPageIfNeeded(8);
+        doc.setDrawColor(200, 200, 200);
+        doc.line(margin, y + 2, pageWidth - margin, y + 2);
+        y += 8;
+        return;
+      }
+
+      // H1
+      if (line.startsWith("# ")) {
+        addNewPageIfNeeded(14);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(18);
+        doc.setTextColor(30, 30, 30);
+        const text = stripMarkdown(line.slice(2));
+        const splitText = doc.splitTextToSize(text, maxWidth);
+        doc.text(splitText, margin, y);
+        y += splitText.length * 8 + 6;
+        return;
+      }
+
+      // H2
+      if (line.startsWith("## ")) {
+        addNewPageIfNeeded(12);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(14);
+        doc.setTextColor(50, 50, 50);
+        const text = stripMarkdown(line.slice(3));
+        const splitText = doc.splitTextToSize(text, maxWidth);
+        doc.text(splitText, margin, y);
+        y += splitText.length * 6 + 4;
+        // Add underline
+        doc.setDrawColor(220, 220, 220);
+        doc.line(margin, y - 2, pageWidth - margin, y - 2);
+        y += 4;
+        return;
+      }
+
+      // H3
+      if (line.startsWith("### ")) {
+        addNewPageIfNeeded(10);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.setTextColor(60, 60, 60);
+        const text = stripMarkdown(line.slice(4));
+        const splitText = doc.splitTextToSize(text, maxWidth);
+        doc.text(splitText, margin, y);
+        y += splitText.length * 5 + 4;
+        return;
+      }
+
+      // Bullet points
+      if (line.startsWith("- ") || line.startsWith("• ")) {
+        addNewPageIfNeeded(8);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(80, 80, 80);
+        const bulletX = margin + 2;
+        doc.text("•", bulletX, y);
+        const text = stripMarkdown(line.slice(2));
+        const splitText = doc.splitTextToSize(text, maxWidth - 8);
+        doc.text(splitText, margin + 6, y);
+        y += splitText.length * 4 + 2;
+        return;
+      }
+
+      // Numbered lists
+      if (/^\d+\.\s/.test(line)) {
+        addNewPageIfNeeded(8);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(80, 80, 80);
+        const match = line.match(/^(\d+)\.\s(.*)$/);
+        if (match) {
+          doc.text(`${match[1]}.`, margin + 2, y);
+          const text = stripMarkdown(match[2]);
+          const splitText = doc.splitTextToSize(text, maxWidth - 10);
+          doc.text(splitText, margin + 10, y);
+          y += splitText.length * 4 + 2;
+        }
+        return;
+      }
+
+      // Checkmarks and X marks
+      if (line.startsWith("✓ ") || line.startsWith("✗ ")) {
+        addNewPageIfNeeded(8);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        if (line.startsWith("✓")) {
+          doc.setTextColor(34, 139, 34);
+        } else {
+          doc.setTextColor(220, 20, 60);
+        }
+        doc.text(line.charAt(0), margin + 2, y);
+        doc.setTextColor(80, 80, 80);
+        const text = stripMarkdown(line.slice(2));
+        const splitText = doc.splitTextToSize(text, maxWidth - 8);
+        doc.text(splitText, margin + 8, y);
+        y += splitText.length * 4 + 2;
+        return;
+      }
+
+      // Blockquotes
+      if (line.startsWith("> ")) {
+        addNewPageIfNeeded(8);
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.setDrawColor(59, 130, 246);
+        doc.setLineWidth(0.5);
+        doc.line(margin + 2, y - 3, margin + 2, y + 4);
+        const text = stripMarkdown(line.slice(2));
+        const splitText = doc.splitTextToSize(text, maxWidth - 10);
+        doc.text(splitText, margin + 6, y);
+        y += splitText.length * 4 + 4;
+        return;
+      }
+
+      // Regular paragraph
+      addNewPageIfNeeded(8);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(60, 60, 60);
+      const text = stripMarkdown(line);
+      const splitText = doc.splitTextToSize(text, maxWidth);
+      doc.text(splitText, margin, y);
+      y += splitText.length * 4 + 3;
+    });
+
+    // Add page numbers
+    const totalPages = doc.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(
+        `Page ${i} of ${totalPages}`,
+        pageWidth / 2,
+        pageHeight - 10,
+        { align: 'center' }
+      );
+    }
+
+    doc.save(`${tabLabels[activeTab].replace(/\s+/g, '-').toLowerCase()}.pdf`);
+    
+    toast({
+      title: "PDF exported",
+      description: `${tabLabels[activeTab]}.pdf has been downloaded.`,
     });
   };
 
@@ -316,7 +506,11 @@ export default function Preview() {
                 </Button>
                 <Button onClick={handleDownload} variant="outline" size="sm">
                   <Download className="mr-2 h-4 w-4" />
-                  Download
+                  TXT
+                </Button>
+                <Button onClick={handleExportPDF} size="sm">
+                  <FileDown className="mr-2 h-4 w-4" />
+                  Export PDF
                 </Button>
               </>
             )}
