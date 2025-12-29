@@ -155,15 +155,20 @@ serve(async (req) => {
   }
 
   try {
-    const { clientContext, background, caseStudies, length, pricing } = await req.json();
+    const body = await req.json();
+    const clientContext = body.clientContext || '';
+    const background = body.background || '';
+    const caseStudies = body.caseStudies || '';
+    const proposalLength = body.length || 'medium';
+    const pricing = body.pricing || { strategy: '', ai: '', managed: '' };
 
-    console.log('Generating proposal with Claude API:', { length, caseStudiesCount: caseStudies?.length });
+    console.log('Generating proposal with Claude API:', { proposalLength, caseStudiesCount: caseStudies?.length });
 
     if (!ANTHROPIC_API_KEY) {
       throw new Error('ANTHROPIC_API_KEY is not configured');
     }
 
-    const userPrompt = `Generate a ${length.toUpperCase()} proposal package.
+    const userPrompt = `Generate a ${proposalLength.toUpperCase()} proposal package.
 
 CLIENT CONTEXT:
 ${clientContext}
