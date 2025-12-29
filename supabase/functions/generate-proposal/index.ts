@@ -1,7 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -69,44 +69,84 @@ Present 2-4 scenarios:
 3. Fully Managed (monthly fee, we do everything)
 4. Partnership/Equity (when applicable)
 
-## Risk Mitigation (CRITICAL)
+## Risk Mitigation (CRITICAL - THIS IS THE KEY DIFFERENTIATOR)
 
-ALWAYS include in pricing section:
-- What YOU control vs what CLIENT controls
-- Why systems fail (poor messaging, weak offer, low volume, no optimization)
-- Outcome language: "Based on similar engagements, clients typically see..." NOT "We guarantee..."
-- Scope protection: clear "What's NOT included" section
+ALWAYS include these elements:
+
+**In the Proposal Pricing Section:**
+- "What YOU Control" vs "What CLIENT Controls" breakdown
+- Why systems fail: poor messaging, weak offer, low volume, no optimization
+- Outcome language: "Based on similar engagements, clients typically see..." NOT "We guarantee X results"
+
+**In the Contract:**
+
+Section 3 - What Contractor Is Responsible For:
+✓ Building the system/strategy/infrastructure
+✓ Technical implementation and setup
+✓ Training and documentation
+✓ Strategic frameworks based on proven methodologies
+
+Section 4 - What Client Is Responsible For:
+✓ Consistent execution and volume
+✓ Optimizing based on performance data
+✓ Building required sales/marketing assets
+✓ Testing and refining their offer
+✓ Converting opportunities into revenue
+
+Section 5 - What Success Requires:
+Client acknowledges that systems fail when:
+- Messaging isn't compelling
+- Offer isn't attractive
+- Execution volume is too low
+- Approach isn't differentiated
+- No optimization based on feedback
+
+Warranty Section:
+WHAT IS GUARANTEED:
+✓ Functional system built to specifications
+✓ Comprehensive training and documentation
+
+WHAT IS NOT GUARANTEED:
+✗ Specific business outcomes (revenue, meetings, conversions)
+✗ Response rates or conversion rates
+✗ Results dependent on client's offer quality or execution
+
+Critical Legal Line: "This is a SYSTEM BUILD, not a guarantee of specific business outcomes."
+
+**Scope Protection:**
+Always include "What's NOT Included" section with change order process language.
 
 ## Output Format
 
-Structure output with these exact headers (use --- as separator between sections):
+Structure output with these EXACT headers (the app parses these):
+
 # PROPOSAL DOCUMENT
-[full proposal content]
+[content]
 
 ---
 
 # GENSPARK PRESENTATION PROMPT
-[complete prompt]
+[content]
 
 ---
 
 # CONTRACT TEMPLATE
-[full contract]
+[content]
 
 ---
 
 # CONTRACT SUBMISSION MESSAGE
-[email content]
+[content]
 
 ---
 
 # INVOICE DESCRIPTION
-[invoice text]
+[content]
 
 ---
 
 # PROPOSAL SUBMISSION EMAIL
-[email content]`;
+[content]`;
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -117,10 +157,10 @@ serve(async (req) => {
   try {
     const { clientContext, background, caseStudies, length, pricing } = await req.json();
 
-    console.log('Generating proposal with params:', { length, caseStudiesCount: caseStudies?.length });
+    console.log('Generating proposal with Claude API:', { length, caseStudiesCount: caseStudies?.length });
 
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY is not configured');
     }
 
     const userPrompt = `Generate a ${length.toUpperCase()} proposal package.
@@ -141,25 +181,26 @@ PRICING GUIDANCE:
 
 Generate ALL 6 deliverables with the exact section headers specified. Use --- as separator between each major section.`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'x-api-key': ANTHROPIC_API_KEY,
         'Content-Type': 'application/json',
+        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 16000,
+        system: PROPOSAL_SYSTEM_PROMPT,
         messages: [
-          { role: 'system', content: PROPOSAL_SYSTEM_PROMPT },
           { role: 'user', content: userPrompt }
         ],
-        max_tokens: 16000,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('AI Gateway error:', response.status, errorText);
+      console.error('Claude API error:', response.status, errorText);
       
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }), {
@@ -167,19 +208,19 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: 'Usage limit reached. Please add credits to continue.' }), {
-          status: 402,
+      if (response.status === 401) {
+        return new Response(JSON.stringify({ error: 'Invalid API key. Please check your ANTHROPIC_API_KEY.' }), {
+          status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      throw new Error(`AI Gateway error: ${response.status}`);
+      throw new Error(`Claude API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    const fullText = data.choices?.[0]?.message?.content || '';
+    const fullText = data.content?.[0]?.text || '';
 
-    console.log('Received response, length:', fullText.length);
+    console.log('Received Claude response, length:', fullText.length);
 
     // Parse sections using the --- separator
     const extractSection = (text: string, marker: string): string => {
