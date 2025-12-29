@@ -14,8 +14,10 @@ import {
   caseStudies,
   proposalLengths,
 } from "@/lib/proposalStore";
+import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, ArrowRight, ExternalLink, Lightbulb, Check } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "@/hooks/use-toast";
 
 export default function Generate() {
   const navigate = useNavigate();
@@ -72,270 +74,91 @@ export default function Generate() {
   const handleGenerate = async () => {
     setIsGenerating(true);
 
-    // Simulate generation process
-    for (let i = 0; i < generatingSteps.length; i++) {
+    // Reset steps
+    setGeneratingSteps([
+      { label: "Creating proposal structure", status: "active" },
+      { label: "Writing executive summary", status: "pending" },
+      { label: "Drafting contract terms", status: "pending" },
+      { label: "Composing follow-up emails", status: "pending" },
+    ]);
+
+    try {
+      // Get selected case study descriptions
+      const selectedStudyDescriptions = caseStudies
+        .filter((cs) => selectedCaseStudies.includes(cs.id))
+        .map((cs) => `${cs.title}: ${cs.description}`)
+        .join("\n");
+
+      // Update step 2
+      setTimeout(() => {
+        setGeneratingSteps((prev) =>
+          prev.map((step, idx) => ({
+            ...step,
+            status: idx === 0 ? "completed" : idx === 1 ? "active" : "pending",
+          }))
+        );
+      }, 2000);
+
+      // Update step 3
+      setTimeout(() => {
+        setGeneratingSteps((prev) =>
+          prev.map((step, idx) => ({
+            ...step,
+            status: idx <= 1 ? "completed" : idx === 2 ? "active" : "pending",
+          }))
+        );
+      }, 4000);
+
+      // Update step 4
+      setTimeout(() => {
+        setGeneratingSteps((prev) =>
+          prev.map((step, idx) => ({
+            ...step,
+            status: idx <= 2 ? "completed" : "active",
+          }))
+        );
+      }, 6000);
+
+      const { data, error } = await supabase.functions.invoke('generate-proposal', {
+        body: {
+          clientContext,
+          background,
+          caseStudies: selectedStudyDescriptions,
+          length: proposalLength,
+          pricing: {
+            strategy: pricingStrategy,
+            ai: pricingAI,
+            managed: pricingManaged,
+          },
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      // Set all to completed
       setGeneratingSteps((prev) =>
-        prev.map((step, idx) => ({
-          ...step,
-          status: idx === i ? "active" : idx < i ? "completed" : "pending",
-        }))
+        prev.map((step) => ({ ...step, status: "completed" as const }))
       );
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      setDeliverables(data.deliverables);
+      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      navigate("/preview");
+    } catch (error) {
+      console.error("Generation error:", error);
+      setIsGenerating(false);
+      toast({
+        title: "Generation failed",
+        description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     }
-
-    // Set all to completed
-    setGeneratingSteps((prev) =>
-      prev.map((step) => ({ ...step, status: "completed" as const }))
-    );
-
-    // Mock deliverables
-    setDeliverables({
-      proposal: `# Project Proposal
-
-## Executive Summary
-
-This proposal outlines our comprehensive plan for your upcoming project. Based on our initial discovery and analysis, we have developed a strategic roadmap aimed at enhancing user experience, increasing conversion rates, and aligning with your 2025 growth objectives.
-
-Our approach integrates cutting-edge technologies, including AI-driven personalization and a modular design system, to ensure scalability and competitive advantage. The project timeline is estimated at 12 weeks, with distinct phases for discovery, design, development, and deployment.
-
-We are committed to delivering a high-quality solution that not only meets but exceeds your expectations. Detailed scope of work, deliverables, and budget breakdown are provided in the subsequent sections.
-
-## Scope of Work
-
-Phase 1: Discovery and Strategy (Weeks 1-2). This phase involves deep-dive workshops, stakeholder interviews, and user persona definition. We will also conduct a comprehensive audit of the existing platform.
-
-Phase 2: Design and Prototyping (Weeks 3-5). Creating wireframes, high-fidelity mockups, and interactive prototypes for user testing and validation.
-
-Phase 3: Development (Weeks 6-10). Full-stack development including frontend, backend, and API integrations.
-
-Phase 4: Testing and Launch (Weeks 11-12). Comprehensive QA testing, performance optimization, and production deployment.
-
-## Investment Options
-
-### Option 1: Strategy & Training — ${pricingStrategy}
-You receive the complete strategy playbook and training to execute with your team.
-
-### Option 2: Strategy + AI Systems — ${pricingAI}
-Full strategy plus automated lead generation systems built and configured.
-
-### Option 3: Fully Managed — ${pricingManaged}
-We handle everything. You focus on closing deals while we drive growth.
-
-## Why Us
-
-${background}
-
-## Next Steps
-
-1. Review this proposal and share feedback
-2. Schedule a 30-minute call to discuss questions
-3. Sign the contract and we begin Week 1
-
-We look forward to partnering with you on this exciting initiative.`,
-      deckPrompt: `Create a professional pitch deck presentation with the following slides:
-
-**Slide 1: Title Slide**
-- Title: "[Client Name] Growth Partnership Proposal"
-- Subtitle: "Strategic roadmap to achieve your 2025 goals"
-- Your logo and date
-
-**Slide 2: The Challenge**
-- Current situation and pain points
-- Market context and competitive landscape
-- The cost of inaction
-
-**Slide 3: Why This Matters**
-- Impact on revenue and growth
-- Team efficiency considerations
-- Long-term strategic implications
-
-**Slide 4: Our Approach**
-- Overview of methodology
-- Key differentiators
-- Expected outcomes
-
-**Slide 5-7: Solution Details**
-- Phase 1: Discovery & Strategy
-- Phase 2: Implementation
-- Phase 3: Optimization & Scale
-
-**Slide 8: Timeline**
-- Visual roadmap with milestones
-- Key deliverables at each stage
-- Dependencies and checkpoints
-
-**Slide 9: Investment Options**
-- Three pricing tiers
-- What's included in each
-- ROI projections
-
-**Slide 10: Why Us**
-- Relevant case studies
-- Team credentials
-- Client testimonials
-
-**Slide 11: Next Steps**
-- Clear call to action
-- Contact information
-- Meeting scheduling
-
-Design Direction: Modern, clean, professional. Use a dark theme with accent colors. Incorporate data visualizations and minimal text per slide.`,
-      contract: `# PROFESSIONAL SERVICES AGREEMENT
-
-This Professional Services Agreement ("Agreement") is entered into as of [DATE], by and between:
-
-**Contractor:** [YOUR NAME/COMPANY]
-**Client:** [CLIENT NAME/COMPANY]
-
-## 1. SCOPE OF WORK
-
-Contractor agrees to provide the following services:
-- Strategic growth consultation and planning
-- System design and implementation
-- Training and documentation
-- Ongoing optimization support
-
-Detailed deliverables are outlined in the attached Proposal Document.
-
-## 2. TIMELINE AND MILESTONES
-
-Project duration: 12 weeks
-Start date: [START DATE]
-End date: [END DATE]
-
-Key milestones:
-- Week 2: Strategy document delivery
-- Week 5: Design approval
-- Week 10: Development complete
-- Week 12: Launch and handoff
-
-## 3. CONTRACTOR RESPONSIBILITIES
-
-✓ Deliver all work according to agreed timelines
-✓ Provide regular progress updates (weekly)
-✓ Maintain professional communication standards
-✓ Ensure quality and accuracy of all deliverables
-✓ Provide 30 days post-launch support
-
-## 4. CLIENT RESPONSIBILITIES
-
-✓ Provide timely feedback (within 48 hours)
-✓ Ensure stakeholder availability for meetings
-✓ Provide access to necessary systems and data
-✓ Make payments according to agreed schedule
-✓ Designate a single point of contact
-
-## 5. WHAT SUCCESS REQUIRES
-
-Both parties acknowledge that project success depends on:
-- Clear and consistent communication
-- Timely decision-making
-- Commitment to the agreed timeline
-- Honest feedback and collaboration
-
-Systems may fail when:
-- Messaging is unclear or inconsistent
-- Offer doesn't resonate with market
-- Volume is insufficient for testing
-- Optimization is neglected post-launch
-
-## 6. INVESTMENT
-
-${pricingAI}
-
-Payment schedule:
-- 50% upon contract signing
-- 25% at midpoint milestone
-- 25% upon project completion
-
-## 7. WARRANTY
-
-This is a SYSTEM BUILD, not a guarantee of specific business outcomes.
-
-We guarantee:
-✓ Professional quality work
-✓ Adherence to agreed specifications
-✓ Timely delivery per milestones
-✓ Post-launch support period
-
-We do NOT guarantee:
-✗ Specific revenue or lead numbers
-✗ Third-party platform performance
-✗ Results dependent on client execution
-
-## SIGNATURES
-
-Contractor: _________________________ Date: _______
-
-Client: _________________________ Date: _______`,
-      contractEmail: `Subject: Contract Ready for Review — [Project Name]
-
-Hi [Client Name],
-
-Following our proposal discussion, I've attached the contract for your review.
-
-Key points to note:
-- Project timeline: 12 weeks starting [DATE]
-- Investment: ${pricingAI} with milestone-based payments
-- 30-day post-launch support included
-
-The contract outlines responsibilities for both parties to ensure we're aligned on expectations and set up for success.
-
-Please review when you have a moment. I'm happy to hop on a quick call if you have any questions or need clarification on any terms.
-
-Looking forward to getting started.
-
-Best,
-[Your Name]`,
-      invoiceDescription: `Professional Services — Growth Strategy & Implementation
-
-Scope: Strategic consultation, system design, implementation, and optimization
-Timeline: 12-week engagement
-Phase: [CURRENT PHASE]
-
-Includes:
-- Discovery and strategy development
-- System design and build
-- Training and documentation
-- 30-day post-launch support`,
-      proposalEmail: `Subject: Your Growth Proposal — Ready for Review
-
-Hi [Client Name],
-
-Great speaking with you yesterday! As promised, I've put together a comprehensive proposal package based on our discussion.
-
-**What's Inside:**
-1. Full Proposal Document — Detailed scope, timeline, and investment options
-2. Presentation Deck — Visual overview for your team
-3. Contract Template — Ready for review when you're ready to proceed
-
-**Quick Recap of What We Discussed:**
-- Current challenge: [CHALLENGE]
-- Goal: [GOAL]
-- Timeline: Looking to launch within [TIMEFRAME]
-
-**Investment Options:**
-- Strategy & Training: ${pricingStrategy}
-- Strategy + AI Systems: ${pricingAI}
-- Fully Managed: ${pricingManaged}
-
-**Next Steps:**
-1. Review the proposal at your convenience
-2. Share with any stakeholders who need to weigh in
-3. Let me know your questions — happy to schedule a follow-up call
-
-I've helped similar companies achieve [RESULT] and I'm confident we can do the same for you.
-
-Looking forward to your thoughts!
-
-Best,
-[Your Name]
-[Phone]
-[Email]`,
-    });
-
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    navigate("/preview");
   };
 
   if (isGenerating) {
