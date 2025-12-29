@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.generate-asset]
 verify_jwt = false
+
+[functions.generate-deck]
+verify_jwt = false

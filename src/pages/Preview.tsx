@@ -28,7 +28,8 @@ import { toast } from "@/hooks/use-toast";
 
 const tabs = [
   { id: "proposal", label: "Proposal", icon: FileText },
-  { id: "deckPrompt", label: "Deck Prompt", icon: Presentation },
+  { id: "deck", label: "Slide Deck", icon: Presentation },
+  { id: "deckPrompt", label: "Deck Prompt", icon: FileText },
   { id: "contract", label: "Contract", icon: FileCheck },
   { id: "contractEmail", label: "Contract Email", icon: Send },
   { id: "invoiceDescription", label: "Invoice", icon: Receipt },
@@ -39,6 +40,7 @@ type TabId = (typeof tabs)[number]["id"];
 
 const tabInstructions: Record<TabId, string> = {
   proposal: "Copy and paste into Google Docs or Word. Review, save as PDF, send.",
+  deck: "Preview your AI-generated slide deck. Download as PDF or PPTX.",
   deckPrompt: "Copy entire prompt. Paste into GenSpark AI Slides. Click Generate.",
   contract: "Paste into Square Contracts. Fill in [BRACKETED] fields. Send for signature.",
   contractEmail: "Copy and paste into your email client. Customize the [BRACKETED] fields.",
@@ -48,6 +50,7 @@ const tabInstructions: Record<TabId, string> = {
 
 const tabLabels: Record<TabId, string> = {
   proposal: "Proposal",
+  deck: "Slide Deck",
   deckPrompt: "Deck Prompt",
   contract: "Contract",
   contractEmail: "Contract Email",
@@ -68,11 +71,14 @@ export default function Preview() {
     updateDeliverable, 
     reset,
     clientContext,
+    clientName,
     background,
     selectedCaseStudies,
     pricingStrategy,
     pricingAI,
     pricingManaged,
+    deckData,
+    setDeckData,
   } = useProposalStore();
 
   useEffect(() => {
@@ -85,12 +91,15 @@ export default function Preview() {
     return null;
   }
 
-  const currentContent = deliverables[activeTab] || '';
-  const hasContent = currentContent.length > 0;
+  // For deck tab, check deckData; for others, check deliverables
+  const isDeckTab = activeTab === 'deck';
+  const currentContent = isDeckTab ? '' : (deliverables[activeTab as keyof typeof deliverables] || '');
+  const hasContent = isDeckTab ? deckData.status === 'completed' : currentContent.length > 0;
   const ActiveIcon = tabs.find((t) => t.id === activeTab)?.icon || FileText;
 
   const handleGenerateAsset = async (assetType: TabId) => {
     if (assetType === 'proposal') return; // Proposal is already generated
+    if (assetType === 'deck') return; // Deck has its own handler
     
     setGeneratingAsset(assetType);
     
@@ -118,7 +127,7 @@ export default function Preview() {
       if (error) throw error;
       if (data.error) throw new Error(data.error);
 
-      updateDeliverable(assetType, data.content);
+      updateDeliverable(assetType as keyof typeof deliverables, data.content);
       
       toast({
         title: `${tabLabels[assetType]} generated`,
@@ -133,6 +142,57 @@ export default function Preview() {
       });
     } finally {
       setGeneratingAsset(null);
+    }
+  };
+
+  const handleGenerateDeck = async () => {
+    if (!deliverables.deckPrompt) {
+      toast({
+        title: "Deck prompt required",
+        description: "Please generate the deck prompt first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setDeckData({ status: 'generating', error: null });
+
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-deck', {
+        body: {
+          deckPrompt: deliverables.deckPrompt,
+          clientName: clientName || 'Client',
+          numSlides: 10,
+        },
+      });
+
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+
+      setDeckData({
+        status: 'completed',
+        generationId: data.generationId,
+        gammaUrl: data.gammaUrl,
+        pdfUrl: data.pdfUrl,
+        pptxUrl: data.pptxUrl,
+        thumbnailUrl: data.thumbnailUrl,
+      });
+
+      toast({
+        title: "Slide deck generated!",
+        description: "Your presentation is ready to preview and download.",
+      });
+    } catch (error) {
+      console.error("Deck generation error:", error);
+      setDeckData({ 
+        status: 'error', 
+        error: error instanceof Error ? error.message : "Something went wrong." 
+      });
+      toast({
+        title: "Deck generation failed",
+        description: error instanceof Error ? error.message : "Something went wrong.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -375,11 +435,18 @@ export default function Preview() {
 
         {/* Tabs */}
         <nav className="flex-1 p-3 space-y-1">
-          {tabs.map((tab) => {
+        {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
-            const hasTabContent = (deliverables[tab.id] || '').length > 0;
-            const isGenerating = generatingAsset === tab.id;
+            const isGenerating = generatingAsset === tab.id || (tab.id === 'deck' && deckData.status === 'generating');
+            
+            // Determine if tab has content
+            let hasTabContent = false;
+            if (tab.id === 'deck') {
+              hasTabContent = deckData.status === 'completed';
+            } else if (tab.id !== 'proposal') {
+              hasTabContent = (deliverables[tab.id as keyof typeof deliverables] || '').length > 0;
+            }
             
             return (
               <button
@@ -489,7 +556,37 @@ export default function Preview() {
             <span className="font-semibold">{tabLabels[activeTab]}</span>
           </div>
           <div className="flex items-center gap-2">
-            {hasContent && (
+            {/* Deck tab actions */}
+            {activeTab === "deck" && hasContent && (
+              <>
+                {deckData.pdfUrl && (
+                  <Button size="sm" variant="outline" asChild>
+                    <a href={deckData.pdfUrl} target="_blank" rel="noopener noreferrer">
+                      <FileDown className="mr-2 h-4 w-4" />
+                      Download PDF
+                    </a>
+                  </Button>
+                )}
+                {deckData.pptxUrl && (
+                  <Button size="sm" variant="outline" asChild>
+                    <a href={deckData.pptxUrl} target="_blank" rel="noopener noreferrer">
+                      <Download className="mr-2 h-4 w-4" />
+                      Download PPTX
+                    </a>
+                  </Button>
+                )}
+                {deckData.gammaUrl && (
+                  <Button size="sm" asChild>
+                    <a href={deckData.gammaUrl} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Edit in Gamma
+                    </a>
+                  </Button>
+                )}
+              </>
+            )}
+            {/* Other tabs actions */}
+            {hasContent && !isDeckTab && (
               <>
                 <Button 
                   onClick={() => setLightMode(!lightMode)} 
@@ -514,33 +611,85 @@ export default function Preview() {
                 </Button>
               </>
             )}
-            {activeTab === "deckPrompt" && hasContent && (
-              <Button size="sm" asChild>
-                <a
-                  href="https://www.genspark.ai"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  Open GenSpark
-                </a>
-              </Button>
-            )}
           </div>
         </div>
 
         {/* Document Content */}
         <div className="flex-1 overflow-auto p-6">
-          <div className="mx-auto max-w-4xl">
-            {!hasContent ? (
-              // Generate Asset CTA
+          <div className={`mx-auto ${isDeckTab ? 'max-w-6xl' : 'max-w-4xl'}`}>
+            {/* Deck Tab - Special handling */}
+            {isDeckTab && (
+              <>
+                {deckData.status === 'idle' && (
+                  <div className="rounded-xl border border-border bg-card p-12 text-center">
+                    <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                      <Presentation className="h-8 w-8 text-primary" />
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Generate Slide Deck</h2>
+                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                      {deliverables.deckPrompt 
+                        ? "Create a professional presentation from your deck prompt using Gamma AI."
+                        : "First generate the Deck Prompt, then come back here to create your slides."}
+                    </p>
+                    <Button 
+                      onClick={handleGenerateDeck}
+                      disabled={!deliverables.deckPrompt}
+                      size="lg"
+                    >
+                      <Sparkles className="mr-2 h-5 w-5" />
+                      Generate Slide Deck
+                    </Button>
+                  </div>
+                )}
+                {deckData.status === 'generating' && (
+                  <div className="rounded-xl border border-border bg-card p-12 text-center">
+                    <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6 animate-pulse">
+                      <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Generating Your Deck...</h2>
+                    <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+                      Gamma AI is creating your presentation. This may take 1-2 minutes.
+                    </p>
+                    <div className="flex justify-center gap-1">
+                      {[0, 1, 2].map((i) => (
+                        <div key={i} className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {deckData.status === 'error' && (
+                  <div className="rounded-xl border border-destructive/50 bg-destructive/10 p-12 text-center">
+                    <div className="mx-auto w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center mb-6">
+                      <X className="h-8 w-8 text-destructive" />
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2">Generation Failed</h2>
+                    <p className="text-muted-foreground mb-6">{deckData.error}</p>
+                    <Button onClick={handleGenerateDeck} size="lg">
+                      <Sparkles className="mr-2 h-5 w-5" />
+                      Try Again
+                    </Button>
+                  </div>
+                )}
+                {deckData.status === 'completed' && deckData.gammaUrl && (
+                  <div className="rounded-xl border border-border bg-card overflow-hidden">
+                    <iframe 
+                      src={`${deckData.gammaUrl}/embed`}
+                      className="w-full"
+                      style={{ height: '70vh', minHeight: '500px' }}
+                      title="Slide Deck Preview"
+                      allow="fullscreen"
+                    />
+                  </div>
+                )}
+              </>
+            )}
+            {/* Other tabs */}
+            {!isDeckTab && !hasContent && (
               <div className="rounded-xl border border-border bg-card p-12 text-center">
                 <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
                   <ActiveIcon className="h-8 w-8 text-primary" />
                 </div>
-                <h2 className="text-xl font-semibold mb-2">
-                  Generate {tabLabels[activeTab]}
-                </h2>
+                <h2 className="text-xl font-semibold mb-2">Generate {tabLabels[activeTab]}</h2>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                   This asset hasn't been generated yet. Click below to create it based on your proposal.
                 </p>
@@ -562,7 +711,8 @@ export default function Preview() {
                   )}
                 </Button>
               </div>
-            ) : (
+            )}
+            {!isDeckTab && hasContent && (
               // Document Content - PDF-like preview
               <div 
                 className={`rounded-xl border shadow-lg transition-colors ${

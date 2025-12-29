@@ -10,6 +10,16 @@ interface Deliverables {
   proposalEmail: string;
 }
 
+interface DeckData {
+  generationId: string | null;
+  gammaUrl: string | null;
+  pdfUrl: string | null;
+  pptxUrl: string | null;
+  thumbnailUrl: string | null;
+  status: 'idle' | 'generating' | 'completed' | 'error';
+  error: string | null;
+}
+
 interface ProposalState {
   // Form data
   clientName: string;
@@ -23,6 +33,9 @@ interface ProposalState {
   
   // Generated deliverables (can be partial)
   deliverables: Partial<Deliverables> | null;
+  
+  // Deck data from Gamma
+  deckData: DeckData;
   
   // Database proposal ID
   proposalId: string | null;
@@ -40,6 +53,8 @@ interface ProposalState {
   setDeliverables: (deliverables: Partial<Deliverables>) => void;
   updateDeliverable: (key: keyof Deliverables, content: string) => void;
   setProposalId: (id: string) => void;
+  setDeckData: (data: Partial<DeckData>) => void;
+  resetDeck: () => void;
   saveToDatabase: () => Promise<void>;
   reset: () => void;
 }
@@ -48,6 +63,16 @@ const defaultBackground = `• 8 years in growth marketing & B2B SaaS
 • Scaled 3 companies to 7-figures
 • Built AI-powered lead generation systems
 • Ex-LinkedIn, worked on Jobs product`;
+
+const defaultDeckData: DeckData = {
+  generationId: null,
+  gammaUrl: null,
+  pdfUrl: null,
+  pptxUrl: null,
+  thumbnailUrl: null,
+  status: 'idle',
+  error: null,
+};
 
 export const useProposalStore = create<ProposalState>((set, get) => ({
   clientName: '',
@@ -59,6 +84,7 @@ export const useProposalStore = create<ProposalState>((set, get) => ({
   pricingAI: '$15K-20K',
   pricingManaged: '$5K-8K/month',
   deliverables: null,
+  deckData: defaultDeckData,
   proposalId: null,
   
   setClientName: (name) => set({ clientName: name }),
@@ -82,6 +108,12 @@ export const useProposalStore = create<ProposalState>((set, get) => ({
     }
   })),
   setProposalId: (id) => set({ proposalId: id }),
+  
+  setDeckData: (data) => set((state) => ({
+    deckData: { ...state.deckData, ...data }
+  })),
+  
+  resetDeck: () => set({ deckData: defaultDeckData }),
   
   saveToDatabase: async () => {
     const state = get();
@@ -133,6 +165,7 @@ export const useProposalStore = create<ProposalState>((set, get) => ({
     pricingAI: '$15K-20K',
     pricingManaged: '$5K-8K/month',
     deliverables: null,
+    deckData: defaultDeckData,
     proposalId: null,
   }),
 }));
