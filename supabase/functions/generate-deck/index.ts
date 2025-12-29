@@ -93,14 +93,13 @@ serve(async (req) => {
 
     console.log('Starting Gamma deck generation for:', clientName);
 
-    // Create generation request
+    // Create generation request - omit themeId to use Gamma's default
     const generatePayload: GammaGenerateRequest = {
       inputText: deckPrompt,
       textMode: 'generate',
       format: 'presentation',
       numCards: numSlides,
       exportAs: 'pdf',
-      themeId: 'Default',
       additionalInstructions: 'Create a professional, visually appealing presentation with clear sections and engaging visuals.',
       textOptions: {
         amount: 'detailed',
