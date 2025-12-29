@@ -148,29 +148,7 @@ Structure output with these EXACT headers (the app parses these):
 # PROPOSAL SUBMISSION EMAIL
 [content]`;
 
-serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  try {
-    const body = await req.json();
-    const clientContext = body.clientContext || '';
-    const background = body.background || '';
-    const caseStudies = body.caseStudies || '';
-    const proposalLength = body.length || 'medium';
-    const pricing = body.pricing || { strategy: '', ai: '', managed: '' };
-    const proposalOnly = body.proposalOnly || false;
-
-    console.log('Generating proposal with Claude API:', { proposalLength, proposalOnly, caseStudiesCount: caseStudies?.length });
-
-    if (!ANTHROPIC_API_KEY) {
-      throw new Error('ANTHROPIC_API_KEY is not configured');
-    }
-
-    // If proposalOnly, use a shorter system prompt
-    const systemPrompt = proposalOnly ? `You are an expert business proposal writer. Your proposals follow a narrative-driven, detailed style that prioritizes depth over conciseness.
+const PROPOSAL_ONLY_PROMPT = `You are an expert business proposal writer. Your proposals follow a narrative-driven, detailed style that prioritizes depth over conciseness.
 
 ## Length Options
 
@@ -215,7 +193,31 @@ Generate ONLY the proposal document with these sections:
 - Execution Plan
 - Investment & Pricing (with risk mitigation)
 - Why Us/Qualifications
-- Next Steps` : PROPOSAL_SYSTEM_PROMPT;
+- Next Steps`;
+
+serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const body = await req.json();
+    const clientContext = body.clientContext || '';
+    const background = body.background || '';
+    const caseStudies = body.caseStudies || '';
+    const proposalLength = body.length || 'medium';
+    const pricing = body.pricing || { strategy: '', ai: '', managed: '' };
+    const proposalOnly = body.proposalOnly || false;
+    const stream = body.stream || false;
+
+    console.log('Generating proposal with Claude API:', { proposalLength, proposalOnly, stream, caseStudiesCount: caseStudies?.length });
+
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY is not configured');
+    }
+
+    const systemPrompt = proposalOnly ? PROPOSAL_ONLY_PROMPT : PROPOSAL_SYSTEM_PROMPT;
 
     const userPrompt = proposalOnly 
       ? `Generate a ${proposalLength.toUpperCase()} proposal.
@@ -253,6 +255,84 @@ PRICING GUIDANCE:
 
 Generate ALL 6 deliverables with the exact section headers specified. Use --- as separator between each major section.`;
 
+    // Streaming mode
+    if (stream) {
+      console.log('Starting streaming response...');
+      
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': ANTHROPIC_API_KEY,
+          'Content-Type': 'application/json',
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: proposalOnly ? 8000 : 16000,
+          stream: true,
+          system: systemPrompt,
+          messages: [
+            { role: 'user', content: userPrompt }
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Claude API error:', response.status, errorText);
+        throw new Error(`Claude API error: ${response.status}`);
+      }
+
+      // Create a TransformStream to process SSE events
+      const encoder = new TextEncoder();
+      const decoder = new TextDecoder();
+      
+      const transformStream = new TransformStream({
+        async transform(chunk, controller) {
+          const text = decoder.decode(chunk);
+          const lines = text.split('\n');
+          
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') continue;
+              
+              try {
+                const parsed = JSON.parse(data);
+                
+                // Handle content_block_delta events
+                if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ 
+                    type: 'delta', 
+                    text: parsed.delta.text 
+                  })}\n\n`));
+                }
+                
+                // Handle message_stop event
+                if (parsed.type === 'message_stop') {
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'done' })}\n\n`));
+                }
+              } catch (e) {
+                // Skip unparseable lines
+              }
+            }
+          }
+        },
+      });
+
+      const readableStream = response.body!.pipeThrough(transformStream);
+
+      return new Response(readableStream, {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+      });
+    }
+
+    // Non-streaming mode (original behavior)
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
