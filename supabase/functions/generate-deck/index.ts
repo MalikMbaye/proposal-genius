@@ -130,7 +130,7 @@ serve(async (req) => {
     }
 
     const createData = await createResponse.json();
-    const generationId = createData.id;
+    const generationId = createData.generationId; // Gamma returns 'generationId' not 'id'
 
     console.log('Generation started with ID:', generationId);
 
