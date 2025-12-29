@@ -29,8 +29,57 @@ Generate ALL of these with clear section headers:
 ### 1. PROPOSAL DOCUMENT
 Full proposal with: Executive Summary, Problem Assessment/Reality Check, Solution/Strategic Approach, Execution Plan, Investment & Pricing (with risk mitigation), Why Us/Qualifications, Next Steps.
 
-### 2. GENSPARK PRESENTATION PROMPT
-Complete prompt for GenSpark AI Slides with slide-by-slide content (Title, Problem, Why This Matters, Our Approach, Solution Details x3, Timeline, Investment Options, Why Us, Next Steps). Include design direction.
+### 2. PRESENTATION DECK PROMPT
+Generate a Gamma-optimized presentation prompt with VISUAL-FIRST formatting. This is critical for professional output.
+
+**VISUAL FORMATTING RULES (MANDATORY):**
+
+1. **FLOW DIAGRAMS for Processes**: Any multi-step process MUST be described as a visual flow, not bullets.
+   - Format: "Create a FLOW DIAGRAM showing: [Step 1] → [Step 2] → [Step 3] → [Outcome]"
+   - Use for: timelines, methodologies, implementation phases, client journeys
+
+2. **GROUPED CARD LAYOUTS for Related Items**: Lists of 3-6 related concepts MUST use card layouts.
+   - Format: "Display as GROUPED CARDS with icons: Card 1: [Title] - [Description] | Card 2: [Title] - [Description]"
+   - Use for: services offered, team capabilities, deliverables, benefits
+
+3. **COMPARISON VISUALIZATIONS for Options**: Any before/after or multi-option comparison MUST be visual.
+   - Format: "Create COMPARISON TABLE or SIDE-BY-SIDE showing: Option A vs Option B vs Option C"
+   - Use for: pricing tiers, current vs proposed state, competitive differentiation
+
+4. **METRIC HIGHLIGHT BOXES for Numbers**: Any statistics or KPIs MUST be in highlight boxes.
+   - Format: "Display as LARGE METRIC CALLOUTS: [Number] + [Label] | [Number] + [Label]"
+   - Use for: ROI projections, past results, timeline durations, cost savings
+
+5. **VISUAL HIERARCHY**: Each slide must specify its primary visual element.
+
+**SLIDE STRUCTURE (10-12 slides):**
+
+SLIDE 1 - TITLE: Bold title, client name, your company, date. Specify a hero image theme.
+
+SLIDE 2 - THE CHALLENGE: Use METRIC CALLOUTS for pain point statistics + a brief problem statement.
+
+SLIDE 3 - WHY THIS MATTERS: GROUPED CARDS showing 3-4 consequences of inaction with icons.
+
+SLIDE 4 - OUR APPROACH: FLOW DIAGRAM showing your methodology from discovery → delivery → results.
+
+SLIDE 5 - SOLUTION OVERVIEW: GROUPED CARDS for 3-4 key solution components with icons.
+
+SLIDE 6 - HOW IT WORKS: FLOW DIAGRAM showing implementation steps with timeline markers.
+
+SLIDE 7 - EXPECTED OUTCOMES: METRIC CALLOUTS for projected results + brief context.
+
+SLIDE 8 - TIMELINE: HORIZONTAL FLOW DIAGRAM with phases, durations, and key milestones.
+
+SLIDE 9 - INVESTMENT OPTIONS: COMPARISON TABLE with 2-3 pricing tiers, what's included, and recommended option highlighted.
+
+SLIDE 10 - WHY US: GROUPED CARDS for 3-4 differentiators + METRIC CALLOUTS for credentials (years experience, clients served, etc).
+
+SLIDE 11 - NEXT STEPS: FLOW DIAGRAM showing: Call → Proposal Review → Contract → Kickoff. Include CTA.
+
+**DESIGN DIRECTION:**
+- Specify color mood (professional blues, bold modern, warm earthy, etc.)
+- Note any industry-specific imagery themes
+- Request consistent iconography style
 
 ### 3. CONTRACT TEMPLATE
 Professional services agreement with:
@@ -125,7 +174,7 @@ Structure output with these EXACT headers (the app parses these):
 
 ---
 
-# GENSPARK PRESENTATION PROMPT
+# PRESENTATION DECK PROMPT
 [content]
 
 ---
@@ -395,7 +444,7 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
 
     const deliverables = {
       proposal: extractSection(fullText, 'PROPOSAL DOCUMENT') || fullText,
-      deckPrompt: extractSection(fullText, 'GENSPARK PRESENTATION PROMPT'),
+      deckPrompt: extractSection(fullText, 'PRESENTATION DECK PROMPT') || extractSection(fullText, 'GENSPARK PRESENTATION PROMPT'),
       contract: extractSection(fullText, 'CONTRACT TEMPLATE'),
       contractEmail: extractSection(fullText, 'CONTRACT SUBMISSION MESSAGE'),
       invoiceDescription: extractSection(fullText, 'INVOICE DESCRIPTION'),
