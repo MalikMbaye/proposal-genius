@@ -32,6 +32,8 @@ export default function Generate() {
   ]);
 
   const {
+    clientName,
+    setClientName,
     clientContext,
     setClientContext,
     background,
@@ -47,6 +49,7 @@ export default function Generate() {
     pricingManaged,
     setPricingManaged,
     setDeliverables,
+    saveToDatabase,
   } = useProposalStore();
 
   const steps = [
@@ -144,6 +147,8 @@ export default function Generate() {
         invoiceDescription: '',
         proposalEmail: '',
       });
+      // Save to database
+      await saveToDatabase();
       
       await new Promise((resolve) => setTimeout(resolve, 300));
       navigate("/preview");
@@ -191,7 +196,24 @@ export default function Generate() {
                 </p>
               </div>
 
+              {/* Client Name */}
+              <div className="rounded-xl border border-border bg-card p-6 mb-6">
+                <Label htmlFor="clientName" className="text-base font-semibold mb-3 block">
+                  Client Name
+                </Label>
+                <Input
+                  id="clientName"
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  placeholder="e.g., Sarah from BrightTools"
+                  className="bg-background"
+                />
+              </div>
+
               <div className="rounded-xl border border-border bg-card p-6">
+                <Label className="text-base font-semibold mb-3 block">
+                  Project Context
+                </Label>
                 <Textarea
                   value={clientContext}
                   onChange={(e) => setClientContext(e.target.value)}
@@ -203,7 +225,7 @@ Main issue: Customer acquisition is expensive.
 They tried agencies but got burned by overpromising.
 Want to hit $200K MRR by Q3.
 Budget: Mentioned $15K-40K range.`}
-                  className="min-h-[250px] resize-none bg-background border-border text-base"
+                  className="min-h-[200px] resize-none bg-background border-border text-base"
                 />
                 <p className="mt-3 text-sm text-muted-foreground">
                   Include their problem, goals, and any budget signals mentioned

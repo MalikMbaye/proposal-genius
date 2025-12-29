@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Deliverables {
   proposal: string;
@@ -11,6 +12,7 @@ interface Deliverables {
 
 interface ProposalState {
   // Form data
+  clientName: string;
   clientContext: string;
   background: string;
   selectedCaseStudies: string[];
@@ -22,7 +24,11 @@ interface ProposalState {
   // Generated deliverables (can be partial)
   deliverables: Partial<Deliverables> | null;
   
+  // Database proposal ID
+  proposalId: string | null;
+  
   // Actions
+  setClientName: (name: string) => void;
   setClientContext: (context: string) => void;
   setBackground: (background: string) => void;
   toggleCaseStudy: (id: string) => void;
@@ -32,6 +38,8 @@ interface ProposalState {
   setPricingManaged: (price: string) => void;
   setDeliverables: (deliverables: Partial<Deliverables>) => void;
   updateDeliverable: (key: keyof Deliverables, content: string) => void;
+  setProposalId: (id: string) => void;
+  saveToDatabase: () => Promise<void>;
   reset: () => void;
 }
 
@@ -40,7 +48,8 @@ const defaultBackground = `• 8 years in growth marketing & B2B SaaS
 • Built AI-powered lead generation systems
 • Ex-LinkedIn, worked on Jobs product`;
 
-export const useProposalStore = create<ProposalState>((set) => ({
+export const useProposalStore = create<ProposalState>((set, get) => ({
+  clientName: '',
   clientContext: '',
   background: defaultBackground,
   selectedCaseStudies: [],
@@ -49,7 +58,9 @@ export const useProposalStore = create<ProposalState>((set) => ({
   pricingAI: '$15K-20K',
   pricingManaged: '$5K-8K/month',
   deliverables: null,
+  proposalId: null,
   
+  setClientName: (name) => set({ clientName: name }),
   setClientContext: (context) => set({ clientContext: context }),
   setBackground: (background) => set({ background }),
   toggleCaseStudy: (id) => set((state) => ({
@@ -68,7 +79,50 @@ export const useProposalStore = create<ProposalState>((set) => ({
       [key]: content,
     }
   })),
+  setProposalId: (id) => set({ proposalId: id }),
+  
+  saveToDatabase: async () => {
+    const state = get();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return;
+    
+    const proposalData = {
+      user_id: user.id,
+      client_name: state.clientName,
+      project_context: state.clientContext,
+      proposal: state.deliverables?.proposal || null,
+      deck_prompt: state.deliverables?.deckPrompt || null,
+      contract: state.deliverables?.contract || null,
+      proposal_email: state.deliverables?.proposalEmail || null,
+      contract_email: state.deliverables?.contractEmail || null,
+      invoice_description: state.deliverables?.invoiceDescription || null,
+      case_studies: state.selectedCaseStudies,
+      proposal_length: state.proposalLength,
+    };
+    
+    if (state.proposalId) {
+      // Update existing proposal
+      await supabase
+        .from('proposals')
+        .update(proposalData)
+        .eq('id', state.proposalId);
+    } else {
+      // Create new proposal
+      const { data } = await supabase
+        .from('proposals')
+        .insert(proposalData)
+        .select('id')
+        .single();
+      
+      if (data) {
+        set({ proposalId: data.id });
+      }
+    }
+  },
+  
   reset: () => set({
+    clientName: '',
     clientContext: '',
     background: defaultBackground,
     selectedCaseStudies: [],
@@ -77,6 +131,7 @@ export const useProposalStore = create<ProposalState>((set) => ({
     pricingAI: '$15K-20K',
     pricingManaged: '$5K-8K/month',
     deliverables: null,
+    proposalId: null,
   }),
 }));
 
