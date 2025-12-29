@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Logo } from "./Logo";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Settings } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,6 +51,12 @@ export function Navbar() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem disabled className="text-muted-foreground">
                     {user.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Account Settings
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
