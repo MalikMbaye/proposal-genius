@@ -32,6 +32,7 @@ interface ProposalState {
   setClientContext: (context: string) => void;
   setBackground: (background: string) => void;
   toggleCaseStudy: (id: string) => void;
+  setSelectedCaseStudies: (ids: string[]) => void;
   setProposalLength: (length: string) => void;
   setPricingStrategy: (price: string) => void;
   setPricingAI: (price: string) => void;
@@ -68,6 +69,7 @@ export const useProposalStore = create<ProposalState>((set, get) => ({
       ? state.selectedCaseStudies.filter((s) => s !== id)
       : [...state.selectedCaseStudies, id]
   })),
+  setSelectedCaseStudies: (ids) => set({ selectedCaseStudies: ids }),
   setProposalLength: (length) => set({ proposalLength: length }),
   setPricingStrategy: (price) => set({ pricingStrategy: price }),
   setPricingAI: (price) => set({ pricingAI: price }),
