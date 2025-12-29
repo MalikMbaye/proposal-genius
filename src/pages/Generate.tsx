@@ -26,10 +26,9 @@ export default function Generate() {
   const [generatingSteps, setGeneratingSteps] = useState<
     { label: string; status: "pending" | "active" | "completed" }[]
   >([
+    { label: "Analyzing client context", status: "pending" },
     { label: "Creating proposal structure", status: "pending" },
-    { label: "Writing executive summary", status: "pending" },
-    { label: "Drafting contract terms", status: "pending" },
-    { label: "Composing follow-up emails", status: "pending" },
+    { label: "Writing proposal content", status: "pending" },
   ]);
 
   const {
@@ -74,12 +73,11 @@ export default function Generate() {
   const handleGenerate = async () => {
     setIsGenerating(true);
 
-    // Reset steps
+    // Reset steps for proposal-only generation
     setGeneratingSteps([
-      { label: "Creating proposal structure", status: "active" },
-      { label: "Writing executive summary", status: "pending" },
-      { label: "Drafting contract terms", status: "pending" },
-      { label: "Composing follow-up emails", status: "pending" },
+      { label: "Analyzing client context", status: "active" },
+      { label: "Creating proposal structure", status: "pending" },
+      { label: "Writing proposal content", status: "pending" },
     ]);
 
     try {
@@ -97,27 +95,17 @@ export default function Generate() {
             status: idx === 0 ? "completed" : idx === 1 ? "active" : "pending",
           }))
         );
-      }, 2000);
+      }, 1500);
 
       // Update step 3
       setTimeout(() => {
         setGeneratingSteps((prev) =>
           prev.map((step, idx) => ({
             ...step,
-            status: idx <= 1 ? "completed" : idx === 2 ? "active" : "pending",
+            status: idx <= 1 ? "completed" : "active",
           }))
         );
-      }, 4000);
-
-      // Update step 4
-      setTimeout(() => {
-        setGeneratingSteps((prev) =>
-          prev.map((step, idx) => ({
-            ...step,
-            status: idx <= 2 ? "completed" : "active",
-          }))
-        );
-      }, 6000);
+      }, 3000);
 
       const { data, error } = await supabase.functions.invoke('generate-proposal', {
         body: {
@@ -130,6 +118,7 @@ export default function Generate() {
             ai: pricingAI,
             managed: pricingManaged,
           },
+          proposalOnly: true, // Only generate the proposal
         },
       });
 
@@ -146,9 +135,17 @@ export default function Generate() {
         prev.map((step) => ({ ...step, status: "completed" as const }))
       );
 
-      setDeliverables(data.deliverables);
+      // Set only the proposal, other assets will be generated on-demand
+      setDeliverables({
+        proposal: data.deliverables?.proposal || data.proposal || '',
+        deckPrompt: '',
+        contract: '',
+        contractEmail: '',
+        invoiceDescription: '',
+        proposalEmail: '',
+      });
       
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 300));
       navigate("/preview");
     } catch (error) {
       console.error("Generation error:", error);

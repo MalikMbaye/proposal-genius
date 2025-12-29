@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
-import { useProposalStore } from "@/lib/proposalStore";
+import { useProposalStore, caseStudies } from "@/lib/proposalStore";
+import { supabase } from "@/integrations/supabase/client";
 import {
   FileText,
   Presentation,
@@ -16,6 +17,8 @@ import {
   Check,
   X,
   Plus,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -39,25 +42,94 @@ const tabInstructions: Record<TabId, string> = {
   proposalEmail: "Copy and paste into your email client. Customize and send.",
 };
 
+const tabLabels: Record<TabId, string> = {
+  proposal: "Proposal",
+  deckPrompt: "Deck Prompt",
+  contract: "Contract",
+  contractEmail: "Contract Email",
+  invoiceDescription: "Invoice Description",
+  proposalEmail: "Proposal Email",
+};
+
 export default function Preview() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabId>("proposal");
   const [showBanner, setShowBanner] = useState(true);
   const [copied, setCopied] = useState(false);
-  const { deliverables, reset } = useProposalStore();
+  const [generatingAsset, setGeneratingAsset] = useState<TabId | null>(null);
+  
+  const { 
+    deliverables, 
+    updateDeliverable, 
+    reset,
+    clientContext,
+    background,
+    selectedCaseStudies,
+    pricingStrategy,
+    pricingAI,
+    pricingManaged,
+  } = useProposalStore();
 
   useEffect(() => {
-    if (!deliverables) {
+    if (!deliverables || !deliverables.proposal) {
       navigate("/generate");
     }
   }, [deliverables, navigate]);
 
-  if (!deliverables) {
+  if (!deliverables || !deliverables.proposal) {
     return null;
   }
 
-  const currentContent = deliverables[activeTab];
+  const currentContent = deliverables[activeTab] || '';
+  const hasContent = currentContent.length > 0;
   const ActiveIcon = tabs.find((t) => t.id === activeTab)?.icon || FileText;
+
+  const handleGenerateAsset = async (assetType: TabId) => {
+    if (assetType === 'proposal') return; // Proposal is already generated
+    
+    setGeneratingAsset(assetType);
+    
+    try {
+      const selectedStudyDescriptions = caseStudies
+        .filter((cs) => selectedCaseStudies.includes(cs.id))
+        .map((cs) => `${cs.title}: ${cs.description}`)
+        .join("\n");
+
+      const { data, error } = await supabase.functions.invoke('generate-asset', {
+        body: {
+          assetType,
+          clientContext,
+          background,
+          caseStudies: selectedStudyDescriptions,
+          pricing: {
+            strategy: pricingStrategy,
+            ai: pricingAI,
+            managed: pricingManaged,
+          },
+          proposalContent: deliverables.proposal,
+        },
+      });
+
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+
+      updateDeliverable(assetType, data.content);
+      
+      toast({
+        title: `${tabLabels[assetType]} generated`,
+        description: "Your asset is ready to use.",
+      });
+    } catch (error) {
+      console.error("Asset generation error:", error);
+      toast({
+        title: "Generation failed",
+        description: error instanceof Error ? error.message : "Something went wrong.",
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingAsset(null);
+    }
+  };
 
   const handleCopy = async () => {
     try {
@@ -113,6 +185,9 @@ export default function Preview() {
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
+            const hasTabContent = (deliverables[tab.id] || '').length > 0;
+            const isGenerating = generatingAsset === tab.id;
+            
             return (
               <button
                 key={tab.id}
@@ -123,8 +198,18 @@ export default function Preview() {
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 }`}
               >
-                <Icon className="h-4 w-4" />
-                {tab.label}
+                {isGenerating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Icon className="h-4 w-4" />
+                )}
+                <span className="flex-1 text-left">{tab.label}</span>
+                {!hasTabContent && tab.id !== 'proposal' && (
+                  <span className="text-xs opacity-60">•</span>
+                )}
+                {hasTabContent && tab.id !== 'proposal' && (
+                  <Check className="h-3 w-3 opacity-60" />
+                )}
               </button>
             );
           })}
@@ -132,23 +217,27 @@ export default function Preview() {
 
         {/* Sidebar Actions */}
         <div className="p-4 border-t border-border space-y-2">
-          <Button onClick={handleCopy} variant="outline" className="w-full justify-start">
-            {copied ? (
-              <>
-                <Check className="mr-2 h-4 w-4 text-success" />
-                Copied!
-              </>
-            ) : (
-              <>
-                <Copy className="mr-2 h-4 w-4" />
-                Copy Current
-              </>
-            )}
-          </Button>
-          <Button onClick={handleDownload} variant="outline" className="w-full justify-start">
-            <Download className="mr-2 h-4 w-4" />
-            Download
-          </Button>
+          {hasContent && (
+            <>
+              <Button onClick={handleCopy} variant="outline" className="w-full justify-start">
+                {copied ? (
+                  <>
+                    <Check className="mr-2 h-4 w-4 text-success" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy Current
+                  </>
+                )}
+              </Button>
+              <Button onClick={handleDownload} variant="outline" className="w-full justify-start">
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </Button>
+            </>
+          )}
           <div className="border-t border-border pt-2 mt-2">
             <Button onClick={handleNewProposal} variant="ghost" className="w-full justify-start">
               <Plus className="mr-2 h-4 w-4" />
@@ -157,7 +246,7 @@ export default function Preview() {
           </div>
 
           {/* GenSpark CTA for Deck Prompt */}
-          {activeTab === "deckPrompt" && (
+          {activeTab === "deckPrompt" && hasContent && (
             <div className="mt-4 rounded-lg bg-primary/10 border border-primary/20 p-4">
               <h4 className="font-semibold text-sm mb-2">Create Your Deck</h4>
               <p className="text-xs text-muted-foreground mb-3">
@@ -188,7 +277,7 @@ export default function Preview() {
                 <Check className="h-4 w-4 text-success-foreground" />
               </div>
               <span className="text-sm font-medium">
-                Your proposal package is ready! Preview each deliverable and copy what you need.
+                Proposal ready! Generate additional assets as needed.
               </span>
             </div>
             <button
@@ -204,18 +293,22 @@ export default function Preview() {
         <div className="border-b border-border px-6 py-4 flex items-center justify-between bg-card/30">
           <div className="flex items-center gap-3">
             <ActiveIcon className="h-5 w-5 text-primary" />
-            <span className="font-semibold">Document</span>
+            <span className="font-semibold">{tabLabels[activeTab]}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button onClick={handleCopy} variant="outline" size="sm">
-              {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
-              Copy
-            </Button>
-            <Button onClick={handleDownload} variant="outline" size="sm">
-              <Download className="mr-2 h-4 w-4" />
-              Download
-            </Button>
-            {activeTab === "deckPrompt" && (
+            {hasContent && (
+              <>
+                <Button onClick={handleCopy} variant="outline" size="sm">
+                  {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
+                  Copy
+                </Button>
+                <Button onClick={handleDownload} variant="outline" size="sm">
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </Button>
+              </>
+            )}
+            {activeTab === "deckPrompt" && hasContent && (
               <Button size="sm" asChild>
                 <a
                   href="https://www.genspark.ai"
@@ -233,81 +326,120 @@ export default function Preview() {
         {/* Document Content */}
         <div className="flex-1 overflow-auto p-6">
           <div className="mx-auto max-w-4xl">
-            <div className="rounded-xl border border-border bg-card p-8">
-              <div
-                className={`prose prose-invert max-w-none ${
-                  activeTab === "deckPrompt" || activeTab === "invoiceDescription"
-                    ? "font-mono text-sm"
-                    : ""
-                }`}
-              >
-                {currentContent.split("\n").map((line, idx) => {
-                  if (line.startsWith("# ")) {
+            {!hasContent ? (
+              // Generate Asset CTA
+              <div className="rounded-xl border border-border bg-card p-12 text-center">
+                <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                  <ActiveIcon className="h-8 w-8 text-primary" />
+                </div>
+                <h2 className="text-xl font-semibold mb-2">
+                  Generate {tabLabels[activeTab]}
+                </h2>
+                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                  This asset hasn't been generated yet. Click below to create it based on your proposal.
+                </p>
+                <Button 
+                  onClick={() => handleGenerateAsset(activeTab)}
+                  disabled={generatingAsset !== null}
+                  size="lg"
+                >
+                  {generatingAsset === activeTab ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-5 w-5" />
+                      Generate {tabLabels[activeTab]}
+                    </>
+                  )}
+                </Button>
+              </div>
+            ) : (
+              // Document Content
+              <div className="rounded-xl border border-border bg-card p-8">
+                <div
+                  className={`prose prose-invert max-w-none ${
+                    activeTab === "deckPrompt" || activeTab === "invoiceDescription"
+                      ? "font-mono text-sm"
+                      : ""
+                  }`}
+                >
+                  {currentContent.split("\n").map((line, idx) => {
+                    // Handle bold text within lines
+                    const renderLineWithBold = (text: string) => {
+                      const parts = text.split(/(\*\*[^*]+\*\*)/g);
+                      return parts.map((part, i) => {
+                        if (part.startsWith('**') && part.endsWith('**')) {
+                          return <strong key={i}>{part.slice(2, -2)}</strong>;
+                        }
+                        return part;
+                      });
+                    };
+
+                    if (line.startsWith("# ")) {
+                      return (
+                        <h1 key={idx} className="text-2xl font-bold mt-8 mb-4 first:mt-0">
+                          {line.slice(2)}
+                        </h1>
+                      );
+                    }
+                    if (line.startsWith("## ")) {
+                      return (
+                        <h2 key={idx} className="text-xl font-semibold mt-6 mb-3 border-l-4 border-primary pl-4">
+                          {line.slice(3)}
+                        </h2>
+                      );
+                    }
+                    if (line.startsWith("### ")) {
+                      return (
+                        <h3 key={idx} className="text-lg font-semibold mt-4 mb-2">
+                          {line.slice(4)}
+                        </h3>
+                      );
+                    }
+                    if (line.startsWith("- ") || line.startsWith("• ")) {
+                      return (
+                        <li key={idx} className="ml-4 text-muted-foreground">
+                          {renderLineWithBold(line.slice(2))}
+                        </li>
+                      );
+                    }
+                    if (line.startsWith("✓ ") || line.startsWith("✗ ")) {
+                      return (
+                        <li key={idx} className="ml-4 flex items-center gap-2">
+                          <span className={line.startsWith("✓") ? "text-success" : "text-destructive"}>
+                            {line.charAt(0)}
+                          </span>
+                          <span className="text-muted-foreground">{renderLineWithBold(line.slice(2))}</span>
+                        </li>
+                      );
+                    }
+                    if (line.trim() === "") {
+                      return <br key={idx} />;
+                    }
                     return (
-                      <h1 key={idx} className="text-2xl font-bold mt-8 mb-4 first:mt-0">
-                        {line.slice(2)}
-                      </h1>
-                    );
-                  }
-                  if (line.startsWith("## ")) {
-                    return (
-                      <h2 key={idx} className="text-xl font-semibold mt-6 mb-3 border-l-4 border-primary pl-4">
-                        {line.slice(3)}
-                      </h2>
-                    );
-                  }
-                  if (line.startsWith("### ")) {
-                    return (
-                      <h3 key={idx} className="text-lg font-semibold mt-4 mb-2">
-                        {line.slice(4)}
-                      </h3>
-                    );
-                  }
-                  if (line.startsWith("**") && line.endsWith("**")) {
-                    return (
-                      <p key={idx} className="font-bold mt-4 mb-2">
-                        {line.slice(2, -2)}
+                      <p key={idx} className="text-muted-foreground leading-relaxed">
+                        {renderLineWithBold(line)}
                       </p>
                     );
-                  }
-                  if (line.startsWith("- ") || line.startsWith("• ")) {
-                    return (
-                      <li key={idx} className="ml-4 text-muted-foreground">
-                        {line.slice(2)}
-                      </li>
-                    );
-                  }
-                  if (line.startsWith("✓ ") || line.startsWith("✗ ")) {
-                    return (
-                      <li key={idx} className="ml-4 flex items-center gap-2">
-                        <span className={line.startsWith("✓") ? "text-success" : "text-destructive"}>
-                          {line.charAt(0)}
-                        </span>
-                        <span className="text-muted-foreground">{line.slice(2)}</span>
-                      </li>
-                    );
-                  }
-                  if (line.trim() === "") {
-                    return <br key={idx} />;
-                  }
-                  return (
-                    <p key={idx} className="text-muted-foreground leading-relaxed">
-                      {line}
-                    </p>
-                  );
-                })}
+                  })}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
         {/* Instructions Bar */}
-        <div className="border-t border-border bg-card/50 px-6 py-3">
-          <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">Instructions: </span>
-            {tabInstructions[activeTab]}
-          </p>
-        </div>
+        {hasContent && (
+          <div className="border-t border-border bg-card/50 px-6 py-3">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">Instructions: </span>
+              {tabInstructions[activeTab]}
+            </p>
+          </div>
+        )}
       </main>
     </div>
   );

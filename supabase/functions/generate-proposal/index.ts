@@ -161,14 +161,81 @@ serve(async (req) => {
     const caseStudies = body.caseStudies || '';
     const proposalLength = body.length || 'medium';
     const pricing = body.pricing || { strategy: '', ai: '', managed: '' };
+    const proposalOnly = body.proposalOnly || false;
 
-    console.log('Generating proposal with Claude API:', { proposalLength, caseStudiesCount: caseStudies?.length });
+    console.log('Generating proposal with Claude API:', { proposalLength, proposalOnly, caseStudiesCount: caseStudies?.length });
 
     if (!ANTHROPIC_API_KEY) {
       throw new Error('ANTHROPIC_API_KEY is not configured');
     }
 
-    const userPrompt = `Generate a ${proposalLength.toUpperCase()} proposal package.
+    // If proposalOnly, use a shorter system prompt
+    const systemPrompt = proposalOnly ? `You are an expert business proposal writer. Your proposals follow a narrative-driven, detailed style that prioritizes depth over conciseness.
+
+## Length Options
+
+Respect the user's length preference:
+
+**SHORT (5-7 pages)**: Executive summary, combined problem+solution, condensed execution, pricing table only, brief credentials, quick next steps.
+
+**MEDIUM (10-12 pages)** [DEFAULT]: Full executive summary, problem assessment with key points, solution overview, phased execution (high-level), pricing scenarios with explanations, 1-2 case studies, clear next steps.
+
+**LONG (15-20 pages)**: Comprehensive executive summary, deep problem diagnosis, detailed solution, full phased execution with deliverables, multiple pricing scenarios with full breakdowns, complete credentials, detailed onboarding.
+
+**DETAILED (20-30+ pages)**: Everything in LONG plus week-by-week plans, technical specs, expanded risk mitigation, full terms, appendices.
+
+## Writing Style
+
+- Narrative-driven, comprehensive, never sacrifice thoroughness
+- Tell compelling story: problem → strategy → execution → outcomes
+- Always articulate "why" behind recommendations
+- Use specific, concrete language
+- Realistic timelines and expectations
+- Transparent pricing with clear inclusions/exclusions
+
+## Pricing Scenarios Pattern
+
+Present 2-4 scenarios:
+1. Strategy & Training (lower cost, client executes)
+2. Strategy + AI/Automation (higher upfront, automated systems)
+3. Fully Managed (monthly fee, we do everything)
+4. Partnership/Equity (when applicable)
+
+## Risk Mitigation
+
+ALWAYS include:
+- "What YOU Control" vs "What CLIENT Controls" breakdown
+- Why systems fail: poor messaging, weak offer, low volume, no optimization
+- Outcome language: "Based on similar engagements, clients typically see..." NOT "We guarantee X results"
+
+Generate ONLY the proposal document with these sections:
+- Executive Summary
+- Problem Assessment/Reality Check
+- Solution/Strategic Approach
+- Execution Plan
+- Investment & Pricing (with risk mitigation)
+- Why Us/Qualifications
+- Next Steps` : PROPOSAL_SYSTEM_PROMPT;
+
+    const userPrompt = proposalOnly 
+      ? `Generate a ${proposalLength.toUpperCase()} proposal.
+
+CLIENT CONTEXT:
+${clientContext}
+
+MY BACKGROUND:
+${background}
+
+CASE STUDIES TO REFERENCE:
+${caseStudies}
+
+PRICING GUIDANCE:
+- Strategy & Training: ${pricing.strategy}
+- Strategy + AI Systems: ${pricing.ai}
+- Fully Managed: ${pricing.managed}
+
+Generate ONLY the proposal document, formatted with proper markdown.`
+      : `Generate a ${proposalLength.toUpperCase()} proposal package.
 
 CLIENT CONTEXT:
 ${clientContext}
@@ -195,8 +262,8 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 16000,
-        system: PROPOSAL_SYSTEM_PROMPT,
+        max_tokens: proposalOnly ? 8000 : 16000,
+        system: systemPrompt,
         messages: [
           { role: 'user', content: userPrompt }
         ],
@@ -233,6 +300,18 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
       const match = text.match(regex);
       return match ? match[1].trim() : '';
     };
+
+    // For proposalOnly mode, return just the proposal
+    if (proposalOnly) {
+      console.log('Proposal only mode, returning proposal:', fullText.length, 'chars');
+      return new Response(JSON.stringify({ 
+        success: true, 
+        proposal: fullText,
+        deliverables: { proposal: fullText }
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     const deliverables = {
       proposal: extractSection(fullText, 'PROPOSAL DOCUMENT') || fullText,
