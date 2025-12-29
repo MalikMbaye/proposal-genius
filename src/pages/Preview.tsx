@@ -19,6 +19,8 @@ import {
   Plus,
   Sparkles,
   Loader2,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -57,6 +59,7 @@ export default function Preview() {
   const [showBanner, setShowBanner] = useState(true);
   const [copied, setCopied] = useState(false);
   const [generatingAsset, setGeneratingAsset] = useState<TabId | null>(null);
+  const [lightMode, setLightMode] = useState(true); // PDF-like preview by default
   
   const { 
     deliverables, 
@@ -298,6 +301,15 @@ export default function Preview() {
           <div className="flex items-center gap-2">
             {hasContent && (
               <>
+                <Button 
+                  onClick={() => setLightMode(!lightMode)} 
+                  variant="outline" 
+                  size="sm"
+                  title={lightMode ? "Switch to dark mode" : "Switch to PDF preview"}
+                >
+                  {lightMode ? <Moon className="mr-2 h-4 w-4" /> : <Sun className="mr-2 h-4 w-4" />}
+                  {lightMode ? "Dark" : "PDF View"}
+                </Button>
                 <Button onClick={handleCopy} variant="outline" size="sm">
                   {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
                   Copy
@@ -357,71 +369,110 @@ export default function Preview() {
                 </Button>
               </div>
             ) : (
-              // Document Content
-              <div className="rounded-xl border border-border bg-card p-8">
-                <div
-                  className={`prose prose-invert max-w-none ${
+              // Document Content - PDF-like preview
+              <div 
+                className={`rounded-xl border shadow-lg transition-colors ${
+                  lightMode 
+                    ? "bg-white border-gray-200" 
+                    : "bg-card border-border"
+                }`}
+                style={lightMode ? { 
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                  minHeight: '800px'
+                } : undefined}
+              >
+                <div 
+                  className={`p-12 ${
                     activeTab === "deckPrompt" || activeTab === "invoiceDescription"
                       ? "font-mono text-sm"
-                      : ""
+                      : "font-serif"
                   }`}
                 >
                   {currentContent.split("\n").map((line, idx) => {
-                    // Handle bold text within lines
-                    const renderLineWithBold = (text: string) => {
-                      const parts = text.split(/(\*\*[^*]+\*\*)/g);
+                    // Enhanced markdown rendering
+                    const renderFormattedText = (text: string) => {
+                      // Handle bold (**text**) and italic (*text*)
+                      const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
                       return parts.map((part, i) => {
                         if (part.startsWith('**') && part.endsWith('**')) {
-                          return <strong key={i}>{part.slice(2, -2)}</strong>;
+                          return <strong key={i} className="font-bold">{part.slice(2, -2)}</strong>;
+                        }
+                        if (part.startsWith('*') && part.endsWith('*') && part.length > 2) {
+                          return <em key={i}>{part.slice(1, -1)}</em>;
                         }
                         return part;
                       });
                     };
 
+                    const textColor = lightMode ? "text-gray-900" : "text-foreground";
+                    const mutedColor = lightMode ? "text-gray-700" : "text-muted-foreground";
+                    const headingColor = lightMode ? "text-gray-900" : "text-foreground";
+                    const accentColor = lightMode ? "border-blue-600" : "border-primary";
+
                     if (line.startsWith("# ")) {
                       return (
-                        <h1 key={idx} className="text-2xl font-bold mt-8 mb-4 first:mt-0">
+                        <h1 key={idx} className={`text-3xl font-bold mt-8 mb-6 first:mt-0 ${headingColor} tracking-tight`}>
                           {line.slice(2)}
                         </h1>
                       );
                     }
                     if (line.startsWith("## ")) {
                       return (
-                        <h2 key={idx} className="text-xl font-semibold mt-6 mb-3 border-l-4 border-primary pl-4">
+                        <h2 key={idx} className={`text-xl font-semibold mt-8 mb-4 pb-2 border-b ${headingColor} ${lightMode ? 'border-gray-200' : 'border-border'}`}>
                           {line.slice(3)}
                         </h2>
                       );
                     }
                     if (line.startsWith("### ")) {
                       return (
-                        <h3 key={idx} className="text-lg font-semibold mt-4 mb-2">
+                        <h3 key={idx} className={`text-lg font-semibold mt-6 mb-3 ${headingColor}`}>
                           {line.slice(4)}
                         </h3>
                       );
                     }
                     if (line.startsWith("- ") || line.startsWith("• ")) {
                       return (
-                        <li key={idx} className="ml-4 text-muted-foreground">
-                          {renderLineWithBold(line.slice(2))}
+                        <li key={idx} className={`ml-6 mb-2 ${mutedColor} list-disc`}>
+                          {renderFormattedText(line.slice(2))}
                         </li>
                       );
+                    }
+                    if (/^\d+\.\s/.test(line)) {
+                      const match = line.match(/^(\d+)\.\s(.*)$/);
+                      if (match) {
+                        return (
+                          <li key={idx} className={`ml-6 mb-2 ${mutedColor} list-decimal`}>
+                            {renderFormattedText(match[2])}
+                          </li>
+                        );
+                      }
                     }
                     if (line.startsWith("✓ ") || line.startsWith("✗ ")) {
                       return (
-                        <li key={idx} className="ml-4 flex items-center gap-2">
-                          <span className={line.startsWith("✓") ? "text-success" : "text-destructive"}>
+                        <div key={idx} className={`ml-4 mb-2 flex items-center gap-3 ${mutedColor}`}>
+                          <span className={line.startsWith("✓") ? "text-green-600" : "text-red-600"}>
                             {line.charAt(0)}
                           </span>
-                          <span className="text-muted-foreground">{renderLineWithBold(line.slice(2))}</span>
-                        </li>
+                          <span>{renderFormattedText(line.slice(2))}</span>
+                        </div>
                       );
                     }
+                    if (line.startsWith("> ")) {
+                      return (
+                        <blockquote key={idx} className={`ml-4 pl-4 border-l-4 ${accentColor} ${mutedColor} italic my-4`}>
+                          {renderFormattedText(line.slice(2))}
+                        </blockquote>
+                      );
+                    }
+                    if (line.trim() === "---" || line.trim() === "***") {
+                      return <hr key={idx} className={`my-6 ${lightMode ? 'border-gray-200' : 'border-border'}`} />;
+                    }
                     if (line.trim() === "") {
-                      return <br key={idx} />;
+                      return <div key={idx} className="h-4" />;
                     }
                     return (
-                      <p key={idx} className="text-muted-foreground leading-relaxed">
-                        {renderLineWithBold(line)}
+                      <p key={idx} className={`${mutedColor} leading-relaxed mb-4 text-base`}>
+                        {renderFormattedText(line)}
                       </p>
                     );
                   })}
