@@ -19,8 +19,8 @@ interface ProposalState {
   pricingAI: string;
   pricingManaged: string;
   
-  // Generated deliverables
-  deliverables: Deliverables | null;
+  // Generated deliverables (can be partial)
+  deliverables: Partial<Deliverables> | null;
   
   // Actions
   setClientContext: (context: string) => void;
@@ -30,7 +30,8 @@ interface ProposalState {
   setPricingStrategy: (price: string) => void;
   setPricingAI: (price: string) => void;
   setPricingManaged: (price: string) => void;
-  setDeliverables: (deliverables: Deliverables) => void;
+  setDeliverables: (deliverables: Partial<Deliverables>) => void;
+  updateDeliverable: (key: keyof Deliverables, content: string) => void;
   reset: () => void;
 }
 
@@ -61,6 +62,12 @@ export const useProposalStore = create<ProposalState>((set) => ({
   setPricingAI: (price) => set({ pricingAI: price }),
   setPricingManaged: (price) => set({ pricingManaged: price }),
   setDeliverables: (deliverables) => set({ deliverables }),
+  updateDeliverable: (key, content) => set((state) => ({
+    deliverables: {
+      ...state.deliverables,
+      [key]: content,
+    }
+  })),
   reset: () => set({
     clientContext: '',
     background: defaultBackground,
