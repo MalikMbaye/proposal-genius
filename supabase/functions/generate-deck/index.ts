@@ -29,14 +29,16 @@ interface GammaGenerateRequest {
 interface GammaResponse {
   id?: string;
   generationId?: string;
-  status: 'queued' | 'in_progress' | 'completed' | 'failed';
-  result?: {
-    gammaUrl?: string;
-    pdfUrl?: string;
-    pptxUrl?: string;
-    thumbnailUrl?: string;
-  };
+  status: 'queued' | 'pending' | 'in_progress' | 'completed' | 'failed';
+  gammaUrl?: string;
+  exportUrl?: string;
+  pptxUrl?: string;
+  thumbnailUrl?: string;
   error?: string;
+  credits?: {
+    deducted: number;
+    remaining: number;
+  };
 }
 
 async function pollForCompletion(generationId: string, apiKey: string, maxAttempts = 60): Promise<GammaResponse> {
@@ -149,10 +151,10 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       success: true,
       generationId,
-      gammaUrl: completedGeneration.result?.gammaUrl,
-      pdfUrl: completedGeneration.result?.pdfUrl,
-      pptxUrl: completedGeneration.result?.pptxUrl,
-      thumbnailUrl: completedGeneration.result?.thumbnailUrl,
+      gammaUrl: completedGeneration.gammaUrl,
+      pdfUrl: completedGeneration.exportUrl,
+      pptxUrl: completedGeneration.pptxUrl,
+      thumbnailUrl: completedGeneration.thumbnailUrl,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

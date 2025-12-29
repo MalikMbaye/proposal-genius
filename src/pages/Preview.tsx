@@ -673,12 +673,25 @@ export default function Preview() {
                 {deckData.status === 'completed' && deckData.gammaUrl && (
                   <div className="rounded-xl border border-border bg-card overflow-hidden">
                     <iframe 
-                      src={`${deckData.gammaUrl}/embed`}
+                      src={`https://gamma.app/embed/${deckData.gammaUrl.split('/').pop()}`}
                       className="w-full"
                       style={{ height: '70vh', minHeight: '500px' }}
                       title="Slide Deck Preview"
                       allow="fullscreen"
                     />
+                    <div className="p-3 text-center border-t border-border bg-muted/30">
+                      <p className="text-sm text-muted-foreground">
+                        Can't see the preview?{' '}
+                        <a 
+                          href={deckData.gammaUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          Open in Gamma
+                        </a>
+                      </p>
+                    </div>
                   </div>
                 )}
               </>
