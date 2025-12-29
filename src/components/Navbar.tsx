@@ -2,11 +2,12 @@ import { Link } from "react-router-dom";
 import { Logo } from "./Logo";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, User, Settings } from "lucide-react";
+import { LogOut, User, Settings, FolderOpen } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -52,12 +53,20 @@ export function Navbar() {
                   <DropdownMenuItem disabled className="text-muted-foreground">
                     {user.email}
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/proposals">
+                      <FolderOpen className="mr-2 h-4 w-4" />
+                      Saved Proposals
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/profile">
                       <Settings className="mr-2 h-4 w-4" />
                       Account Settings
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Log out
