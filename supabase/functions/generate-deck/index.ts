@@ -27,7 +27,8 @@ interface GammaGenerateRequest {
 }
 
 interface GammaResponse {
-  id: string;
+  id?: string;
+  generationId?: string;
   status: 'queued' | 'in_progress' | 'completed' | 'failed';
   result?: {
     gammaUrl?: string;
@@ -119,6 +120,7 @@ serve(async (req) => {
       headers: {
         'X-API-KEY': GAMMA_API_KEY,
         'Content-Type': 'application/json',
+        'accept': 'application/json',
       },
       body: JSON.stringify(generatePayload),
     });
@@ -130,7 +132,12 @@ serve(async (req) => {
     }
 
     const createData = await createResponse.json();
-    const generationId = createData.generationId; // Gamma returns 'generationId' not 'id'
+    console.log('Gamma create response:', createData);
+
+    const generationId = createData.generationId ?? createData.id;
+    if (!generationId) {
+      throw new Error(`Gamma did not return generationId. Response: ${JSON.stringify(createData)}`);
+    }
 
     console.log('Generation started with ID:', generationId);
 
