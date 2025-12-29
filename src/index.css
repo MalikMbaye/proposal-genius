@@ -101,7 +101,7 @@
   }
 
   .glass-card {
-    @apply bg-card/50 backdrop-blur-xl border border-border-default;
+    @apply bg-card/50 backdrop-blur-xl border border-border;
   }
 
   .progress-line {
