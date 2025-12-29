@@ -14,7 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          company_name: string | null
+          created_at: string
+          email: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          company_name?: string | null
+          created_at?: string
+          email?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          company_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      proposals: {
+        Row: {
+          budget_max: number | null
+          budget_min: number | null
+          case_studies: string[] | null
+          client_name: string | null
+          contract: string | null
+          contract_email: string | null
+          created_at: string
+          deck_prompt: string | null
+          id: string
+          invoice_description: string | null
+          project_context: string | null
+          proposal: string | null
+          proposal_email: string | null
+          proposal_length: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget_max?: number | null
+          budget_min?: number | null
+          case_studies?: string[] | null
+          client_name?: string | null
+          contract?: string | null
+          contract_email?: string | null
+          created_at?: string
+          deck_prompt?: string | null
+          id?: string
+          invoice_description?: string | null
+          project_context?: string | null
+          proposal?: string | null
+          proposal_email?: string | null
+          proposal_length?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget_max?: number | null
+          budget_min?: number | null
+          case_studies?: string[] | null
+          client_name?: string | null
+          contract?: string | null
+          contract_email?: string | null
+          created_at?: string
+          deck_prompt?: string | null
+          id?: string
+          invoice_description?: string | null
+          project_context?: string | null
+          proposal?: string | null
+          proposal_email?: string | null
+          proposal_length?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
