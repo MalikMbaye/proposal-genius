@@ -14,15 +14,14 @@ import {
   caseStudies,
   proposalLengths,
 } from "@/lib/proposalStore";
-import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, ArrowRight, ExternalLink, Lightbulb, Check } from "lucide-react";
+import { useStreamingProposal } from "@/hooks/useStreamingProposal";
+import { ArrowLeft, ArrowRight, Lightbulb, Check, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
 export default function Generate() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [generatingSteps, setGeneratingSteps] = useState<
     { label: string; status: "pending" | "active" | "completed" }[]
   >([
@@ -30,6 +29,14 @@ export default function Generate() {
     { label: "Creating proposal structure", status: "pending" },
     { label: "Writing proposal content", status: "pending" },
   ]);
+  
+  const { 
+    isStreaming, 
+    content: streamingContent, 
+    charCount, 
+    progress, 
+    startStreaming 
+  } = useStreamingProposal();
 
   const {
     clientName,
@@ -74,8 +81,6 @@ export default function Generate() {
   };
 
   const handleGenerate = async () => {
-    setIsGenerating(true);
-
     // Reset steps for proposal-only generation
     setGeneratingSteps([
       { label: "Analyzing client context", status: "active" },
@@ -83,88 +88,87 @@ export default function Generate() {
       { label: "Writing proposal content", status: "pending" },
     ]);
 
-    try {
-      // Get selected case study descriptions
-      const selectedStudyDescriptions = caseStudies
-        .filter((cs) => selectedCaseStudies.includes(cs.id))
-        .map((cs) => `${cs.title}: ${cs.description}`)
-        .join("\n");
+    // Get selected case study descriptions
+    const selectedStudyDescriptions = caseStudies
+      .filter((cs) => selectedCaseStudies.includes(cs.id))
+      .map((cs) => `${cs.title}: ${cs.description}`)
+      .join("\n");
 
-      // Update step 2
-      setTimeout(() => {
-        setGeneratingSteps((prev) =>
-          prev.map((step, idx) => ({
-            ...step,
-            status: idx === 0 ? "completed" : idx === 1 ? "active" : "pending",
-          }))
-        );
-      }, 1500);
+    startStreaming({
+      clientContext,
+      background,
+      caseStudies: selectedStudyDescriptions,
+      length: proposalLength,
+      pricing: {
+        strategy: pricingStrategy,
+        ai: pricingAI,
+        managed: pricingManaged,
+      },
+      onProgress: (progressVal) => {
+        // Update steps based on progress
+        if (progressVal < 20) {
+          setGeneratingSteps([
+            { label: "Analyzing client context", status: "active" },
+            { label: "Creating proposal structure", status: "pending" },
+            { label: "Writing proposal content", status: "pending" },
+          ]);
+        } else if (progressVal < 50) {
+          setGeneratingSteps([
+            { label: "Analyzing client context", status: "completed" },
+            { label: "Creating proposal structure", status: "active" },
+            { label: "Writing proposal content", status: "pending" },
+          ]);
+        } else {
+          setGeneratingSteps([
+            { label: "Analyzing client context", status: "completed" },
+            { label: "Creating proposal structure", status: "completed" },
+            { label: "Writing proposal content", status: "active" },
+          ]);
+        }
+      },
+      onComplete: async (content) => {
+        setGeneratingSteps([
+          { label: "Analyzing client context", status: "completed" },
+          { label: "Creating proposal structure", status: "completed" },
+          { label: "Writing proposal content", status: "completed" },
+        ]);
 
-      // Update step 3
-      setTimeout(() => {
-        setGeneratingSteps((prev) =>
-          prev.map((step, idx) => ({
-            ...step,
-            status: idx <= 1 ? "completed" : "active",
-          }))
-        );
-      }, 3000);
+        // Set the proposal
+        setDeliverables({
+          proposal: content,
+          deckPrompt: '',
+          contract: '',
+          contractEmail: '',
+          invoiceDescription: '',
+          proposalEmail: '',
+        });
 
-      const { data, error } = await supabase.functions.invoke('generate-proposal', {
-        body: {
-          clientContext,
-          background,
-          caseStudies: selectedStudyDescriptions,
-          length: proposalLength,
-          pricing: {
-            strategy: pricingStrategy,
-            ai: pricingAI,
-            managed: pricingManaged,
-          },
-          proposalOnly: true, // Only generate the proposal
-        },
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      // Set all to completed
-      setGeneratingSteps((prev) =>
-        prev.map((step) => ({ ...step, status: "completed" as const }))
-      );
-
-      // Set only the proposal, other assets will be generated on-demand
-      setDeliverables({
-        proposal: data.deliverables?.proposal || data.proposal || '',
-        deckPrompt: '',
-        contract: '',
-        contractEmail: '',
-        invoiceDescription: '',
-        proposalEmail: '',
-      });
-      // Save to database
-      await saveToDatabase();
-      
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      navigate("/preview");
-    } catch (error) {
-      console.error("Generation error:", error);
-      setIsGenerating(false);
-      toast({
-        title: "Generation failed",
-        description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
-    }
+        // Save to database
+        await saveToDatabase();
+        
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        navigate("/preview");
+      },
+      onError: (error) => {
+        toast({
+          title: "Generation failed",
+          description: error || "Something went wrong. Please try again.",
+          variant: "destructive",
+        });
+      },
+    });
   };
 
-  if (isGenerating) {
-    return <GeneratingLoader steps={generatingSteps} />;
+  if (isStreaming) {
+    return (
+      <GeneratingLoader 
+        steps={generatingSteps} 
+        progress={progress}
+        charCount={charCount}
+        streamingContent={streamingContent}
+        showPreview={true}
+      />
+    );
   }
 
   return (
@@ -474,7 +478,7 @@ Budget: Mentioned $15K-40K range.`}
                   className="flex-1"
                 >
                   Generate Complete Package
-                  <ExternalLink className="ml-2 h-5 w-5" />
+                  <Sparkles className="ml-2 h-5 w-5" />
                 </Button>
               </div>
             </div>
