@@ -33,44 +33,6 @@ interface ManusTaskStatus {
   }>;
 }
 
-async function pollForCompletion(taskId: string, apiKey: string, maxAttempts = 120): Promise<ManusTaskStatus> {
-  console.log(`Starting to poll for task ${taskId}`);
-  
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    console.log(`Polling attempt ${attempt + 1} for task ${taskId}`);
-    
-    const response = await fetch(`${MANUS_API_URL}/tasks/${taskId}`, {
-      method: 'GET',
-      headers: {
-        'API_KEY': apiKey,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Manus poll error:', response.status, errorText);
-      throw new Error(`Manus API error: ${response.status}`);
-    }
-
-    const data: ManusTaskStatus = await response.json();
-    console.log(`Task status: ${data.status}`);
-
-    if (data.status === 'completed') {
-      return data;
-    }
-
-    if (data.status === 'failed') {
-      throw new Error(data.error || 'Task failed');
-    }
-
-    // Wait 5 seconds before next poll (Manus tasks take longer)
-    await new Promise(resolve => setTimeout(resolve, 5000));
-  }
-
-  throw new Error('Task timed out after 10 minutes');
-}
-
 function extractPdfUrl(taskOutput: ManusTaskStatus['output']): string | null {
   if (!taskOutput) return null;
   
@@ -112,8 +74,61 @@ serve(async (req) => {
       throw new Error('MANUS_API_KEY is not configured');
     }
 
-    const { deckPrompt, clientName, numSlides = 10 } = await req.json();
+    const body = await req.json();
+    const { action, taskId, deckPrompt, clientName, numSlides = 10 } = body;
 
+    // Action: check - Poll for task status
+    if (action === 'check' && taskId) {
+      console.log(`Checking status for task ${taskId}`);
+      
+      const response = await fetch(`${MANUS_API_URL}/tasks/${taskId}`, {
+        method: 'GET',
+        headers: {
+          'API_KEY': MANUS_API_KEY,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Manus status check error:', response.status, errorText);
+        throw new Error(`Manus API error: ${response.status}`);
+      }
+
+      const data: ManusTaskStatus = await response.json();
+      console.log(`Task ${taskId} status: ${data.status}`);
+
+      if (data.status === 'completed') {
+        const pdfUrl = extractPdfUrl(data.output);
+        return new Response(JSON.stringify({
+          success: true,
+          status: 'completed',
+          pdfUrl,
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      if (data.status === 'failed') {
+        return new Response(JSON.stringify({
+          success: false,
+          status: 'failed',
+          error: data.error || 'Task failed',
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Still running or pending
+      return new Response(JSON.stringify({
+        success: true,
+        status: data.status,
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Action: create (default) - Start a new deck generation task
     if (!deckPrompt) {
       throw new Error('deckPrompt is required');
     }
@@ -161,29 +176,22 @@ Please create this presentation and provide the PDF download.`;
     }
 
     const createData: ManusTaskResponse = await createResponse.json();
-    console.log('Manus create response:', createData);
+    console.log('Manus task created:', createData);
 
-    const taskId = createData.task_id;
-    if (!taskId) {
+    const generatedTaskId = createData.task_id;
+    if (!generatedTaskId) {
       throw new Error(`Manus did not return task_id. Response: ${JSON.stringify(createData)}`);
     }
 
-    console.log('Task started with ID:', taskId);
+    console.log('Task started with ID:', generatedTaskId);
 
-    // Poll for completion
-    const completedTask = await pollForCompletion(taskId, MANUS_API_KEY);
-
-    console.log('Task completed:', completedTask);
-
-    // Extract PDF URL from output
-    const pdfUrl = extractPdfUrl(completedTask.output);
-
+    // Return immediately with task info - client will poll for completion
     return new Response(JSON.stringify({
       success: true,
-      taskId,
+      status: 'started',
+      taskId: generatedTaskId,
       taskUrl: createData.task_url,
       shareUrl: createData.share_url,
-      pdfUrl,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
