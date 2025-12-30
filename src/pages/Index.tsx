@@ -7,7 +7,6 @@ import { SolutionSection } from "@/components/landing/SolutionSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { DifferentiationSection } from "@/components/landing/DifferentiationSection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
-import { AlumniLogosSection } from "@/components/landing/AlumniLogosSection";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { FinalCTASection } from "@/components/landing/FinalCTASection";
@@ -27,7 +26,6 @@ export default function Index() {
       <HowItWorksSection />
       <DifferentiationSection />
       <TestimonialsSection />
-      <AlumniLogosSection />
       <PricingSection />
       <FAQSection />
       <FinalCTASection />
