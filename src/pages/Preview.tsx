@@ -144,6 +144,67 @@ export default function Preview() {
     }
   };
 
+  // Poll for task completion
+  const pollTaskStatus = async (taskId: string, taskUrl: string, shareUrl?: string) => {
+    const maxAttempts = 120; // 10 minutes at 5 second intervals
+    let attempts = 0;
+
+    const poll = async (): Promise<void> => {
+      attempts++;
+      console.log(`Polling attempt ${attempts} for task ${taskId}`);
+
+      try {
+        const { data, error } = await supabase.functions.invoke('generate-deck', {
+          body: { action: 'check', taskId },
+        });
+
+        if (error) throw error;
+        if (data.error) throw new Error(data.error);
+
+        if (data.status === 'completed') {
+          setDeckData({
+            status: 'completed',
+            generationId: taskId,
+            gammaUrl: taskUrl,
+            pdfUrl: data.pdfUrl,
+            pptxUrl: null,
+            thumbnailUrl: null,
+          });
+          toast({
+            title: "Slide deck generated!",
+            description: "Your presentation is ready to preview and download.",
+          });
+          return;
+        }
+
+        if (data.status === 'failed') {
+          throw new Error(data.error || 'Task failed');
+        }
+
+        // Still pending or running - continue polling
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 5000);
+        } else {
+          throw new Error('Generation timed out. Please try again.');
+        }
+      } catch (err) {
+        console.error("Poll error:", err);
+        setDeckData({ 
+          status: 'error', 
+          error: err instanceof Error ? err.message : "Something went wrong." 
+        });
+        toast({
+          title: "Deck generation failed",
+          description: err instanceof Error ? err.message : "Something went wrong.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    // Start polling after a short delay
+    setTimeout(poll, 5000);
+  };
+
   const handleGenerateDeck = async () => {
     // Use the deck prompt if available, otherwise use proposal content as the prompt
     const promptToUse = deliverables.deckPrompt || createDeckPromptFromProposal();
@@ -171,19 +232,13 @@ export default function Preview() {
       if (error) throw error;
       if (data.error) throw new Error(data.error);
 
-      setDeckData({
-        status: 'completed',
-        generationId: data.taskId,
-        gammaUrl: data.taskUrl,
-        pdfUrl: data.pdfUrl,
-        pptxUrl: null,
-        thumbnailUrl: null,
+      // Task started - begin polling for completion
+      toast({
+        title: "Generating slide deck...",
+        description: "This typically takes 2-5 minutes. We'll notify you when it's ready.",
       });
 
-      toast({
-        title: "Slide deck generated!",
-        description: "Your presentation is ready to preview and download.",
-      });
+      pollTaskStatus(data.taskId, data.taskUrl, data.shareUrl);
     } catch (error) {
       console.error("Deck generation error:", error);
       setDeckData({ 
