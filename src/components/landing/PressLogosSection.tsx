@@ -1,23 +1,14 @@
-import { BrandMarquee } from "./LogoMarquee";
-
-// Press and media outlets
-const pressOutlets = [
-  "TechCrunch", "Fast Company", "Forbes", "NBC News", "Yahoo!", 
-  "The New York Times", "Inc.", "Bloomberg", "Business Insider",
-  "CNBC", "Fox Business", "GQ", "Adweek", "CNN", "ESPN",
-  "Good Morning America", "Los Angeles Times", "VentureBeat"
-];
+import pressLogos from "@/assets/logos/press-featured.png";
 
 export function PressLogosSection() {
   return (
-    <section className="py-12 bg-slate-900 overflow-hidden">
-      <div className="container mx-auto px-4 mb-6">
-        <p className="text-xs uppercase tracking-[0.2em] text-slate-400 text-center font-medium">
-          Our work has been featured in
-        </p>
-      </div>
-      <div className="opacity-70">
-        <BrandMarquee logos={pressOutlets} direction="left" speed="normal" variant="bright" />
+    <section className="py-6 bg-[#2d2654] overflow-hidden">
+      <div className="container mx-auto px-4">
+        <img 
+          src={pressLogos} 
+          alt="Featured in TechCrunch, Fast Company, Inc, Forbes, Good Morning America, Yahoo, The New York Times, NBC News"
+          className="w-full h-auto max-h-14 object-contain"
+        />
       </div>
     </section>
   );

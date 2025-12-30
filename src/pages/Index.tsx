@@ -1,13 +1,13 @@
 import { Navbar } from "@/components/Navbar";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { BrandLogosSection } from "@/components/landing/BrandLogosSection";
+import { FounderSection } from "@/components/landing/FounderSection";
+import { PressLogosSection } from "@/components/landing/PressLogosSection";
 import { ProblemSection } from "@/components/landing/ProblemSection";
 import { InsightSection } from "@/components/landing/InsightSection";
 import { SolutionSection } from "@/components/landing/SolutionSection";
-import { FundingLogosSection } from "@/components/landing/FundingLogosSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
-import { FounderSection } from "@/components/landing/FounderSection";
-import { PressLogosSection } from "@/components/landing/PressLogosSection";
+import { FundingLogosSection } from "@/components/landing/FundingLogosSection";
 import { DifferentiationSection } from "@/components/landing/DifferentiationSection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { AlumniLogosSection } from "@/components/landing/AlumniLogosSection";
@@ -25,12 +25,12 @@ export default function Index() {
       <HeroSection />
       <BrandLogosSection />
       <FounderSection />
+      <PressLogosSection />
       <ProblemSection />
       <InsightSection />
       <SolutionSection />
-      <FundingLogosSection />
       <HowItWorksSection />
-      <PressLogosSection />
+      <FundingLogosSection />
       <DifferentiationSection />
       <TestimonialsSection />
       <AlumniLogosSection />
@@ -38,7 +38,6 @@ export default function Index() {
       <FAQSection />
       <FinalCTASection />
       <Footer />
-      
     </div>
   );
 }
