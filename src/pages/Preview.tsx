@@ -83,6 +83,7 @@ export default function Preview() {
   const [lightMode, setLightMode] = useState(true);
   
   const { 
+    proposalId,
     deliverables, 
     updateDeliverable, 
     reset,
@@ -507,7 +508,7 @@ Key requirements:
     <div className="h-screen bg-background flex flex-col overflow-hidden">
       <AppHeader center={<ProposalSelector />} onNewProposal={handleNewProposal} />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div key={proposalId ?? "new"} className="flex flex-1 overflow-hidden">
       {/* Sidebar - Fixed height, no scroll needed */}
       <aside className="w-64 border-r border-border bg-card/50 flex flex-col flex-shrink-0 overflow-hidden">
 

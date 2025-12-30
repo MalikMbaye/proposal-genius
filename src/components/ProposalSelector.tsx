@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useProposalStore } from "@/lib/proposalStore";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -21,6 +22,7 @@ interface SavedProposal {
 
 export function ProposalSelector() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [proposals, setProposals] = useState<SavedProposal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -86,9 +88,16 @@ export function ProposalSelector() {
         contractEmail: data.contract_email || "",
         invoiceDescription: data.invoice_description || "",
       });
-      
-      // Navigate to preview with state to trigger UI refresh
-      navigate("/preview", { state: { fromProposalSwitch: true }, replace: true });
+
+      toast({
+        title: "Proposal switched",
+        description: `Now viewing: ${data.client_name || "Untitled"}`,
+      });
+
+      // If you're not already on /preview, jump there so you see the updated content.
+      if (location.pathname !== "/preview") {
+        navigate("/preview");
+      }
     } catch (error) {
       console.error("Error loading proposal:", error);
     }
