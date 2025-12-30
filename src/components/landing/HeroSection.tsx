@@ -11,46 +11,6 @@ const stats = [
   { value: "5 min", label: "To Generate Your Proposal", gradient: "from-amber-500 via-orange-500 to-yellow-500" },
 ];
 
-// Proposal comparison cards
-const proposalCards = [
-  {
-    type: 'generic',
-    label: '❌ Generic Proposal',
-    quote: '"We will provide marketing strategy and execution services to help grow your business."',
-    value: '$5,000',
-  },
-  {
-    type: 'strategic',
-    label: '✓ Strategic Proposal',
-    quote: '"Your brand is stuck at $15K/month not because your product isn\'t good enough, but because you\'re missing three critical components..."',
-    value: '$50,000',
-  },
-  {
-    type: 'generic',
-    label: '❌ Generic Proposal',
-    quote: '"Our team will help optimize your sales funnel and improve conversions."',
-    value: '$3,500',
-  },
-  {
-    type: 'strategic',
-    label: '✓ Strategic Proposal',
-    quote: '"You\'re leaving $2M on the table annually because your checkout flow has 3 friction points killing conversions..."',
-    value: '$75,000',
-  },
-  {
-    type: 'generic',
-    label: '❌ Generic Proposal',
-    quote: '"We offer comprehensive consulting services tailored to your needs."',
-    value: '$8,000',
-  },
-  {
-    type: 'strategic',
-    label: '✓ Strategic Proposal',
-    quote: '"Your competitor just raised $10M and is outspending you 4:1 on acquisition. Here\'s the 90-day plan to win anyway..."',
-    value: '$120,000',
-  },
-];
-
 // Stat bubble component with unique gradient and shimmer
 function StatBubble({ value, label, gradient, delay = 0 }: { value: string; label: string; gradient: string; delay?: number }) {
   const [isVisible, setIsVisible] = useState(false);
@@ -92,7 +52,7 @@ function StatBubble({ value, label, gradient, delay = 0 }: { value: string; labe
   );
 }
 
-// Combined carousel: 3 random videos + all proposal cards
+// Video-only carousel
 function HeroCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -103,132 +63,53 @@ function HeroCarousel() {
     return shuffled.slice(0, 3);
   }, []);
 
-  // Build carousel items: interleave videos and cards
-  // Pattern: video, card, card, video, card, card, video, card, card...
-  const carouselItems = useMemo(() => {
-    const items: Array<{ type: 'video'; videoUrl: string } | { type: 'card'; card: typeof proposalCards[0] }> = [];
-    
-    let videoIndex = 0;
-    let cardIndex = 0;
-    
-    // Interleave: video, then 2 cards, repeat
-    while (cardIndex < proposalCards.length || videoIndex < selectedVideos.length) {
-      if (videoIndex < selectedVideos.length) {
-        items.push({ type: 'video', videoUrl: selectedVideos[videoIndex].videoUrl });
-        videoIndex++;
-      }
-      // Add 2 cards after each video
-      for (let i = 0; i < 2 && cardIndex < proposalCards.length; i++) {
-        items.push({ type: 'card', card: proposalCards[cardIndex] });
-        cardIndex++;
-      }
-    }
-    
-    return items;
-  }, [selectedVideos]);
-
   // Auto-rotate every 4 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setIsTransitioning(true);
       setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % carouselItems.length);
+        setCurrentIndex((prev) => (prev + 1) % selectedVideos.length);
         setIsTransitioning(false);
       }, 300);
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [carouselItems.length]);
+  }, [selectedVideos.length]);
 
-  const currentItem = carouselItems[currentIndex];
+  const currentVideo = selectedVideos[currentIndex];
 
   return (
     <div className="relative w-full max-w-md mx-auto lg:mx-0">
       {/* Glow effect */}
-      <div className={`absolute -inset-4 rounded-3xl blur-2xl opacity-40 animate-pulse-slow transition-colors duration-500 ${
-        currentItem.type === 'card' && currentItem.card.type === 'strategic'
-          ? 'bg-gradient-to-r from-primary/40 to-green-500/30'
-          : currentItem.type === 'card' && currentItem.card.type === 'generic'
-          ? 'bg-gradient-to-r from-red-400/30 to-slate-300/30'
-          : 'bg-gradient-to-r from-primary/30 to-orange-400/30'
-      }`} />
+      <div className="absolute -inset-4 rounded-3xl blur-2xl opacity-40 animate-pulse-slow bg-gradient-to-r from-primary/30 to-orange-400/30" />
       
       {/* Content Container */}
       <div className="relative animate-float">
-        <div className={`relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200 transition-all duration-300 ${
-          currentItem.type === 'video' ? 'aspect-video' : 'min-h-[280px]'
-        }`}>
-          {/* Video */}
-          {currentItem.type === 'video' && (
-            <video
-              key={currentItem.videoUrl}
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="metadata"
-              className={`w-full h-full object-cover transition-opacity duration-300 ${
-                isTransitioning ? 'opacity-0' : 'opacity-100'
-              }`}
-            >
-              <source src={currentItem.videoUrl} type="video/mp4" />
-            </video>
-          )}
-          
-          {/* Proposal Card */}
-          {currentItem.type === 'card' && (
-            <div className="bg-white p-6 h-full flex flex-col">
-              {/* Window controls */}
-              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
-                <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-                <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
-                <span className="ml-2 text-xs text-slate-400 font-mono">proposal.md</span>
-              </div>
-              
-              {/* Content */}
-              <div className={`flex-1 flex flex-col transition-all duration-300 ${
-                isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
-              }`}>
-                <div className={`text-xs uppercase tracking-wider mb-3 font-semibold ${
-                  currentItem.card.type === 'strategic' ? 'text-green-600' : 'text-red-500'
-                }`}>
-                  {currentItem.card.label}
-                </div>
-                <p className="text-sm leading-relaxed text-slate-700 flex-1">
-                  {currentItem.card.quote}
-                </p>
-                <div className="pt-4 mt-4 border-t border-slate-100 flex items-end justify-between">
-                  <div>
-                    <div className={`text-2xl font-bold ${
-                      currentItem.card.type === 'strategic' ? 'text-primary' : 'text-slate-400'
-                    }`}>
-                      {currentItem.card.value}
-                    </div>
-                    <div className="text-xs text-slate-400">Project Value</div>
-                  </div>
-                  {currentItem.card.type === 'strategic' && (
-                    <div className="bg-green-50 border border-green-200 rounded px-2 py-1">
-                      <span className="text-green-600 font-semibold text-xs">+900% ROI</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+        <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200 aspect-video">
+          <video
+            key={currentVideo.videoUrl}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            className={`w-full h-full object-cover transition-opacity duration-300 ${
+              isTransitioning ? 'opacity-0' : 'opacity-100'
+            }`}
+          >
+            <source src={currentVideo.videoUrl} type="video/mp4" />
+          </video>
         </div>
         
         {/* Floating badge */}
         <div className="absolute -top-3 -right-3 bg-white border border-primary/30 rounded-xl px-3 py-2 shadow-lg animate-pulse-slow">
-          <span className="text-xs font-medium text-primary">
-            {currentItem.type === 'video' ? 'AI at Work ⚡' : currentItem.card.type === 'strategic' ? '10x Value 🚀' : 'vs.'}
-          </span>
+          <span className="text-xs font-medium text-primary">AI at Work ⚡</span>
         </div>
       </div>
 
       {/* Indicator dots */}
       <div className="flex justify-center gap-1.5 mt-4">
-        {carouselItems.map((item, index) => (
+        {selectedVideos.map((_, index) => (
           <button
             key={index}
             onClick={() => {
@@ -240,7 +121,7 @@ function HeroCarousel() {
             }}
             className={`h-1.5 rounded-full transition-all duration-300 ${
               index === currentIndex 
-                ? `w-6 ${item.type === 'video' ? 'bg-primary' : item.type === 'card' && item.card.type === 'strategic' ? 'bg-green-500' : 'bg-red-400'}`
+                ? 'w-6 bg-primary'
                 : 'w-1.5 bg-slate-300 hover:bg-slate-400'
             }`}
           />
