@@ -486,7 +486,7 @@ Key requirements:
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Top Navigation Bar with Proposal Selector - Full Width */}
       <header className="h-14 border-b border-border bg-background flex items-center px-4 gap-4 flex-shrink-0">
         <Link to="/" className="flex-shrink-0">
@@ -501,12 +501,12 @@ Key requirements:
         </Button>
       </header>
 
-      <div className="flex flex-1 min-h-0">
-      {/* Sidebar */}
-      <aside className="w-64 border-r border-border bg-card/50 flex flex-col">
+      <div className="flex flex-1 overflow-hidden">
+      {/* Sidebar - Fixed height, no scroll needed */}
+      <aside className="w-64 border-r border-border bg-card/50 flex flex-col flex-shrink-0 overflow-hidden">
 
-        {/* Tabs */}
-        <nav className="flex-1 p-3 space-y-1">
+        {/* Tabs - scrollable if many */}
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
         {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -584,8 +584,8 @@ Key requirements:
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col">
+      {/* Main Content - Scrollable */}
+      <main className="flex-1 flex flex-col overflow-hidden">
         {/* Success Banner */}
         {showBanner && (
           <div className="bg-success/10 border-b border-success/20 px-6 py-3 flex items-center justify-between">
