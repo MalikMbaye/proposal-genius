@@ -336,6 +336,10 @@ export default function Preview() {
             pptxUrl: null,
             thumbnailUrl: null,
           });
+          
+          // Save deck data to database
+          await saveToDatabase();
+          
           toast({
             title: "Slide deck generated!",
             description: "Your presentation is ready to preview and download.",
@@ -672,15 +676,38 @@ Key requirements:
 
         {/* Tabs - scrollable if many */}
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {tabs.filter(tab => tab.id !== 'library').map((tab) => {
+          {/* Getting Started - Always first */}
+          <button
+            onClick={() => setActiveTab('home')}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'home'
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "text-slate-400 hover:text-slate-100 hover:bg-slate-700"
+            }`}
+          >
+            <Home className="h-4 w-4" />
+            <span className="flex-1 text-left">Getting Started</span>
+          </button>
+          
+          {/* Edit Project Brief - Between Getting Started and Proposal */}
+          {hasProposal && (
+            <button
+              onClick={() => setShowEditModal(true)}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-amber-400 hover:text-amber-300 border border-amber-500/30 hover:border-amber-400/50 hover:bg-amber-500/10"
+            >
+              <Pencil className="h-4 w-4" />
+              <span className="flex-1 text-left">Edit Project Brief</span>
+            </button>
+          )}
+          
+          {/* Rest of tabs - skip home since it's rendered above */}
+          {tabs.filter(tab => tab.id !== 'library' && tab.id !== 'home').map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             const isGenerating = generatingAsset === tab.id || (tab.id === 'deck' && deckData.status === 'generating');
             
             let hasTabContent = false;
-            if (tab.id === 'home') {
-              hasTabContent = true; // Home always has content
-            } else if (tab.id === 'deck') {
+            if (tab.id === 'deck') {
               hasTabContent = deckData.status === 'completed';
             } else if (tab.id === 'proposal') {
               hasTabContent = !!deliverables?.proposal;
@@ -704,10 +731,10 @@ Key requirements:
                   <Icon className="h-4 w-4" />
                 )}
                 <span className="flex-1 text-left">{tab.label}</span>
-                {!hasTabContent && tab.id !== 'home' && (
+                {!hasTabContent && (
                   <span className="text-xs opacity-60">•</span>
                 )}
-                {hasTabContent && tab.id !== 'home' && tab.id !== 'proposal' && (
+                {hasTabContent && tab.id !== 'proposal' && (
                   <Check className="h-3 w-3 opacity-60" />
                 )}
               </button>
@@ -799,18 +826,6 @@ Key requirements:
             <div className="flex items-center gap-3">
               <ActiveIcon className="h-5 w-5 text-primary" />
               <span className="font-semibold text-slate-100">{tabLabels[activeTab]}</span>
-              {/* Edit button - only show on proposal tab */}
-              {activeTab === "proposal" && hasContent && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowEditModal(true)}
-                  className="text-slate-400 hover:text-slate-100 hover:bg-slate-700"
-                >
-                  <Pencil className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
-              )}
             </div>
             <div className="flex items-center gap-2">
               {/* Deck tab actions */}
