@@ -34,7 +34,7 @@ import { toast } from "@/hooks/use-toast";
 
 // Consolidated tabs - removed deckPrompt, merged into deck
 const tabs = [
-  { id: "home", label: "Home", icon: Home },
+  { id: "home", label: "Welcome", icon: Home },
   { id: "proposal", label: "Proposal", icon: FileText },
   { id: "deck", label: "Slide Deck", icon: Presentation },
   { id: "contract", label: "Contract", icon: FileCheck },
@@ -46,7 +46,7 @@ const tabs = [
 type TabId = (typeof tabs)[number]["id"];
 
 const tabInstructions: Record<TabId, string> = {
-  home: "Welcome to Proposal AI. Get started by creating a new proposal.",
+  home: "Welcome to Proposal AI. Your proposal toolkit awaits.",
   proposal: "Copy and paste into Google Docs or Word. Review, save as PDF, send.",
   deck: "Preview your AI-generated slide deck. Download the PDF when ready.",
   contract: "Paste into Square Contracts. Fill in [BRACKETED] fields. Send for signature.",
@@ -56,7 +56,7 @@ const tabInstructions: Record<TabId, string> = {
 };
 
 const tabLabels: Record<TabId, string> = {
-  home: "Home",
+  home: "Welcome",
   proposal: "Proposal",
   deck: "Slide Deck",
   contract: "Contract",
