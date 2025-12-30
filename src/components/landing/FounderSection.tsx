@@ -131,6 +131,25 @@ export function FounderSection() {
               ))}
             </div>
 
+            {/* Main paragraph copy */}
+            <div className="space-y-4 text-slate-300 text-sm mb-6">
+              <p>
+                I'm <strong className="text-white">Malik Mbaye</strong>. I started my first business at 16 and scaled it to 23 countries. Since then, I've spent nearly a decade writing proposals that actually close—for startups, agencies, and consultants.
+              </p>
+              
+              <p>
+                I was a Product Marketing Manager at <strong className="text-white">Facebook</strong>, launching features to 800M+ users. I've worked at LinkedIn, Lyft, and Upwork. I've helped startups raise $50M+ from Google Ventures, SoftBank, and Techstars—and raised money myself from Twitter and Google.
+              </p>
+              
+              <p>
+                Through my consultancy <strong className="text-white">Black Lotus</strong>, I've personally written 50+ proposals generating over $10M in client revenue.
+              </p>
+              
+              <p className="text-white font-medium border-l-2 border-primary pl-4 bg-slate-800/50 py-3 pr-4 rounded-r-lg">
+                This tool isn't built on theory. It's built on the exact system I use to close deals—now available to you.
+              </p>
+            </div>
+
             {/* CTA Buttons */}
             <div className="flex flex-wrap gap-3">
               <Button
