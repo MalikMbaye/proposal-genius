@@ -46,7 +46,7 @@ export default function Auth() {
           }
         } else {
           toast.success("Logged in successfully");
-          navigate("/generate");
+          navigate("/dashboard");
         }
       } else {
         const { error } = await signUp(email, password);
@@ -58,7 +58,7 @@ export default function Auth() {
           }
         } else {
           toast.success("Account created successfully");
-          navigate("/generate");
+          navigate("/dashboard");
         }
       }
     } catch (err) {
@@ -172,7 +172,7 @@ export default function Auth() {
                 const { error } = await supabase.auth.signInWithOAuth({
                   provider: "google",
                   options: {
-                    redirectTo: `${window.location.origin}/generate`,
+                    redirectTo: `${window.location.origin}/dashboard`,
                   },
                 });
                 if (error) {
