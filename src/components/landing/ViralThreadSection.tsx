@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, Trophy } from "lucide-react";
+import trophy3D from "@/assets/trophy-3d.png";
 
 import thread1 from "@/assets/threads/thread-1.png";
 import thread2 from "@/assets/threads/thread-2.png";
@@ -144,14 +145,24 @@ export function ViralThreadSection() {
         }}
       />
 
-      {/* Trophy ambient motif - more prominent */}
-      <div className="absolute right-[5%] top-[15%] opacity-[0.08] pointer-events-none">
-        <Trophy className="w-64 h-64 md:w-80 md:h-80" style={{ color: 'hsl(45, 100%, 50%)' }} />
+      {/* 3D Trophy ambient motif - blended into background */}
+      <div className="absolute right-[-5%] top-[5%] opacity-[0.25] pointer-events-none blur-[2px]">
+        <img 
+          src={trophy3D} 
+          alt=""
+          className="w-72 h-72 md:w-96 md:h-96 object-contain"
+          style={{ filter: 'saturate(1.2) brightness(0.8)' }}
+        />
       </div>
       
-      {/* Smaller trophy accent bottom-left */}
-      <div className="absolute left-[8%] bottom-[20%] opacity-[0.05] pointer-events-none rotate-[-15deg]">
-        <Trophy className="w-32 h-32" style={{ color: 'hsl(45, 100%, 50%)' }} />
+      {/* Secondary 3D trophy accent bottom-left */}
+      <div className="absolute left-[-3%] bottom-[10%] opacity-[0.15] pointer-events-none rotate-[-15deg] blur-[1px]">
+        <img 
+          src={trophy3D} 
+          alt=""
+          className="w-40 h-40 md:w-52 md:h-52 object-contain"
+          style={{ filter: 'saturate(1.1) brightness(0.7)' }}
+        />
       </div>
 
       {/* Gold particle dust overlay */}
@@ -181,7 +192,7 @@ export function ViralThreadSection() {
       )}
       
       <div className="container relative z-10 mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-10 items-start">
+        <div className="grid lg:grid-cols-2 gap-10 items-center">
           {/* Left: Thread Screenshot Carousel */}
           <div className="space-y-4">
             <div className="relative group">
@@ -193,11 +204,38 @@ export function ViralThreadSection() {
                 }}
               />
               
+              {/* Navigation Arrows - positioned outside the carousel */}
+              <button
+                onClick={scrollPrev}
+                className="absolute -left-14 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(45, 80%, 25%) 0%, hsl(35, 70%, 20%) 100%)',
+                  border: '1px solid hsl(45, 60%, 40%)',
+                  boxShadow: '0 4px 15px -3px hsl(45, 100%, 30%)'
+                }}
+                aria-label="Previous thread"
+              >
+                <ChevronLeft className="w-5 h-5" style={{ color: 'hsl(45, 100%, 65%)' }} />
+              </button>
+              
+              <button
+                onClick={scrollNext}
+                className="absolute -right-14 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(45, 80%, 25%) 0%, hsl(35, 70%, 20%) 100%)',
+                  border: '1px solid hsl(45, 60%, 40%)',
+                  boxShadow: '0 4px 15px -3px hsl(45, 100%, 30%)'
+                }}
+                aria-label="Next thread"
+              >
+                <ChevronRight className="w-5 h-5" style={{ color: 'hsl(45, 100%, 65%)' }} />
+              </button>
+              
               {/* Carousel - images directly displayed */}
               <div ref={emblaRef} className="overflow-hidden relative rounded-xl">
-                <div className="flex">
+                <div className="flex items-center">
                   {threads.map((thread, index) => (
-                    <div key={index} className="flex-[0_0_100%] min-w-0">
+                    <div key={index} className="flex-[0_0_100%] min-w-0 flex items-center justify-center">
                       <a 
                         href="https://www.threads.com/@malick.io/post/DEwQ0atOqQO?xmt=AQGzXlX8yUYcbOJixlBXYuoC7XOxHNASHjsQkmXIAKNYog"
                         target="_blank"
@@ -216,33 +254,6 @@ export function ViralThreadSection() {
                     </div>
                   ))}
                 </div>
-
-                {/* Navigation Arrows - gold themed */}
-                <button
-                  onClick={scrollPrev}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
-                  style={{
-                    background: 'linear-gradient(135deg, hsl(45, 80%, 25%) 0%, hsl(35, 70%, 20%) 100%)',
-                    border: '1px solid hsl(45, 60%, 40%)',
-                    boxShadow: '0 4px 15px -3px hsl(45, 100%, 30%)'
-                  }}
-                  aria-label="Previous thread"
-                >
-                  <ChevronLeft className="w-5 h-5" style={{ color: 'hsl(45, 100%, 65%)' }} />
-                </button>
-                
-                <button
-                  onClick={scrollNext}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
-                  style={{
-                    background: 'linear-gradient(135deg, hsl(45, 80%, 25%) 0%, hsl(35, 70%, 20%) 100%)',
-                    border: '1px solid hsl(45, 60%, 40%)',
-                    boxShadow: '0 4px 15px -3px hsl(45, 100%, 30%)'
-                  }}
-                  aria-label="Next thread"
-                >
-                  <ChevronRight className="w-5 h-5" style={{ color: 'hsl(45, 100%, 65%)' }} />
-                </button>
               </div>
             </div>
 
