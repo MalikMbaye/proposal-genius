@@ -17,7 +17,7 @@ export function Logo({ className, showIcon = true }: LogoProps) {
         </div>
       )}
       <span className="text-xl font-bold tracking-tight">
-        Proposal<span className="text-muted-foreground font-normal">AI</span>
+        Pitch<span className="text-primary font-normal">Genius</span>
       </span>
     </div>
   );

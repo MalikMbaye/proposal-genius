@@ -51,7 +51,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="pt-8 border-t border-border/30 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            © 2024 Proposal AI. Built by{" "}
+            © 2025 Pitch Genius. Built by{" "}
             <a 
               href="https://blacklotus.co" 
               target="_blank" 
@@ -62,7 +62,7 @@ export function Footer() {
             </a>
           </p>
           <p className="text-sm text-muted-foreground">
-            support@proposalai.com
+            support@pitchgenius.io
           </p>
         </div>
       </div>

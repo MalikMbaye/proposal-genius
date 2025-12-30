@@ -71,7 +71,7 @@ export function OnboardingTab({ onNewProposal }: OnboardingTabProps) {
             $1M+ in closed deals
           </div>
           <h1 className="text-4xl font-bold text-slate-900 mb-4 leading-tight">
-            Getting Started with Proposal AI
+            Getting Started with Pitch Genius
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
             Everything you need to create winning proposals.
