@@ -3,14 +3,12 @@ import { Button } from "@/components/ui/button";
 import { CompanyLogo } from "./CompanyLogo";
 import malikHeadshot from "@/assets/malik-headshot.jpeg";
 
-const companies = ["Facebook", "LinkedIn", "Lyft", "Google", "Bain & Company"];
-const pressOutlets = ["Forbes", "TechCrunch", "Fast Company"];
+const companies = ["Meta", "LinkedIn", "Lyft", "Google", "Bain & Company", "Morgan Stanley"];
 
-const achievements = [
-  "Started first business at 16, scaled to 23 countries",
-  "Helped 100+ people break into tech (100% free)",
-  "Launched companies for founders from Microsoft, PayPal, Snap",
-  "Built multiple 7-figure agencies",
+const stats = [
+  { value: "$50M+", label: "Raised" },
+  { value: "$10M+", label: "Revenue" },
+  { value: "100+", label: "Coached" },
 ];
 
 export function FounderSection() {
@@ -22,61 +20,46 @@ export function FounderSection() {
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-5 gap-12 lg:gap-16 items-center max-w-6xl mx-auto">
-          {/* Left Column - Image & Logo Wall */}
-          <div className="lg:col-span-2 flex flex-col">
+          {/* Left Column - Image */}
+          <div className="lg:col-span-2 flex flex-col items-center lg:items-start">
             {/* Headshot Card */}
-            <div className="relative mb-4 w-full">
-              <div className="aspect-[3/4] w-full rounded-2xl overflow-hidden border-2 border-slate-600/50 shadow-2xl shadow-blue-900/20">
+            <div className="relative w-full max-w-sm">
+              <div className="aspect-[3/4] w-full rounded-2xl overflow-hidden border border-slate-600/30 shadow-2xl shadow-blue-900/20 bg-gradient-to-br from-slate-700/20 to-slate-800/20 p-1">
                 <img
                   src={malikHeadshot}
                   alt="Malik Mbaye - Founder"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-xl"
                 />
               </div>
               <div className="absolute -inset-4 bg-gradient-to-br from-blue-500/20 to-slate-700/20 rounded-3xl blur-2xl -z-10" />
             </div>
-
-            {/* Bento Logo Wall */}
-            <div className="grid grid-cols-2 gap-2 mb-4">
-              {/* Previously At - Large tile */}
-              <div className="col-span-2 bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-xl p-4">
-                <p className="text-[10px] text-slate-500 mb-3 font-medium tracking-widest uppercase">
-                  Previously at
-                </p>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                  {companies.map((name) => (
-                    <CompanyLogo key={name} name={name} />
-                  ))}
-                </div>
-              </div>
-
-              {/* Featured In - Tile */}
-              <div className="col-span-2 bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-xl p-4">
-                <p className="text-[10px] text-slate-500 mb-3 font-medium tracking-widest uppercase">
-                  Featured in
-                </p>
-                <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-                  {pressOutlets.map((name) => (
-                    <CompanyLogo key={name} name={name} />
-                  ))}
-                </div>
-              </div>
-            </div>
-
           </div>
 
           {/* Right Column - Content */}
           <div className="lg:col-span-3">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
-            Built by a Seven-Figure Consultant Who's Closed{" "}
-            <span className="text-gradient">$1.5M+ with Fortune 500s & Venture-Backed Startups</span>
-          </h2>
-            
-            <p className="text-lg text-slate-300 italic mb-6">
-              Not another generic AI tool. This system was built from 8 years of real client work.
+            {/* Name and Title */}
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">
+              MĀLIK MBAYE
+            </h2>
+            <p className="text-lg md:text-xl text-slate-400 mb-6">
+              Ex-Meta | AI Growth Operator | Startup Advisor
             </p>
 
-            <div className="space-y-4 text-slate-300 mb-6">
+            {/* Stat Cards */}
+            <div className="flex flex-wrap gap-3 mb-8">
+              {stats.map((stat, index) => (
+                <div
+                  key={index}
+                  className="flex-1 min-w-[100px] max-w-[140px] px-5 py-4 rounded-xl border border-slate-600/40 bg-slate-800/40 backdrop-blur-sm text-center"
+                >
+                  <div className="text-2xl md:text-3xl font-bold text-white">{stat.value}</div>
+                  <div className="text-xs text-slate-400 mt-1 uppercase tracking-wider">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Main copy */}
+            <div className="space-y-4 text-slate-300 mb-8">
               <p>
                 I'm <strong className="text-white">Malik Mbaye</strong>. I started my first business at 16 and scaled it to 23 countries. Since then, I've spent nearly a decade writing proposals that actually close—for startups, agencies, and consultants.
               </p>
@@ -94,21 +77,8 @@ export function FounderSection() {
               </p>
             </div>
 
-            {/* Achievement badges */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-8">
-              {achievements.map((achievement, index) => (
-                <div
-                  key={index}
-                  className="flex items-start gap-2 text-sm text-slate-300"
-                >
-                  <span className="text-primary mt-0.5">✓</span>
-                  <span>{achievement}</span>
-                </div>
-              ))}
-            </div>
-
             {/* CTA Buttons */}
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 mb-10">
               <Button
                 className="group bg-white text-[#0A66C2] hover:bg-slate-100 border border-slate-200"
                 asChild
@@ -141,6 +111,17 @@ export function FounderSection() {
           </div>
         </div>
 
+        {/* Full-width Company Logos Row */}
+        <div className="mt-12 pt-10 border-t border-slate-700/50">
+          <p className="text-[10px] text-slate-500 mb-5 font-medium tracking-[0.2em] uppercase text-center">
+            Experience At
+          </p>
+          <div className="flex flex-wrap justify-center items-center gap-x-10 gap-y-4">
+            {companies.map((name) => (
+              <CompanyLogo key={name} name={name} />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
