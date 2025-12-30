@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/Logo";
 import { ProgressStepper } from "@/components/ProgressStepper";
 
-import { GeneratingLoader } from "@/components/GeneratingLoader";
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { EmailSignupModal } from "@/components/EmailSignupModal";
 import { BusinessTypeSelector, businessTypes } from "@/components/BusinessTypeSelector";
 import { PricingTierInput } from "@/components/PricingTierInput";
@@ -191,12 +191,12 @@ export default function Generate() {
 
   if (isStreaming) {
     return (
-      <GeneratingLoader 
+      <LoadingScreen 
+        context="proposal"
         steps={generatingSteps} 
         progress={progress}
         charCount={charCount}
-        streamingContent={streamingContent}
-        showPreview={true}
+        showMetrics={true}
       />
     );
   }
