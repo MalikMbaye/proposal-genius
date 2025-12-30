@@ -54,14 +54,14 @@ export function Navbar() {
                     {user.email}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/proposals">
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link to="/proposals" className="flex items-center w-full">
                       <FolderOpen className="mr-2 h-4 w-4" />
                       Saved Proposals
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/profile">
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link to="/profile" className="flex items-center w-full">
                       <Settings className="mr-2 h-4 w-4" />
                       Account Settings
                     </Link>
