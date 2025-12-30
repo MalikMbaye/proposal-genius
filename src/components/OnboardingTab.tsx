@@ -62,7 +62,7 @@ interface OnboardingTabProps {
 
 export function OnboardingTab({ onNewProposal }: OnboardingTabProps) {
   return (
-    <div className="h-full overflow-auto bg-gradient-to-b from-white to-slate-50 dark:from-slate-50 dark:to-white">
+    <div className="h-full overflow-auto bg-gradient-to-b from-slate-50 to-slate-100/50 dark:from-slate-100 dark:to-slate-50">
       <div className="max-w-4xl mx-auto px-8 py-10">
         {/* Hero Section */}
         <div className="text-center mb-10">
@@ -71,12 +71,10 @@ export function OnboardingTab({ onNewProposal }: OnboardingTabProps) {
             $1M+ in closed deals
           </div>
           <h1 className="text-4xl font-bold text-slate-900 mb-4 leading-tight">
-            Polished proposals in seconds.
-            <br />
-            <span className="text-primary">Million-dollar decks</span> in minutes.
+            Getting Started with Proposal AI
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Your client context goes in. A complete proposal suite comes out. 
+            Everything you need to create winning proposals.
             Written proposals in 30 seconds. Designer-quality slide decks in under 5 minutes.
           </p>
         </div>
