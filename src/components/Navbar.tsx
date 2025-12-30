@@ -82,8 +82,8 @@ export function Navbar() {
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/auth">Log in</Link>
               </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/auth">Sign Up</Link>
+              <Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg shadow-accent/30" asChild>
+                <Link to="/generate">New Proposal</Link>
               </Button>
             </>
           )}
