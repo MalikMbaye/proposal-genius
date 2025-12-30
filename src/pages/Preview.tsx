@@ -512,14 +512,14 @@ Key requirements:
 
         {/* Tabs - scrollable if many */}
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {tabs.map((tab) => {
+        {tabs.filter(tab => tab.id !== 'library').map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             const isGenerating = generatingAsset === tab.id || (tab.id === 'deck' && deckData.status === 'generating');
             
             let hasTabContent = false;
-            if (tab.id === 'home' || tab.id === 'library') {
-              hasTabContent = true; // Home and Library always have content
+            if (tab.id === 'home') {
+              hasTabContent = true; // Home always has content
             } else if (tab.id === 'deck') {
               hasTabContent = deckData.status === 'completed';
             } else if (tab.id === 'proposal') {
@@ -544,16 +544,31 @@ Key requirements:
                   <Icon className="h-4 w-4" />
                 )}
                 <span className="flex-1 text-left">{tab.label}</span>
-                {!hasTabContent && tab.id !== 'home' && tab.id !== 'library' && (
+                {!hasTabContent && tab.id !== 'home' && (
                   <span className="text-xs opacity-60">•</span>
                 )}
-                {hasTabContent && tab.id !== 'home' && tab.id !== 'library' && tab.id !== 'proposal' && (
+                {hasTabContent && tab.id !== 'home' && tab.id !== 'proposal' && (
                   <Check className="h-3 w-3 opacity-60" />
                 )}
               </button>
             );
           })}
         </nav>
+        
+        {/* Proposal Library - Separated at bottom */}
+        <div className="px-3 pb-2 border-t border-border pt-3">
+          <button
+            onClick={() => setActiveTab('library')}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'library'
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+            }`}
+          >
+            <Library className="h-4 w-4" />
+            <span className="flex-1 text-left">Proposal Library</span>
+          </button>
+        </div>
 
         {/* Sidebar Actions */}
         <div className="p-4 border-t border-border space-y-2">
