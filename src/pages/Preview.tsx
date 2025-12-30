@@ -34,7 +34,10 @@ import {
   User,
   Home,
   Pencil,
+  Menu,
 } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { EditProposalModal } from "@/components/EditProposalModal";
 import { useStreamingProposal } from "@/hooks/useStreamingProposal";
 import { businessTypes } from "@/components/BusinessTypeSelector";
@@ -111,6 +114,7 @@ const tabLabels: Record<TabId, string> = {
 export default function Preview() {
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
   
   // Default to "home" unless we came from generate (have a proposal)
   const [activeTab, setActiveTab] = useState<TabId>("home");
@@ -122,6 +126,7 @@ export default function Preview() {
   const assetProgressInterval = useRef<NodeJS.Timeout | null>(null);
   const [lightMode, setLightMode] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const { 
     proposalId,
@@ -666,137 +671,191 @@ Key requirements:
     );
   }
 
+  // Sidebar content component for reuse in desktop and mobile
+  const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => (
+    <>
+      {/* Tabs - scrollable if many */}
+      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        {/* Getting Started - Always first */}
+        <button
+          onClick={() => {
+            setActiveTab('home');
+            onNavigate?.();
+          }}
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            activeTab === 'home'
+              ? "bg-primary text-primary-foreground shadow-md"
+              : "text-slate-400 hover:text-slate-100 hover:bg-slate-700"
+          }`}
+        >
+          <Home className="h-4 w-4" />
+          <span className="flex-1 text-left">Getting Started</span>
+        </button>
+        
+        {/* Edit Project Brief - Between Getting Started and Proposal */}
+        {hasProposal && (
+          <button
+            onClick={() => {
+              setShowEditModal(true);
+              onNavigate?.();
+            }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-amber-400 hover:text-amber-300 border border-amber-500/30 hover:border-amber-400/50 hover:bg-amber-500/10"
+          >
+            <Pencil className="h-4 w-4" />
+            <span className="flex-1 text-left">Edit Project Brief</span>
+          </button>
+        )}
+        
+        {/* Rest of tabs - skip home since it's rendered above */}
+        {tabs.filter(tab => tab.id !== 'library' && tab.id !== 'home').map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          const isGenerating = generatingAsset === tab.id || (tab.id === 'deck' && deckData.status === 'generating');
+          
+          let hasTabContent = false;
+          if (tab.id === 'deck') {
+            hasTabContent = deckData.status === 'completed';
+          } else if (tab.id === 'proposal') {
+            hasTabContent = !!deliverables?.proposal;
+          } else {
+            hasTabContent = (deliverables?.[tab.id as keyof typeof deliverables] || '').length > 0;
+          }
+          
+          return (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setActiveTab(tab.id);
+                onNavigate?.();
+              }}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                isActive
+                  ? "bg-primary text-primary-foreground shadow-md"
+                  : "text-slate-400 hover:text-slate-100 hover:bg-slate-700"
+              }`}
+            >
+              {isGenerating ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Icon className="h-4 w-4" />
+              )}
+              <span className="flex-1 text-left">{tab.label}</span>
+              {!hasTabContent && (
+                <span className="text-xs opacity-60">•</span>
+              )}
+              {hasTabContent && tab.id !== 'proposal' && (
+                <Check className="h-3 w-3 opacity-60" />
+              )}
+            </button>
+          );
+        })}
+      </nav>
+      
+      {/* Proposal Library - Separated at bottom */}
+      <div className="px-3 pb-2 border-t border-slate-700 pt-3">
+        <button
+          onClick={() => {
+            setActiveTab('library');
+            onNavigate?.();
+          }}
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            activeTab === 'library'
+              ? "bg-primary text-primary-foreground shadow-md"
+              : "text-emerald-400 hover:text-emerald-300 border border-emerald-500/50 hover:border-emerald-400 hover:bg-emerald-500/10 animate-pulse-slow"
+          }`}
+        >
+          <Library className="h-4 w-4" />
+          <span className="flex-1 text-left">Proposal Library</span>
+          {activeTab !== 'library' && (
+            <span className="text-[10px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded">PRO</span>
+          )}
+        </button>
+      </div>
+
+      {/* Sidebar Actions */}
+      <div className="p-4 border-t border-slate-700 space-y-2">
+        {hasContent && !isDeckTab && (
+          <>
+            <Button onClick={() => { handleCopy(); onNavigate?.(); }} variant="outline" className="w-full justify-start border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white">
+              {copied ? (
+                <>
+                  <Check className="mr-2 h-4 w-4 text-success" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy className="mr-2 h-4 w-4" />
+                  Copy Current
+                </>
+              )}
+            </Button>
+            <Button onClick={() => { handleDownload(); onNavigate?.(); }} variant="outline" className="w-full justify-start border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white">
+              <Download className="mr-2 h-4 w-4" />
+              Download
+            </Button>
+          </>
+        )}
+        <div className="border-t border-slate-700 pt-3 mt-2 space-y-1">
+          <Button onClick={() => { handleNewProposal(); onNavigate?.(); }} variant="ghost" className="w-full justify-start text-slate-400 hover:text-white hover:bg-slate-700">
+            <Plus className="mr-2 h-4 w-4" />
+            Generate New
+          </Button>
+          <Button asChild variant="ghost" className="w-full justify-start text-slate-400 hover:text-white hover:bg-slate-700">
+            <Link to="/profile" onClick={onNavigate}>
+              <User className="mr-2 h-4 w-4" />
+              Account Settings
+            </Link>
+          </Button>
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <div className="h-screen bg-slate-800 flex flex-col overflow-hidden">
-      <AppHeader center={<ProposalSelector />} onNewProposal={handleNewProposal} />
+      {/* Mobile Header with Hamburger */}
+      {isMobile ? (
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700 bg-slate-800">
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-slate-300 hover:text-white">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-72 p-0 bg-slate-800 border-slate-700">
+              <div className="flex flex-col h-full">
+                <div className="p-4 border-b border-slate-700">
+                  <span className="text-lg font-semibold text-white">Menu</span>
+                </div>
+                <SidebarContent onNavigate={() => setMobileMenuOpen(false)} />
+              </div>
+            </SheetContent>
+          </Sheet>
+          
+          <div className="flex-1 flex justify-center">
+            <ProposalSelector />
+          </div>
+          
+          <Button
+            onClick={handleNewProposal}
+            variant="ghost"
+            size="icon"
+            className="text-slate-300 hover:text-white"
+          >
+            <Plus className="h-5 w-5" />
+          </Button>
+        </div>
+      ) : (
+        <AppHeader center={<ProposalSelector />} onNewProposal={handleNewProposal} />
+      )}
 
       <div key={proposalId ?? "new"} className="flex flex-1 overflow-hidden">
-      {/* Sidebar - Fixed height, no scroll needed */}
-      <aside className="w-64 border-r border-slate-700 bg-slate-800 flex flex-col flex-shrink-0 overflow-hidden">
-
-        {/* Tabs - scrollable if many */}
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          {/* Getting Started - Always first */}
-          <button
-            onClick={() => setActiveTab('home')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-              activeTab === 'home'
-                ? "bg-primary text-primary-foreground shadow-md"
-                : "text-slate-400 hover:text-slate-100 hover:bg-slate-700"
-            }`}
-          >
-            <Home className="h-4 w-4" />
-            <span className="flex-1 text-left">Getting Started</span>
-          </button>
-          
-          {/* Edit Project Brief - Between Getting Started and Proposal */}
-          {hasProposal && (
-            <button
-              onClick={() => setShowEditModal(true)}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-amber-400 hover:text-amber-300 border border-amber-500/30 hover:border-amber-400/50 hover:bg-amber-500/10"
-            >
-              <Pencil className="h-4 w-4" />
-              <span className="flex-1 text-left">Edit Project Brief</span>
-            </button>
-          )}
-          
-          {/* Rest of tabs - skip home since it's rendered above */}
-          {tabs.filter(tab => tab.id !== 'library' && tab.id !== 'home').map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            const isGenerating = generatingAsset === tab.id || (tab.id === 'deck' && deckData.status === 'generating');
-            
-            let hasTabContent = false;
-            if (tab.id === 'deck') {
-              hasTabContent = deckData.status === 'completed';
-            } else if (tab.id === 'proposal') {
-              hasTabContent = !!deliverables?.proposal;
-            } else {
-              hasTabContent = (deliverables?.[tab.id as keyof typeof deliverables] || '').length > 0;
-            }
-            
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                  isActive
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-700"
-                }`}
-              >
-                {isGenerating ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Icon className="h-4 w-4" />
-                )}
-                <span className="flex-1 text-left">{tab.label}</span>
-                {!hasTabContent && (
-                  <span className="text-xs opacity-60">•</span>
-                )}
-                {hasTabContent && tab.id !== 'proposal' && (
-                  <Check className="h-3 w-3 opacity-60" />
-                )}
-              </button>
-            );
-          })}
-        </nav>
-        
-        {/* Proposal Library - Separated at bottom */}
-        <div className="px-3 pb-2 border-t border-slate-700 pt-3">
-          <button
-            onClick={() => setActiveTab('library')}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-              activeTab === 'library'
-                ? "bg-primary text-primary-foreground shadow-md"
-                : "text-emerald-400 hover:text-emerald-300 border border-emerald-500/50 hover:border-emerald-400 hover:bg-emerald-500/10 animate-pulse-slow"
-            }`}
-          >
-            <Library className="h-4 w-4" />
-            <span className="flex-1 text-left">Proposal Library</span>
-            {activeTab !== 'library' && (
-              <span className="text-[10px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded">PRO</span>
-            )}
-          </button>
-        </div>
-
-        {/* Sidebar Actions */}
-        <div className="p-4 border-t border-slate-700 space-y-2">
-          {hasContent && !isDeckTab && (
-            <>
-              <Button onClick={handleCopy} variant="outline" className="w-full justify-start border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white">
-                {copied ? (
-                  <>
-                    <Check className="mr-2 h-4 w-4 text-success" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="mr-2 h-4 w-4" />
-                    Copy Current
-                  </>
-                )}
-              </Button>
-              <Button onClick={handleDownload} variant="outline" className="w-full justify-start border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white">
-                <Download className="mr-2 h-4 w-4" />
-                Download
-              </Button>
-            </>
-          )}
-          <div className="border-t border-slate-700 pt-3 mt-2 space-y-1">
-            <Button onClick={handleNewProposal} variant="ghost" className="w-full justify-start text-slate-400 hover:text-white hover:bg-slate-700">
-              <Plus className="mr-2 h-4 w-4" />
-              Generate New
-            </Button>
-            <Button asChild variant="ghost" className="w-full justify-start text-slate-400 hover:text-white hover:bg-slate-700">
-              <Link to="/profile">
-                <User className="mr-2 h-4 w-4" />
-                Account Settings
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </aside>
+        {/* Desktop Sidebar */}
+        {!isMobile && (
+          <aside className="w-64 border-r border-slate-700 bg-slate-800 flex flex-col flex-shrink-0 overflow-hidden">
+            <SidebarContent />
+          </aside>
+        )}
 
       {/* Main Content - Scrollable */}
       <main className="flex-1 flex flex-col overflow-hidden bg-slate-700">
