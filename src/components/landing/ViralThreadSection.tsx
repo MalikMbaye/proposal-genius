@@ -52,7 +52,7 @@ export function ViralThreadSection() {
   }, [emblaApi, onSelect]);
 
   return (
-    <section className="relative pt-20 pb-12 overflow-hidden">
+    <section className="relative pt-28 pb-12 overflow-hidden">
       {/* Warm gradient background */}
       <div 
         className="absolute inset-0"
