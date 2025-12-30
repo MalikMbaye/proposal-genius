@@ -190,8 +190,8 @@ export function HeroSection() {
             </div>
             
             {/* Trust line - context for marquee */}
-            <p className="text-xs text-slate-500 mt-4 animate-fade-in font-medium" style={{ animationDelay: '0.6s' }}>
-              Pitch Genius proposals have closed deals with companies like:
+            <p className="text-sm text-slate-700 mt-6 mb-2 animate-fade-in font-semibold" style={{ animationDelay: '0.6s' }}>
+              <span className="text-primary">Pitch Genius</span> proposals have closed deals with:
             </p>
 
             {/* Press logos (right under trust line, above stats) */}
