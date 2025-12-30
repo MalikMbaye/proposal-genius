@@ -96,6 +96,7 @@ export default function Preview() {
     pricingManaged,
     deckData,
     setDeckData,
+    saveToDatabase,
   } = useProposalStore();
 
   // If we have a proposal, show banner and switch to proposal tab on initial load
@@ -191,6 +192,12 @@ export default function Preview() {
             pptxUrl: null,
             thumbnailUrl: null,
           });
+          
+          // Save deck URL to database
+          setTimeout(() => {
+            saveToDatabase();
+          }, 100);
+          
           toast({
             title: "Slide deck generated!",
             description: "Your presentation is ready to preview and download.",
