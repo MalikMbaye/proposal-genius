@@ -26,6 +26,9 @@ export function Navbar() {
         </Link>
         
         <div className="hidden md:flex items-center gap-8">
+          <a href="#founder" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            About
+          </a>
           <a href="#solution" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Features
           </a>
