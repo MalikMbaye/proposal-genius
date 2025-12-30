@@ -68,8 +68,8 @@ export function FounderSection() {
           {/* Right Column - Content */}
           <div className="lg:col-span-3">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
-            Built by a Proposal Writer Who's Closed{" "}
-            <span className="text-gradient">$1.5M+ with Fortune 500s & Top Startups</span>
+            Built by a Seven-Figure Consultant Who's Closed{" "}
+            <span className="text-gradient">$1.5M+ with Fortune 500s & Venture-Backed Startups</span>
           </h2>
             
             <p className="text-lg text-slate-300 italic mb-6">

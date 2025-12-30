@@ -82,9 +82,12 @@ export function Navbar() {
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/auth">Log in</Link>
               </Button>
-              <Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg shadow-accent/30" asChild>
-                <Link to="/generate">New Proposal</Link>
-              </Button>
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary via-accent-secondary to-primary rounded-md blur opacity-60 group-hover:opacity-100 transition duration-500 animate-gradient-x"></div>
+                <Button size="sm" className="relative bg-white text-slate-900 hover:bg-slate-50 font-semibold" asChild>
+                  <Link to="/generate">New Proposal</Link>
+                </Button>
+              </div>
             </>
           )}
         </div>
