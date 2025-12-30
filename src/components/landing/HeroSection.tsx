@@ -189,9 +189,9 @@ export function HeroSection() {
               </Button>
             </div>
             
-            {/* Trust line - cleaner */}
-            <p className="text-xs text-slate-400 mt-4 animate-fade-in" style={{ animationDelay: '0.6s' }}>
-              Trusted by 500+ consultants worldwide
+            {/* Trust line - context for marquee */}
+            <p className="text-xs text-slate-500 mt-4 animate-fade-in font-medium" style={{ animationDelay: '0.6s' }}>
+              Pitch Genius proposals have closed deals with companies like:
             </p>
 
             {/* Press logos (right under trust line, above stats) */}
