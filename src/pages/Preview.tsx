@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
+import { ProposalSelector } from "@/components/ProposalSelector";
 import { useProposalStore, caseStudies } from "@/lib/proposalStore";
 import { supabase } from "@/integrations/supabase/client";
 import { PDFViewer } from "@/components/PDFViewer";
@@ -484,14 +485,25 @@ Key requirements:
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
-      <aside className="w-64 border-r border-border bg-card/50 flex flex-col">
-        <div className="p-4 border-b border-border">
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Top Navigation Bar with Proposal Selector */}
+      <header className="h-16 border-b border-border bg-card/50 flex items-center justify-between px-4 flex-shrink-0">
+        <div className="flex items-center gap-4">
           <Link to="/">
             <Logo />
           </Link>
+          <div className="h-6 w-px bg-border" />
+          <ProposalSelector />
         </div>
+        <Button variant="outline" size="sm" onClick={handleNewProposal}>
+          <Plus className="mr-2 h-4 w-4" />
+          New Proposal
+        </Button>
+      </header>
+
+      <div className="flex flex-1 min-h-0">
+      {/* Sidebar */}
+      <aside className="w-64 border-r border-border bg-card/50 flex flex-col">
 
         {/* Tabs */}
         <nav className="flex-1 p-3 space-y-1">
@@ -862,6 +874,7 @@ Key requirements:
           </div>
         )}
       </main>
+      </div>
     </div>
   );
 }
