@@ -310,7 +310,7 @@ export function HeroSection() {
 
             {/* Press logos (right under trust line, above stats) */}
             <div className="animate-fade-in" style={{ animationDelay: '0.65s' }}>
-              <AsSeenInMarquee label={false} />
+              <AsSeenInMarquee />
             </div>
           </div>
           
