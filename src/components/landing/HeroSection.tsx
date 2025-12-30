@@ -6,9 +6,9 @@ import { loadingVideos } from "@/lib/loadingContent";
 import { AsSeenInMarquee } from "@/components/landing/AsSeenInSection";
 
 const stats = [
-  { value: "$1.5M+", label: "Contracts Closed" },
-  { value: "50+", label: "Proven Templates" },
-  { value: "5 min", label: "Get Your Proposal" },
+  { value: "$1.5M+", label: "In Agency Deals Closed", description: "Trained on winning proposals" },
+  { value: "100+", label: "6 & 7-Figure Templates", description: "Proven proposal library" },
+  { value: "5 min", label: "To Your Proposal", description: "From input to ready-to-send" },
 ];
 
 // Proposal comparison cards
@@ -51,8 +51,8 @@ const proposalCards = [
   },
 ];
 
-// Animated counter component
-function AnimatedCounter({ value, label }: { value: string; label: string }) {
+// Stat bubble component with gradient
+function StatBubble({ value, label, description, delay = 0 }: { value: string; label: string; description: string; delay?: number }) {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -76,12 +76,17 @@ function AnimatedCounter({ value, label }: { value: string; label: string }) {
   return (
     <div 
       ref={ref}
-      className={`text-center transition-all duration-700 ${
+      className={`relative p-6 rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 backdrop-blur-sm transition-all duration-700 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       }`}
+      style={{ animationDelay: `${delay}s` }}
     >
-      <div className="text-3xl md:text-4xl font-bold text-primary">{value}</div>
-      <div className="mt-1 text-sm text-slate-500">{label}</div>
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-transparent opacity-50" />
+      <div className="relative">
+        <div className="text-3xl md:text-4xl font-bold text-primary mb-1">{value}</div>
+        <div className="text-sm font-medium text-slate-700">{label}</div>
+        <div className="text-xs text-slate-500 mt-1">{description}</div>
+      </div>
     </div>
   );
 }
@@ -294,17 +299,12 @@ export function HeroSection() {
               what six-figure proposals actually look like.
             </p>
             
-            {/* CTA Row */}
-            <div className="flex flex-col sm:flex-row items-start gap-4 mb-8 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+            {/* CTA */}
+            <div className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
               <Button variant="hero" size="xl" asChild className="group">
                 <Link to="/generate">
                   Generate Your First Proposal
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
-              <Button variant="outline" size="xl" asChild className="border-slate-300 text-slate-700 hover:bg-slate-50">
-                <Link to="#solution">
-                  See a Sample Proposal
                 </Link>
               </Button>
             </div>
@@ -326,11 +326,11 @@ export function HeroSection() {
           </div>
         </div>
         
-        {/* Stats Row */}
+        {/* Stats Row - Gradient Bubbles */}
         <div className="mt-20 pt-12 border-t border-slate-200">
-          <div className="flex flex-wrap justify-center lg:justify-start gap-12 md:gap-20">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {stats.map((stat, index) => (
-              <AnimatedCounter key={stat.label} {...stat} />
+              <StatBubble key={stat.label} {...stat} delay={index * 0.1} />
             ))}
           </div>
         </div>
