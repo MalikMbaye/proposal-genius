@@ -86,13 +86,13 @@ function ExperienceMarquee() {
 
 export function FounderSection() {
   return (
-    <section id="founder" className="py-20 md:py-28 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+    <section id="founder" className="py-12 md:py-16 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
       {/* Subtle background effects */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent" />
       <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-primary/5 to-transparent" />
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-6xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center max-w-6xl mx-auto">
           {/* Left Column - Image */}
           <div className="flex justify-center lg:justify-start">
             <div className="relative w-full max-w-md">
@@ -113,41 +113,22 @@ export function FounderSection() {
           {/* Right Column - Content */}
           <div>
             {/* Headline */}
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-8 leading-tight">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 leading-snug">
               Built by a Seven-Figure Consultant Who's Closed{" "}
-              <span className="text-gradient">$1.5M+ with Fortune 500s & Venture-Backed Startups</span>
+              <span className="text-gradient">$1.5M+ in Deals with Fortune 500s & Venture-Backed Startups</span>
             </h2>
 
             {/* Stat Cards */}
-            <div className="flex flex-wrap gap-4 mb-10">
+            <div className="flex flex-wrap gap-3 mb-6">
               {stats.map((stat, index) => (
                 <div
                   key={index}
-                  className="flex-1 min-w-[110px] max-w-[150px] px-6 py-5 rounded-xl border border-slate-600/50 bg-slate-800/50 backdrop-blur-sm text-center shadow-lg shadow-slate-900/50"
+                  className="flex-1 min-w-[100px] max-w-[130px] px-4 py-3 rounded-xl border border-slate-600/50 bg-slate-800/50 backdrop-blur-sm text-center shadow-lg shadow-slate-900/50"
                 >
-                  <div className="text-3xl md:text-4xl font-black text-white">{stat.value}</div>
-                  <div className="text-xs text-slate-400 mt-1.5 uppercase tracking-widest font-medium">{stat.label}</div>
+                  <div className="text-2xl md:text-3xl font-black text-white">{stat.value}</div>
+                  <div className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-medium">{stat.label}</div>
                 </div>
               ))}
-            </div>
-
-            {/* Main paragraph copy */}
-            <div className="space-y-4 text-slate-300 mb-8">
-              <p>
-                I'm <strong className="text-white">Malik Mbaye</strong>. I started my first business at 16 and scaled it to 23 countries. Since then, I've spent nearly a decade writing proposals that actually close—for startups, agencies, and consultants.
-              </p>
-              
-              <p>
-                I was a Product Marketing Manager at <strong className="text-white">Facebook</strong>, launching features to 800M+ users. I've worked at LinkedIn, Lyft, and Upwork. I've helped startups raise $50M+ from Google Ventures, SoftBank, and Techstars—and raised money myself from Twitter and Google.
-              </p>
-              
-              <p>
-                Through my consultancy <strong className="text-white">Black Lotus</strong>, I've personally written 50+ proposals generating over $10M in client revenue.
-              </p>
-              
-              <p className="text-white font-medium border-l-2 border-primary pl-4 bg-slate-800/50 py-3 pr-4 rounded-r-lg">
-                This tool isn't built on theory. It's built on the exact system I use to close deals—now available to you.
-              </p>
             </div>
 
             {/* CTA Buttons */}
@@ -185,8 +166,8 @@ export function FounderSection() {
         </div>
 
         {/* Full-width Marquee Company Logos */}
-        <div className="mt-16">
-          <p className="text-xs text-slate-500 font-medium tracking-[0.25em] uppercase text-center mb-2">
+        <div className="mt-10">
+          <p className="text-[10px] text-slate-500 font-medium tracking-[0.25em] uppercase text-center mb-1">
             Experience At
           </p>
           <ExperienceMarquee />
