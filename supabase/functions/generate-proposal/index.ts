@@ -317,7 +317,7 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
-          max_tokens: proposalOnly ? 8000 : 16000,
+          max_tokens: proposalOnly ? 4000 : 6000,
           stream: true,
           system: systemPrompt,
           messages: [
@@ -391,7 +391,7 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: proposalOnly ? 8000 : 16000,
+        max_tokens: proposalOnly ? 4000 : 6000,
         system: systemPrompt,
         messages: [
           { role: 'user', content: userPrompt }
