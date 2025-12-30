@@ -110,21 +110,20 @@ export function ProposalSelector() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button 
-          variant="ghost" 
-          className="h-10 px-4 gap-3 bg-secondary/50 hover:bg-secondary border border-border/50 w-full max-w-md justify-between"
+          variant="outline" 
+          className="h-10 px-6 gap-4 bg-muted/30 hover:bg-muted/50 border-border w-full max-w-xl justify-between"
         >
           <div className="flex items-center gap-3">
-            <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center">
+            <div className="h-7 w-7 rounded-md bg-primary/15 flex items-center justify-center">
               <FileText className="h-4 w-4 text-primary" />
             </div>
-            <div className="text-left">
-              <div className="font-semibold text-sm truncate max-w-[200px]">{displayName}</div>
-            </div>
+            <span className="text-xs text-muted-foreground uppercase tracking-wide">Current Proposal:</span>
+            <span className="font-semibold text-sm truncate max-w-[250px]">{displayName}</span>
           </div>
           <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-[320px] bg-card border-border">
+      <DropdownMenuContent align="center" className="w-[360px] bg-card border-border">
           <DropdownMenuItem onClick={handleNewProposal} className="gap-3 py-3">
             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
               <Plus className="h-4 w-4 text-primary" />

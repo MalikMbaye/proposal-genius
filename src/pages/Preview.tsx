@@ -487,17 +487,14 @@ Key requirements:
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Top Navigation Bar with Proposal Selector - Full Width */}
-      <header className="h-14 border-b border-border bg-card flex items-center px-4 flex-shrink-0">
-        <div className="flex items-center gap-4 flex-1">
-          <Link to="/" className="flex-shrink-0">
-            <Logo />
-          </Link>
-          <div className="h-8 w-px bg-border" />
-          <div className="flex-1">
-            <ProposalSelector />
-          </div>
+      <header className="h-14 border-b border-border bg-background flex items-center px-4 gap-4 flex-shrink-0">
+        <Link to="/" className="flex-shrink-0">
+          <Logo />
+        </Link>
+        <div className="flex-1 flex justify-center">
+          <ProposalSelector />
         </div>
-        <Button variant="hero" size="sm" onClick={handleNewProposal}>
+        <Button variant="hero" size="sm" onClick={handleNewProposal} className="flex-shrink-0">
           <Plus className="mr-2 h-4 w-4" />
           New Proposal
         </Button>
