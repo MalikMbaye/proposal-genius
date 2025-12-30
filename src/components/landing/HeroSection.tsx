@@ -8,7 +8,7 @@ import { AsSeenInMarquee } from "@/components/landing/AsSeenInSection";
 const stats = [
   { value: "$1.5M+", label: "In Deals Closed", gradient: "from-emerald-500 via-green-500 to-teal-500" },
   { value: "100+", label: "Real 6 & 7-Figure Proposals", gradient: "from-violet-500 via-purple-500 to-indigo-500" },
-  { value: "5 min", label: "To Generate Your Proposal", gradient: "from-amber-500 via-orange-500 to-yellow-500" },
+  { value: "~5 min", label: "To Generate Your Proposal", gradient: "from-amber-500 via-orange-500 to-yellow-500" },
 ];
 
 // Stat bubble component with unique gradient and shimmer
