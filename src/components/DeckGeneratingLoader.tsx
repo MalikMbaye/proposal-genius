@@ -135,6 +135,30 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
             index === currentStage ? 'active' as const : 'pending' as const
   }));
 
+  // Calculate overall progress percentage based on stage
+  const stageProgress = [0, 15, 40, 70, 90, 100];
+  const baseProgress = stageProgress[currentStage] || 0;
+  const nextProgress = stageProgress[currentStage + 1] || 100;
+  const stageDurations = [8000, 15000, 20000, 15000, 10000];
+  const currentStageDuration = stageDurations[currentStage] || 10000;
+  
+  // Smooth progress within current stage
+  const [smoothProgress, setSmoothProgress] = useState(0);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSmoothProgress((prev) => {
+        const target = baseProgress + ((nextProgress - baseProgress) * 0.8);
+        if (prev < target) {
+          return Math.min(prev + 0.5, target);
+        }
+        return prev;
+      });
+    }, 100);
+    
+    return () => clearInterval(interval);
+  }, [baseProgress, nextProgress]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background overflow-hidden">
       <div className="flex flex-col items-center gap-5 animate-fade-in w-full max-w-3xl px-4">
@@ -150,6 +174,9 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
           </h2>
           <p className="text-muted-foreground text-sm md:text-base">
             {clientName ? `Building a stunning deck for ${clientName}` : subtitle}
+          </p>
+          <p className="text-muted-foreground/70 text-xs mt-1">
+            Feel free to switch tabs — this takes 5-7 minutes. We'll keep working in the background.
           </p>
         </div>
 
@@ -186,28 +213,72 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
           ))}
         </div>
 
-        {/* Steps */}
-        <div className="flex flex-wrap justify-center gap-2 md:gap-3">
-          {steps.map((step) => (
-            <div
-              key={step.label}
-              className={cn(
-                "flex items-center gap-2 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium transition-all duration-300",
-                step.status === "completed" && "bg-success/20 text-success",
-                step.status === "active" && "bg-primary/20 text-primary",
-                step.status === "pending" && "bg-muted text-muted-foreground"
-              )}
-            >
-              {step.status === "completed" ? (
-                <Check className="h-3.5 w-3.5" />
-              ) : step.status === "active" ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Circle className="h-3.5 w-3.5" />
-              )}
-              <span>{step.label}</span>
-            </div>
-          ))}
+        {/* Progress Bar with Percentage */}
+        <div className="w-full max-w-lg space-y-2">
+          <div className="flex justify-between items-center text-xs text-muted-foreground">
+            <span>Progress</span>
+            <span className="font-mono font-semibold text-primary">{Math.round(smoothProgress)}%</span>
+          </div>
+          <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+            <div 
+              className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-300 ease-out"
+              style={{ width: `${smoothProgress}%` }}
+            />
+            <div 
+              className="absolute inset-y-0 left-0 bg-primary/30 rounded-full animate-pulse"
+              style={{ width: `${smoothProgress}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Sequential Steps Progress */}
+        <div className="w-full max-w-lg">
+          <div className="relative flex justify-between">
+            {/* Progress line behind steps */}
+            <div className="absolute top-4 left-0 right-0 h-0.5 bg-muted" />
+            <div 
+              className="absolute top-4 left-0 h-0.5 bg-primary transition-all duration-500 ease-out"
+              style={{ width: `${(currentStage / (stages.length - 1)) * 100}%` }}
+            />
+            
+            {steps.map((step, index) => {
+              const StageIcon = stages[index].icon;
+              return (
+                <div key={step.label} className="relative flex flex-col items-center z-10">
+                  <div
+                    className={cn(
+                      "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 border-2",
+                      step.status === "completed" && "bg-success border-success text-success-foreground",
+                      step.status === "active" && "bg-primary border-primary text-primary-foreground",
+                      step.status === "pending" && "bg-background border-muted text-muted-foreground"
+                    )}
+                  >
+                    {step.status === "completed" ? (
+                      <Check className="h-4 w-4" />
+                    ) : step.status === "active" ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <StageIcon className="h-4 w-4" />
+                    )}
+                  </div>
+                  <span 
+                    className={cn(
+                      "text-xs mt-2 text-center max-w-16 leading-tight hidden md:block",
+                      step.status === "completed" && "text-success",
+                      step.status === "active" && "text-primary font-medium",
+                      step.status === "pending" && "text-muted-foreground"
+                    )}
+                  >
+                    {step.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          {/* Mobile: show current step label */}
+          <p className="text-center text-sm text-primary font-medium mt-4 md:hidden">
+            {stages[currentStage].label}...
+          </p>
         </div>
 
         {/* Terminal visualization */}
