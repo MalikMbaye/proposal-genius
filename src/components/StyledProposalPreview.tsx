@@ -208,7 +208,7 @@ export function StyledProposalPreview({
       {/* Footer */}
       <div className="bg-muted/30 border-t border-border px-8 py-4">
         <p className="text-xs text-muted-foreground text-center">
-          Generated with Proposal AI • Confidential
+          Generated with Pitch Genius • Confidential
         </p>
       </div>
     </div>
