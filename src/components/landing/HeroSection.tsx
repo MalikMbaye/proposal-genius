@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
+import { getRandomLoadingContent } from "@/lib/loadingContent";
 
 const stats = [
   { value: "$1M+", label: "Contracts Won" },
@@ -44,75 +45,59 @@ function AnimatedCounter({ value, label }: { value: string; label: string }) {
   );
 }
 
-// Typewriter effect for proposal comparison
-function ProposalComparison() {
-  const [showGeneric, setShowGeneric] = useState(true);
-  
+// Video display with rotating headlines
+function HeroVideoDisplay() {
+  const [content, setContent] = useState(() => getRandomLoadingContent());
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Rotate content every 12 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setShowGeneric(prev => !prev);
-    }, 4000);
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setContent(getRandomLoadingContent());
+        setIsTransitioning(false);
+      }, 300);
+    }, 12000);
+
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="relative w-full max-w-md mx-auto lg:mx-0">
-      {/* Floating mockup container */}
+      {/* Glow effect */}
+      <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-accent-secondary/20 rounded-3xl blur-2xl opacity-60 animate-pulse-slow" />
+      
+      {/* Video Container */}
       <div className="relative animate-float">
-        {/* Glow effect */}
-        <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-accent-secondary/20 rounded-3xl blur-2xl opacity-60" />
-        
-        {/* Main mockup */}
-        <div className="relative bg-card border border-border/50 rounded-2xl p-6 backdrop-blur-xl shadow-2xl">
-          {/* Window controls */}
-          <div className="flex items-center gap-2 mb-4 pb-4 border-b border-border/30">
-            <div className="w-3 h-3 rounded-full bg-destructive/60" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
-            <div className="w-3 h-3 rounded-full bg-success/60" />
-            <span className="ml-3 text-xs text-muted-foreground font-mono">proposal.md</span>
-          </div>
+        <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-border/50 aspect-video">
+          <video
+            key={content.videoUrl}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            className="w-full h-full object-cover"
+          >
+            <source src={content.videoUrl} type="video/mp4" />
+          </video>
           
-          {/* Content area */}
-          <div className={`transition-all duration-500 ${showGeneric ? 'opacity-100' : 'opacity-0 absolute'}`}>
-            <div className="space-y-3">
-              <div className={`text-xs uppercase tracking-wider ${showGeneric ? 'text-destructive' : 'text-success'}`}>
-                {showGeneric ? '❌ Generic Proposal' : '✓ Strategic Proposal'}
-              </div>
-              <p className={`text-sm leading-relaxed ${showGeneric ? 'text-muted-foreground' : 'text-foreground'}`}>
-                {showGeneric 
-                  ? '"We will provide marketing strategy and execution services to help grow your business."'
-                  : '"Your brand is stuck at $15K/month not because your product isn\'t good enough, but because you\'re missing three critical components..."'
-                }
-              </p>
-              <div className="pt-4 border-t border-border/30">
-                <div className={`text-2xl font-bold ${showGeneric ? 'text-muted-foreground' : 'text-primary'}`}>
-                  {showGeneric ? '$5,000' : '$50,000'}
-                </div>
-                <div className="text-xs text-muted-foreground">Project Value</div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Strategic version (shown when not generic) */}
-          <div className={`transition-all duration-500 ${!showGeneric ? 'opacity-100' : 'opacity-0 absolute top-0 left-0 right-0 p-6 pt-14'}`}>
-            <div className="space-y-3">
-              <div className="text-xs uppercase tracking-wider text-success">
-                ✓ Strategic Proposal
-              </div>
-              <p className="text-sm leading-relaxed text-foreground">
-                "Your brand is stuck at $15K/month not because your product isn't good enough, but because you're missing three critical components..."
-              </p>
-              <div className="pt-4 border-t border-border/30">
-                <div className="text-2xl font-bold text-primary">$50,000</div>
-                <div className="text-xs text-muted-foreground">Project Value</div>
-              </div>
-            </div>
+          {/* Headline overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent flex items-end p-4">
+            <p 
+              className={`text-sm md:text-base font-medium text-foreground leading-snug transition-all duration-300 ${
+                isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
+              }`}
+            >
+              {content.headline}
+            </p>
           </div>
         </div>
         
-        {/* Floating elements */}
-        <div className="absolute -top-4 -right-4 bg-primary/20 border border-primary/30 rounded-xl px-3 py-2 backdrop-blur-sm animate-pulse-slow">
-          <span className="text-xs font-medium text-primary">+900% ROI</span>
+        {/* Floating badge */}
+        <div className="absolute -top-3 -right-3 bg-primary/20 border border-primary/30 rounded-xl px-3 py-2 backdrop-blur-sm animate-pulse-slow">
+          <span className="text-xs font-medium text-primary">AI at Work ⚡</span>
         </div>
       </div>
     </div>
@@ -184,9 +169,9 @@ export function HeroSection() {
             </p>
           </div>
           
-          {/* Right Side - Visual */}
+          {/* Right Side - Video */}
           <div className="lg:pl-8 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            <ProposalComparison />
+            <HeroVideoDisplay />
           </div>
         </div>
         
