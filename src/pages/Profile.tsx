@@ -6,8 +6,9 @@ import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, Building2, Mail } from "lucide-react";
+import { Loader2, ArrowLeft, Building2, Mail, Briefcase, FileText, Trophy } from "lucide-react";
 
 export default function Profile() {
   const { user, signOut } = useAuth();
@@ -15,6 +16,9 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [companyName, setCompanyName] = useState("");
+  const [businessContext, setBusinessContext] = useState("");
+  const [background, setBackground] = useState("");
+  const [proofPoints, setProofPoints] = useState("");
 
   useEffect(() => {
     if (user) {
@@ -26,13 +30,16 @@ export default function Profile() {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("company_name")
+        .select("company_name, business_context, background, proof_points")
         .eq("id", user?.id)
         .maybeSingle();
 
       if (error) throw error;
-      if (data?.company_name) {
-        setCompanyName(data.company_name);
+      if (data) {
+        setCompanyName(data.company_name || "");
+        setBusinessContext(data.business_context || "");
+        setBackground(data.background || "");
+        setProofPoints(data.proof_points || "");
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
@@ -48,7 +55,12 @@ export default function Profile() {
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({ company_name: companyName })
+        .update({ 
+          company_name: companyName,
+          business_context: businessContext,
+          background: background,
+          proof_points: proofPoints
+        })
         .eq("id", user.id);
 
       if (error) throw error;
@@ -85,7 +97,7 @@ export default function Profile() {
           <div className="glass-card rounded-2xl p-8">
             <h1 className="text-2xl font-bold mb-2">Account Settings</h1>
             <p className="text-muted-foreground mb-8">
-              Manage your account preferences and company information
+              Manage your account and business information. This context will be used in all your proposals.
             </p>
 
             {isLoading ? (
@@ -94,39 +106,100 @@ export default function Profile() {
               </div>
             ) : (
               <div className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    Email
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={user?.email || ""}
-                    disabled
-                    className="bg-muted/50"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Email cannot be changed
-                  </p>
+                {/* Account Section */}
+                <div className="space-y-4">
+                  <h2 className="text-lg font-semibold border-b border-border pb-2">Account</h2>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      Email
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={user?.email || ""}
+                      disabled
+                      className="bg-muted/50"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Email cannot be changed
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="company" className="flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-muted-foreground" />
+                      Company Name
+                    </Label>
+                    <Input
+                      id="company"
+                      type="text"
+                      placeholder="Your company name"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      className="bg-background/50"
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="company" className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-muted-foreground" />
-                    Company Name
-                  </Label>
-                  <Input
-                    id="company"
-                    type="text"
-                    placeholder="Your company name"
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                    className="bg-background/50"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    This will appear on your generated proposals
+                {/* Business Context Section */}
+                <div className="space-y-4">
+                  <h2 className="text-lg font-semibold border-b border-border pb-2">Business Profile</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Set this up once and it will be used for all your proposals.
                   </p>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="businessContext" className="flex items-center gap-2">
+                      <Briefcase className="h-4 w-4 text-muted-foreground" />
+                      Business Context
+                    </Label>
+                    <Textarea
+                      id="businessContext"
+                      placeholder="Describe your business, services, and what makes you unique. E.g., 'We are a growth marketing agency specializing in B2B SaaS. We offer paid acquisition, content strategy, and AI-powered lead generation.'"
+                      value={businessContext}
+                      onChange={(e) => setBusinessContext(e.target.value)}
+                      className="bg-background/50 min-h-[100px]"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      General context about your business and services
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="background" className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      Your Background
+                    </Label>
+                    <Textarea
+                      id="background"
+                      placeholder="• 8 years in growth marketing & B2B SaaS&#10;• Scaled 3 companies to 7-figures&#10;• Built AI-powered lead generation systems&#10;• Ex-LinkedIn, worked on Jobs product"
+                      value={background}
+                      onChange={(e) => setBackground(e.target.value)}
+                      className="bg-background/50 min-h-[120px]"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Your professional experience and credentials
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="proofPoints" className="flex items-center gap-2">
+                      <Trophy className="h-4 w-4 text-muted-foreground" />
+                      Key Accomplishments & Proof Points
+                    </Label>
+                    <Textarea
+                      id="proofPoints"
+                      placeholder="• Scaled RipRight from $15K/mo to $350K/mo in 8 months&#10;• Generated 100M+ views and managed $1.7M ad spend&#10;• Built AI lead gen system generating 15+ meetings/week&#10;• Worked with Google-backed startups and Fortune 500 clients"
+                      value={proofPoints}
+                      onChange={(e) => setProofPoints(e.target.value)}
+                      className="bg-background/50 min-h-[120px]"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Success metrics and case study highlights that will be included in proposals
+                    </p>
+                  </div>
                 </div>
 
                 <div className="flex gap-3 pt-4">
