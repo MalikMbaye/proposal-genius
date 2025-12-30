@@ -12,6 +12,7 @@ import { GeneratePageVideo } from "@/components/GeneratePageVideo";
 import { EmailSignupModal } from "@/components/EmailSignupModal";
 import { BusinessTypeSelector, businessTypes } from "@/components/BusinessTypeSelector";
 import { PricingTierInput } from "@/components/PricingTierInput";
+import { FileUploadButton } from "@/components/FileUploadButton";
 import {
   useProposalStore,
   proposalLengths,
@@ -247,9 +248,16 @@ export default function Generate() {
 
               {/* Background */}
               <div className="rounded-xl border border-border bg-card p-6 mb-6">
-                <Label className="text-base font-semibold mb-3 block">
-                  Your Background & Credentials
-                </Label>
+                <div className="flex items-center justify-between mb-3">
+                  <Label className="text-base font-semibold">
+                    Your Background & Credentials
+                  </Label>
+                  <FileUploadButton
+                    onTextExtracted={(text) => {
+                      setBackground(background ? `${background}\n\n${text}` : text);
+                    }}
+                  />
+                </div>
                 <Textarea
                   value={background}
                   onChange={(e) => setBackground(e.target.value)}
@@ -257,7 +265,7 @@ export default function Generate() {
                   className="min-h-[120px] resize-none bg-background border-border"
                 />
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Copy/paste from your LinkedIn or website
+                  Copy/paste from your LinkedIn or website, or upload a resume/bio
                 </p>
               </div>
 
@@ -304,9 +312,16 @@ export default function Generate() {
 
               {/* Client Context */}
               <div className="rounded-xl border border-border bg-card p-6">
-                <Label className="text-base font-semibold mb-3 block">
-                  Project Context
-                </Label>
+                <div className="flex items-center justify-between mb-3">
+                  <Label className="text-base font-semibold">
+                    Project Context
+                  </Label>
+                  <FileUploadButton
+                    onTextExtracted={(text) => {
+                      setClientContext(clientContext ? `${clientContext}\n\n${text}` : text);
+                    }}
+                  />
+                </div>
                 <Textarea
                   value={clientContext}
                   onChange={(e) => setClientContext(e.target.value)}
@@ -321,7 +336,7 @@ Budget: Mentioned $15K-40K range.`}
                   className="min-h-[200px] resize-none bg-background border-border text-base"
                 />
                 <p className="mt-3 text-sm text-muted-foreground">
-                  Include their problem, goals, and any budget signals mentioned
+                  Include their problem, goals, and any budget signals — or upload an RFP/brief
                 </p>
               </div>
 
