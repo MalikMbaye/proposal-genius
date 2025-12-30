@@ -32,7 +32,11 @@ import {
   FileDown,
   User,
   Home,
+  Pencil,
 } from "lucide-react";
+import { EditProposalModal } from "@/components/EditProposalModal";
+import { useStreamingProposal } from "@/hooks/useStreamingProposal";
+import { businessTypes } from "@/components/BusinessTypeSelector";
 import { toast } from "@/hooks/use-toast";
 
 // Consolidated tabs - removed deckPrompt, merged into deck
@@ -81,22 +85,35 @@ export default function Preview() {
   const [copied, setCopied] = useState(false);
   const [generatingAsset, setGeneratingAsset] = useState<TabId | null>(null);
   const [lightMode, setLightMode] = useState(true);
+  const [showEditModal, setShowEditModal] = useState(false);
   
   const { 
     proposalId,
     deliverables, 
-    updateDeliverable, 
+    updateDeliverable,
+    setDeliverables,
     reset,
     clientContext,
     clientName,
     background,
+    businessType,
+    customBusinessType,
+    pricingTiers,
     selectedCaseStudies,
     pricingStrategy,
     pricingAI,
     pricingManaged,
     deckData,
     setDeckData,
+    saveToDatabase,
   } = useProposalStore();
+  
+  const { 
+    isStreaming, 
+    progress, 
+    charCount, 
+    startStreaming 
+  } = useStreamingProposal();
 
   // If we have a proposal, show banner and switch to proposal tab on initial load
   useEffect(() => {
@@ -116,6 +133,54 @@ export default function Preview() {
   const currentContent = isDeckTab || isHomeTab || isLibraryTab ? '' : (deliverables?.[activeTab as keyof typeof deliverables] || '');
   const hasContent = isDeckTab ? deckData.status === 'completed' : isHomeTab || isLibraryTab ? false : currentContent.length > 0;
   const ActiveIcon = tabs.find((t) => t.id === activeTab)?.icon || FileText;
+
+  const getBusinessTypeLabel = () => {
+    if (businessType === 'other') return customBusinessType;
+    return businessTypes.find(t => t.value === businessType)?.label || businessType;
+  };
+
+  const handleRegenerateProposal = () => {
+    setShowEditModal(false);
+    
+    // Convert pricing tiers to the format expected by the API
+    const pricingFromTiers = pricingTiers.reduce((acc, tier, idx) => {
+      if (tier.name && tier.price) {
+        if (idx === 0) acc.strategy = `${tier.name}: ${tier.price}`;
+        else if (idx === 1) acc.ai = `${tier.name}: ${tier.price}`;
+        else if (idx === 2) acc.managed = `${tier.name}: ${tier.price}`;
+      }
+      return acc;
+    }, { strategy: '', ai: '', managed: '' });
+
+    startStreaming({
+      clientContext,
+      background: `Business Type: ${getBusinessTypeLabel()}\n\n${background}`,
+      length: useProposalStore.getState().proposalLength,
+      pricing: pricingFromTiers,
+      onComplete: async (content) => {
+        setDeliverables({
+          proposal: content,
+          deckPrompt: '',
+          contract: '',
+          contractEmail: '',
+          invoiceDescription: '',
+          proposalEmail: '',
+        });
+        await saveToDatabase();
+        toast({
+          title: "Proposal regenerated",
+          description: "Your updated proposal is ready.",
+        });
+      },
+      onError: (error) => {
+        toast({
+          title: "Regeneration failed",
+          description: error || "Something went wrong. Please try again.",
+          variant: "destructive",
+        });
+      },
+    });
+  };
 
   const handleGenerateAsset = async (assetType: TabId) => {
     if (assetType === 'proposal') return;
@@ -641,6 +706,18 @@ Key requirements:
             <div className="flex items-center gap-3">
               <ActiveIcon className="h-5 w-5 text-primary" />
               <span className="font-semibold text-slate-100">{tabLabels[activeTab]}</span>
+              {/* Edit button - only show on proposal tab */}
+              {activeTab === "proposal" && hasContent && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowEditModal(true)}
+                  className="text-slate-400 hover:text-slate-100 hover:bg-slate-700"
+                >
+                  <Pencil className="h-4 w-4 mr-1" />
+                  Edit
+                </Button>
+              )}
             </div>
             <div className="flex items-center gap-2">
               {/* Deck tab actions */}
@@ -942,6 +1019,34 @@ Key requirements:
         )}
       </main>
       </div>
+
+      {/* Edit Proposal Modal */}
+      <EditProposalModal
+        open={showEditModal}
+        onOpenChange={setShowEditModal}
+        onRegenerate={handleRegenerateProposal}
+        isRegenerating={isStreaming}
+      />
+
+      {/* Loading overlay when regenerating */}
+      {isStreaming && (
+        <div className="fixed inset-0 bg-slate-900/90 z-50 flex items-center justify-center">
+          <div className="text-center max-w-md">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+              <Loader2 className="h-8 w-8 text-primary animate-spin" />
+            </div>
+            <h2 className="text-2xl font-semibold text-slate-100 mb-2">Regenerating Proposal</h2>
+            <p className="text-slate-400 mb-4">Updating your proposal with the new inputs...</p>
+            <div className="w-full bg-slate-700 rounded-full h-2 mb-2">
+              <div 
+                className="bg-primary h-2 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="text-sm text-slate-500">{progress}% complete</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
