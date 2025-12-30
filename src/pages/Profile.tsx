@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubscription } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
@@ -8,11 +9,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, Building2, Mail, Briefcase, FileText, Trophy } from "lucide-react";
+import { Loader2, ArrowLeft, Building2, Mail, Briefcase, FileText, Trophy, CreditCard, Crown, Sparkles } from "lucide-react";
 import { FileUploadButton } from "@/components/FileUploadButton";
 
 export default function Profile() {
   const { user, signOut } = useAuth();
+  const { 
+    subscribed, 
+    subscription_type, 
+    has_lifetime, 
+    has_pro_library,
+    proposals_this_month, 
+    proposals_limit,
+    subscription_end,
+    loading: subscriptionLoading,
+    openCheckout,
+    openCustomerPortal,
+    checkSubscription 
+  } = useSubscription();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -76,6 +90,28 @@ export default function Profile() {
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
+  };
+
+  const handleManageBilling = async () => {
+    try {
+      await openCustomerPortal();
+    } catch (error) {
+      toast.error('Failed to open billing portal');
+    }
+  };
+
+  const handleUpgrade = async (productType: 'pro_monthly' | 'lifetime') => {
+    try {
+      await openCheckout(productType);
+    } catch (error) {
+      toast.error('Failed to open checkout');
+    }
+  };
+
+  const getPlanName = () => {
+    if (has_lifetime) return 'Lifetime Access';
+    if (subscription_type === 'pro_monthly') return 'Pro Access';
+    return 'Free';
   };
 
   return (
@@ -223,6 +259,100 @@ export default function Profile() {
                       Success metrics and case study highlights that will be included in proposals
                     </p>
                   </div>
+                </div>
+
+                {/* Billing Section */}
+                <div className="space-y-4">
+                  <h2 className="text-lg font-semibold border-b border-border pb-2 flex items-center gap-2">
+                    <CreditCard className="h-5 w-5" />
+                    Billing & Subscription
+                  </h2>
+                  
+                  {subscriptionLoading ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* Current Plan */}
+                      <div className="rounded-lg border border-border bg-card/50 p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm text-muted-foreground">Current Plan</span>
+                          <span className="flex items-center gap-1 font-semibold">
+                            {(subscribed || has_lifetime) && <Crown className="h-4 w-4 text-primary" />}
+                            {getPlanName()}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm text-muted-foreground">Proposals This Month</span>
+                          <span className="font-medium">
+                            {proposals_this_month} / {has_lifetime ? '∞' : proposals_limit}
+                          </span>
+                        </div>
+                        
+                        {subscription_end && !has_lifetime && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground">Renews</span>
+                            <span className="font-medium">
+                              {new Date(subscription_end).toLocaleDateString()}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Upgrade/Manage Buttons */}
+                      <div className="flex flex-wrap gap-3">
+                        {!subscribed && !has_lifetime && (
+                          <>
+                            <Button 
+                              variant="hero" 
+                              onClick={() => handleUpgrade('pro_monthly')}
+                              className="flex-1"
+                            >
+                              <Sparkles className="mr-2 h-4 w-4" />
+                              Upgrade to Pro ($27/mo)
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              onClick={() => handleUpgrade('lifetime')}
+                              className="flex-1"
+                            >
+                              Get Lifetime ($297)
+                            </Button>
+                          </>
+                        )}
+                        
+                        {subscribed && !has_lifetime && (
+                          <Button 
+                            variant="outline" 
+                            onClick={handleManageBilling}
+                            className="flex-1"
+                          >
+                            <CreditCard className="mr-2 h-4 w-4" />
+                            Manage Billing
+                          </Button>
+                        )}
+
+                        {subscription_type === 'pro_monthly' && !has_lifetime && (
+                          <Button 
+                            variant="outline" 
+                            onClick={() => handleUpgrade('lifetime')}
+                            className="flex-1"
+                          >
+                            Upgrade to Lifetime
+                          </Button>
+                        )}
+                      </div>
+
+                      {has_pro_library && (
+                        <p className="text-sm text-success flex items-center gap-1">
+                          <Crown className="h-4 w-4" />
+                          Pro Library Access Included
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-3 pt-4">
