@@ -79,7 +79,7 @@ function HeroCarousel() {
   const currentVideo = selectedVideos[currentIndex];
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto lg:mx-0">
+    <div className="relative w-full">
       {/* Glow effect */}
       <div className="absolute -inset-6 rounded-3xl blur-3xl opacity-50 animate-pulse-slow bg-gradient-to-r from-primary/40 to-orange-400/40" />
       
@@ -200,8 +200,8 @@ export function HeroSection() {
             </div>
           </div>
           
-          {/* Right Side - Carousel */}
-          <div className="lg:pl-8 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          {/* Right Side - Carousel - fills available space */}
+          <div className="flex items-center justify-center animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <HeroCarousel />
           </div>
         </div>
