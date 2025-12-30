@@ -138,7 +138,7 @@ export default function Preview() {
             ai: pricingAI,
             managed: pricingManaged,
           },
-          proposalContent: deliverables.proposal,
+          proposalContent: deliverables?.proposal || '',
         },
       });
 
@@ -226,7 +226,7 @@ export default function Preview() {
 
   const handleGenerateDeck = async () => {
     // Use the deck prompt if available, otherwise use proposal content as the prompt
-    const promptToUse = deliverables.deckPrompt || createDeckPromptFromProposal();
+    const promptToUse = deliverables?.deckPrompt || createDeckPromptFromProposal();
     
     if (!promptToUse) {
       toast({
@@ -274,7 +274,7 @@ export default function Preview() {
 
   // Create a deck prompt from the proposal if no deckPrompt exists
   const createDeckPromptFromProposal = () => {
-    if (!deliverables.proposal) return null;
+    if (!deliverables?.proposal) return null;
     
     return `Create a professional presentation based on this proposal content:
 
@@ -707,7 +707,7 @@ Key requirements:
                     </p>
                     <Button 
                       onClick={handleGenerateDeck}
-                      disabled={!deliverables.proposal}
+                      disabled={!deliverables?.proposal}
                       size="lg"
                     >
                       <Sparkles className="mr-2 h-5 w-5" />
