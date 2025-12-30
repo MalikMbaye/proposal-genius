@@ -1,6 +1,12 @@
 import { create } from 'zustand';
 import { supabase } from '@/integrations/supabase/client';
 
+export interface PricingTier {
+  id: string;
+  name: string;
+  price: string;
+}
+
 interface Deliverables {
   proposal: string;
   deckPrompt: string;
@@ -27,6 +33,15 @@ interface ProposalState {
   background: string;
   selectedCaseStudies: string[];
   proposalLength: string;
+  
+  // Business type
+  businessType: string;
+  customBusinessType: string;
+  
+  // Pricing tiers (dynamic array)
+  pricingTiers: PricingTier[];
+  
+  // Legacy pricing fields (kept for compatibility)
   pricingStrategy: string;
   pricingAI: string;
   pricingManaged: string;
@@ -47,6 +62,9 @@ interface ProposalState {
   toggleCaseStudy: (id: string) => void;
   setSelectedCaseStudies: (ids: string[]) => void;
   setProposalLength: (length: string) => void;
+  setBusinessType: (type: string) => void;
+  setCustomBusinessType: (type: string) => void;
+  setPricingTiers: (tiers: PricingTier[]) => void;
   setPricingStrategy: (price: string) => void;
   setPricingAI: (price: string) => void;
   setPricingManaged: (price: string) => void;
@@ -74,12 +92,21 @@ const defaultDeckData: DeckData = {
   error: null,
 };
 
+const defaultPricingTier: PricingTier = {
+  id: 'tier-default',
+  name: '',
+  price: '',
+};
+
 export const useProposalStore = create<ProposalState>((set, get) => ({
   clientName: '',
   clientContext: '',
   background: defaultBackground,
   selectedCaseStudies: [],
   proposalLength: 'medium',
+  businessType: '',
+  customBusinessType: '',
+  pricingTiers: [{ ...defaultPricingTier }],
   pricingStrategy: '$7K-10K',
   pricingAI: '$15K-20K',
   pricingManaged: '$5K-8K/month',
@@ -97,6 +124,9 @@ export const useProposalStore = create<ProposalState>((set, get) => ({
   })),
   setSelectedCaseStudies: (ids) => set({ selectedCaseStudies: ids }),
   setProposalLength: (length) => set({ proposalLength: length }),
+  setBusinessType: (type) => set({ businessType: type }),
+  setCustomBusinessType: (type) => set({ customBusinessType: type }),
+  setPricingTiers: (tiers) => set({ pricingTiers: tiers }),
   setPricingStrategy: (price) => set({ pricingStrategy: price }),
   setPricingAI: (price) => set({ pricingAI: price }),
   setPricingManaged: (price) => set({ pricingManaged: price }),
@@ -136,7 +166,6 @@ export const useProposalStore = create<ProposalState>((set, get) => ({
     };
     
     if (state.proposalId) {
-      // Update existing proposal
       const { error } = await supabase
         .from('proposals')
         .update(proposalData)
@@ -146,7 +175,6 @@ export const useProposalStore = create<ProposalState>((set, get) => ({
         console.error('Error updating proposal:', error);
       }
     } else {
-      // Create new proposal
       const { data, error } = await supabase
         .from('proposals')
         .insert(proposalData)
@@ -167,6 +195,9 @@ export const useProposalStore = create<ProposalState>((set, get) => ({
     background: defaultBackground,
     selectedCaseStudies: [],
     proposalLength: 'medium',
+    businessType: '',
+    customBusinessType: '',
+    pricingTiers: [{ ...defaultPricingTier }],
     pricingStrategy: '$7K-10K',
     pricingAI: '$15K-20K',
     pricingManaged: '$5K-8K/month',

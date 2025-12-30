@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Logo } from "@/components/Logo";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { CaseStudyCard } from "@/components/CaseStudyCard";
 import { GeneratingLoader } from "@/components/GeneratingLoader";
 import { EmailSignupModal } from "@/components/EmailSignupModal";
+import { BusinessTypeSelector, businessTypes } from "@/components/BusinessTypeSelector";
+import { PricingTierInput } from "@/components/PricingTierInput";
 import {
   useProposalStore,
   caseStudies,
@@ -20,6 +21,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, ArrowRight, Lightbulb, Check, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function Generate() {
   const navigate = useNavigate();
@@ -53,24 +55,29 @@ export default function Generate() {
     toggleCaseStudy,
     proposalLength,
     setProposalLength,
-    pricingStrategy,
-    setPricingStrategy,
-    pricingAI,
-    setPricingAI,
-    pricingManaged,
-    setPricingManaged,
+    businessType,
+    setBusinessType,
+    customBusinessType,
+    setCustomBusinessType,
+    pricingTiers,
+    setPricingTiers,
     setDeliverables,
     saveToDatabase,
   } = useProposalStore();
 
   const steps = [
-    { label: "Context", completed: currentStep > 1, active: currentStep === 1 },
-    { label: "Options", completed: currentStep > 2, active: currentStep === 2 },
+    { label: "Your Business", completed: currentStep > 1, active: currentStep === 1 },
+    { label: "Client Info", completed: currentStep > 2, active: currentStep === 2 },
     { label: "Generate", completed: false, active: currentStep === 3 },
   ];
 
-  const canProceedStep1 = clientContext.trim().length > 20;
-  const canProceedStep2 = selectedCaseStudies.length > 0 && background.trim().length > 0;
+  // Step 1: Business type selected
+  const canProceedStep1 = businessType.length > 0 && 
+    (businessType !== 'other' || customBusinessType.trim().length > 0) &&
+    background.trim().length > 0;
+  
+  // Step 2: Client context provided
+  const canProceedStep2 = clientContext.trim().length > 20;
 
   const handleNext = () => {
     if (currentStep < 3) {
@@ -85,50 +92,61 @@ export default function Generate() {
   };
 
   const handleGenerateClick = () => {
-    // If user is not logged in, show email modal first
     if (!user) {
       setShowEmailModal(true);
       return;
     }
-    // If user is logged in, proceed directly
     startGeneration();
   };
 
   const handleEmailSignup = async (email: string) => {
     const result = await quickSignUp(email);
     if (!result.error) {
-      // After signup, start generation
       startGeneration();
     }
     return result;
   };
 
+  const getBusinessTypeLabel = () => {
+    if (businessType === 'other') return customBusinessType;
+    return businessTypes.find(t => t.value === businessType)?.label || businessType;
+  };
+
+  const getPricingString = () => {
+    const validTiers = pricingTiers.filter(t => t.name && t.price);
+    if (validTiers.length === 0) return 'Not specified';
+    return validTiers.map(t => `${t.name}: ${t.price}`).join(' | ');
+  };
+
   const startGeneration = () => {
-    // Reset steps for proposal-only generation
     setGeneratingSteps([
       { label: "Analyzing client context", status: "active" },
       { label: "Creating proposal structure", status: "pending" },
       { label: "Writing proposal content", status: "pending" },
     ]);
 
-    // Get selected case study descriptions
     const selectedStudyDescriptions = caseStudies
       .filter((cs) => selectedCaseStudies.includes(cs.id))
       .map((cs) => `${cs.title}: ${cs.description}`)
       .join("\n");
 
+    // Convert pricing tiers to the format expected by the API
+    const pricingFromTiers = pricingTiers.reduce((acc, tier, idx) => {
+      if (tier.name && tier.price) {
+        if (idx === 0) acc.strategy = `${tier.name}: ${tier.price}`;
+        else if (idx === 1) acc.ai = `${tier.name}: ${tier.price}`;
+        else if (idx === 2) acc.managed = `${tier.name}: ${tier.price}`;
+      }
+      return acc;
+    }, { strategy: '', ai: '', managed: '' });
+
     startStreaming({
       clientContext,
-      background,
+      background: `Business Type: ${getBusinessTypeLabel()}\n\n${background}`,
       caseStudies: selectedStudyDescriptions,
       length: proposalLength,
-      pricing: {
-        strategy: pricingStrategy,
-        ai: pricingAI,
-        managed: pricingManaged,
-      },
+      pricing: pricingFromTiers,
       onProgress: (progressVal) => {
-        // Update steps based on progress
         if (progressVal < 20) {
           setGeneratingSteps([
             { label: "Analyzing client context", status: "active" },
@@ -156,7 +174,6 @@ export default function Generate() {
           { label: "Writing proposal content", status: "completed" },
         ]);
 
-        // Set the proposal
         setDeliverables({
           proposal: content,
           deckPrompt: '',
@@ -166,7 +183,6 @@ export default function Generate() {
           proposalEmail: '',
         });
 
-        // Save to database
         await saveToDatabase();
         
         await new Promise((resolve) => setTimeout(resolve, 300));
@@ -203,23 +219,105 @@ export default function Generate() {
             <Logo />
           </Link>
           <ProgressStepper steps={steps} />
-          <div className="w-32" /> {/* Spacer for centering */}
+          <div className="w-32" />
         </div>
       </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-12">
         <div className="mx-auto max-w-3xl">
-          {/* Step 1: Client Context */}
+          {/* Step 1: Your Business */}
           {currentStep === 1 && (
             <div className="animate-fade-in">
               <div className="text-center mb-8">
                 <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-sm text-primary mb-4">
                   Step 1 of 3
                 </span>
-                <h1 className="text-3xl font-bold mb-2">Client Context</h1>
+                <h1 className="text-3xl font-bold mb-2">Your Business</h1>
                 <p className="text-muted-foreground">
-                  Describe your client, their business, challenges, and what they are looking for...
+                  Tell us about your consulting practice
+                </p>
+              </div>
+
+              {/* Business Type */}
+              <div className="rounded-xl border border-border bg-card p-6 mb-6">
+                <Label className="text-base font-semibold mb-4 block">
+                  What type of consulting do you do?
+                </Label>
+                <BusinessTypeSelector
+                  value={businessType}
+                  customValue={customBusinessType}
+                  onChange={setBusinessType}
+                  onCustomChange={setCustomBusinessType}
+                />
+              </div>
+
+              {/* Background */}
+              <div className="rounded-xl border border-border bg-card p-6 mb-6">
+                <Label className="text-base font-semibold mb-3 block">
+                  Your Background & Credentials
+                </Label>
+                <Textarea
+                  value={background}
+                  onChange={(e) => setBackground(e.target.value)}
+                  placeholder="Paste your LinkedIn summary, resume highlights, or key credentials..."
+                  className="min-h-[120px] resize-none bg-background border-border"
+                />
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Copy/paste from your LinkedIn or website
+                </p>
+              </div>
+
+              {/* Case Studies */}
+              <div className="rounded-xl border border-border bg-card p-6">
+                <Label className="text-base font-semibold mb-4 block">
+                  Select Case Studies
+                  <span className="ml-2 text-sm font-normal text-muted-foreground">
+                    (Optional - select 0-3)
+                  </span>
+                </Label>
+                <div className="space-y-3">
+                  {caseStudies.map((study) => (
+                    <CaseStudyCard
+                      key={study.id}
+                      title={study.title}
+                      description={study.description}
+                      selected={selectedCaseStudies.includes(study.id)}
+                      onToggle={() => toggleCaseStudy(study.id)}
+                    />
+                  ))}
+                </div>
+                <p className="mt-4 text-sm text-muted-foreground">
+                  Don't have case studies?{" "}
+                  <Link to="#" className="text-primary hover:underline">
+                    Get our library of 50 proven examples →
+                  </Link>
+                </p>
+              </div>
+
+              <Button
+                onClick={handleNext}
+                disabled={!canProceedStep1}
+                variant="hero"
+                size="lg"
+                className="w-full mt-8"
+              >
+                Continue
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
+          )}
+
+          {/* Step 2: Client Info */}
+          {currentStep === 2 && (
+            <div className="animate-fade-in">
+              <div className="text-center mb-8">
+                <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-sm text-primary mb-4">
+                  Step 2 of 3
+                </span>
+                <h1 className="text-3xl font-bold mb-2">Client Info</h1>
+                <p className="text-muted-foreground">
+                  Tell us about this specific client and project
                 </p>
               </div>
 
@@ -237,6 +335,7 @@ export default function Generate() {
                 />
               </div>
 
+              {/* Client Context */}
               <div className="rounded-xl border border-border bg-card p-6">
                 <Label className="text-base font-semibold mb-3 block">
                   Project Context
@@ -285,76 +384,52 @@ Budget: Mentioned $15K-40K range.`}
                 </div>
               </div>
 
-              <Button
-                onClick={handleNext}
-                disabled={!canProceedStep1}
-                variant="hero"
-                size="lg"
-                className="w-full mt-8"
-              >
-                Continue
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+              <div className="flex gap-4 mt-8">
+                <Button onClick={handleBack} variant="outline" size="lg">
+                  <ArrowLeft className="mr-2 h-5 w-5" />
+                  Back
+                </Button>
+                <Button
+                  onClick={handleNext}
+                  disabled={!canProceedStep2}
+                  variant="hero"
+                  size="lg"
+                  className="flex-1"
+                >
+                  Continue
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </div>
             </div>
           )}
 
-          {/* Step 2: Your Details */}
-          {currentStep === 2 && (
+          {/* Step 3: Pricing & Generate */}
+          {currentStep === 3 && (
             <div className="animate-fade-in">
               <div className="text-center mb-8">
                 <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-sm text-primary mb-4">
-                  Step 2 of 3
+                  Step 3 of 3
                 </span>
-                <h1 className="text-3xl font-bold mb-2">Your Details</h1>
+                <h1 className="text-3xl font-bold mb-2">Pricing & Generate</h1>
                 <p className="text-muted-foreground">
-                  Customize your background and select relevant case studies
+                  Set your pricing tiers and proposal options
                 </p>
               </div>
 
-              {/* Background */}
-              <div className="rounded-xl border border-border bg-card p-6 mb-6">
-                <Label className="text-base font-semibold mb-3 block">
-                  Your Background & Credentials
-                </Label>
-                <Textarea
-                  value={background}
-                  onChange={(e) => setBackground(e.target.value)}
-                  className="min-h-[120px] resize-none bg-background border-border"
-                />
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Edit to match your experience
-                </p>
-              </div>
-
-              {/* Case Studies */}
+              {/* Pricing Tiers */}
               <div className="rounded-xl border border-border bg-card p-6 mb-6">
                 <Label className="text-base font-semibold mb-4 block">
-                  Select Relevant Case Studies
-                  <span className="ml-2 text-sm font-normal text-muted-foreground">
-                    (Select 1-3)
-                  </span>
+                  Pricing Tiers
                 </Label>
-                <div className="space-y-3">
-                  {caseStudies.map((study) => (
-                    <CaseStudyCard
-                      key={study.id}
-                      title={study.title}
-                      description={study.description}
-                      selected={selectedCaseStudies.includes(study.id)}
-                      onToggle={() => toggleCaseStudy(study.id)}
-                    />
-                  ))}
-                </div>
-                <p className="mt-4 text-sm text-muted-foreground">
-                  Don't have case studies?{" "}
-                  <Link to="#" className="text-primary hover:underline">
-                    Get our library of 50 proven examples →
-                  </Link>
-                </p>
+                <PricingTierInput
+                  tiers={pricingTiers}
+                  onChange={setPricingTiers}
+                  maxTiers={3}
+                />
               </div>
 
               {/* Proposal Length */}
-              <div className="rounded-xl border border-border bg-card p-6">
+              <div className="rounded-xl border border-border bg-card p-6 mb-6">
                 <Label className="text-base font-semibold mb-4 block">
                   Proposal Length
                 </Label>
@@ -384,95 +459,17 @@ Budget: Mentioned $15K-40K range.`}
                 </RadioGroup>
               </div>
 
-              <div className="flex gap-4 mt-8">
-                <Button onClick={handleBack} variant="outline" size="lg">
-                  <ArrowLeft className="mr-2 h-5 w-5" />
-                  Back
-                </Button>
-                <Button
-                  onClick={handleNext}
-                  disabled={!canProceedStep2}
-                  variant="hero"
-                  size="lg"
-                  className="flex-1"
-                >
-                  Continue
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: Pricing & Generate */}
-          {currentStep === 3 && (
-            <div className="animate-fade-in">
-              <div className="text-center mb-8">
-                <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-sm text-primary mb-4">
-                  Step 3 of 3
-                </span>
-                <h1 className="text-3xl font-bold mb-2">Set Your Pricing</h1>
-                <p className="text-muted-foreground">
-                  Define your pricing tiers for the proposal
-                </p>
-              </div>
-
-              {/* Pricing Inputs */}
-              <div className="rounded-xl border border-border bg-card p-6 mb-6">
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="strategy" className="mb-2 block">
-                      Strategy & Training
-                    </Label>
-                    <Input
-                      id="strategy"
-                      value={pricingStrategy}
-                      onChange={(e) => setPricingStrategy(e.target.value)}
-                      placeholder="$7K-10K"
-                      className="bg-background"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="ai" className="mb-2 block">
-                      Strategy + AI Systems
-                    </Label>
-                    <Input
-                      id="ai"
-                      value={pricingAI}
-                      onChange={(e) => setPricingAI(e.target.value)}
-                      placeholder="$15K-20K"
-                      className="bg-background"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="managed" className="mb-2 block">
-                      Fully Managed (monthly)
-                    </Label>
-                    <Input
-                      id="managed"
-                      value={pricingManaged}
-                      onChange={(e) => setPricingManaged(e.target.value)}
-                      placeholder="$5K-8K/month"
-                      className="bg-background"
-                    />
-                  </div>
-                </div>
-                <p className="mt-4 text-sm text-muted-foreground">
-                  Not sure what to charge?{" "}
-                  <Link to="#" className="text-primary hover:underline">
-                    Get our pricing masterclass →
-                  </Link>
-                </p>
-              </div>
-
               {/* Summary */}
               <div className="rounded-xl border border-border bg-card p-6 mb-8">
                 <h3 className="font-semibold mb-4">Review Summary</h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Context</span>
-                    <span className="text-right max-w-[200px] truncate">
-                      {clientContext.slice(0, 50)}...
-                    </span>
+                    <span className="text-muted-foreground">Business Type</span>
+                    <span>{getBusinessTypeLabel() || 'Not set'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Client</span>
+                    <span>{clientName || 'Not specified'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Case Studies</span>
@@ -483,8 +480,10 @@ Budget: Mentioned $15K-40K range.`}
                     <span className="capitalize">{proposalLength}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Pricing Range</span>
-                    <span>{pricingStrategy} – {pricingAI}</span>
+                    <span className="text-muted-foreground">Pricing</span>
+                    <span className="text-right max-w-[200px] truncate">
+                      {getPricingString()}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -500,7 +499,7 @@ Budget: Mentioned $15K-40K range.`}
                   size="lg"
                   className="flex-1"
                 >
-                  Generate Complete Package
+                  Generate Proposal
                   <Sparkles className="ml-2 h-5 w-5" />
                 </Button>
               </div>
