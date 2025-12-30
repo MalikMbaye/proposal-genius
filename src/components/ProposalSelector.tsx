@@ -36,8 +36,6 @@ export function ProposalSelector() {
     setSelectedCaseStudies,
     setProposalLength,
     setDeliverables,
-    setDeckData,
-    resetDeck,
     reset,
   } = useProposalStore();
 
@@ -90,21 +88,6 @@ export function ProposalSelector() {
         contractEmail: data.contract_email || "",
         invoiceDescription: data.invoice_description || "",
       });
-
-      // Load deck data if deck_url exists
-      if (data.deck_url) {
-        setDeckData({
-          status: 'completed',
-          pdfUrl: data.deck_url,
-          generationId: null,
-          gammaUrl: null,
-          pptxUrl: null,
-          thumbnailUrl: null,
-          error: null,
-        });
-      } else {
-        resetDeck();
-      }
 
       toast({
         title: "Proposal switched",

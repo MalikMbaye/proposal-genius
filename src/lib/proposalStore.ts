@@ -163,7 +163,6 @@ export const useProposalStore = create<ProposalState>((set, get) => ({
       invoice_description: state.deliverables?.invoiceDescription || null,
       case_studies: state.selectedCaseStudies,
       proposal_length: state.proposalLength,
-      deck_url: state.deckData.status === 'completed' ? state.deckData.pdfUrl : null,
     };
     
     if (state.proposalId) {
