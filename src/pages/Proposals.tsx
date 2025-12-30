@@ -54,6 +54,7 @@ export default function Proposals() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   
   const {
+    setClientName,
     setClientContext,
     setBackground,
     setSelectedCaseStudies,
@@ -122,15 +123,14 @@ export default function Proposals() {
   const handleView = (proposal: SavedProposal) => {
     // Load proposal data into store
     setProposalId(proposal.id);
-    setClientContext(proposal.client_name || "");
-    setBackground(proposal.project_context || "");
+    setClientName(proposal.client_name || "");
+    setClientContext(proposal.project_context || "");
     setSelectedCaseStudies(proposal.case_studies || []);
-    setProposalLength(proposal.proposal_length || "standard");
+    setProposalLength(proposal.proposal_length || "medium");
     
-    // Set pricing (format as strings for the store)
-    setPricingStrategy("fixed");
-    if (proposal.budget_min) setPricingAI(`$${proposal.budget_min.toLocaleString()}`);
-    if (proposal.budget_max) setPricingManaged(`$${proposal.budget_max.toLocaleString()}`);
+    // Set pricing from budget fields
+    if (proposal.budget_min) setPricingStrategy(`$${proposal.budget_min.toLocaleString()}`);
+    if (proposal.budget_max) setPricingAI(`$${proposal.budget_max.toLocaleString()}`);
     
     // Set deliverables
     setDeliverables({
