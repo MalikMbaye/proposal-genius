@@ -177,9 +177,18 @@ export default function Proposals() {
       {/* Header */}
       <header className="border-b border-border bg-card/50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/">
-            <Logo />
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/">
+              <Logo />
+            </Link>
+            <div className="h-6 w-px bg-border" />
+            <Link 
+              to="/profile" 
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Account Settings
+            </Link>
+          </div>
           <Button asChild>
             <Link to="/generate">
               <Plus className="mr-2 h-4 w-4" />
