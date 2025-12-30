@@ -39,7 +39,7 @@ export function AppHeader({ center, onNewProposal }: AppHeaderProps) {
 
       <nav className="hidden md:flex items-center">
         <Button asChild variant="ghost" size="sm" className="justify-start text-slate-300 hover:text-white hover:bg-slate-800">
-          <Link to="/generate" className="flex items-center">
+          <Link to="/dashboard" className="flex items-center">
             <LayoutDashboard className="mr-2 h-4 w-4" />
             Dashboard
           </Link>
@@ -67,7 +67,7 @@ export function AppHeader({ center, onNewProposal }: AppHeaderProps) {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild className="cursor-pointer">
-                <Link to="/generate" className="flex items-center w-full">
+                <Link to="/dashboard" className="flex items-center w-full">
                   <LayoutDashboard className="mr-2 h-4 w-4" />
                   Dashboard
                 </Link>
