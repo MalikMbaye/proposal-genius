@@ -76,14 +76,6 @@ export const loadingVideos: LoadingVideo[] = [
       "Chaos in the background. Zen in the foreground.",
       "We're stressed so you don't have to be."
     ]
-  },
-  {
-    id: 10,
-    videoUrl: "/videos/loading/money-printer.mp4",
-    headlines: [
-      "The money printer goes brrr. Your proposal is printing.",
-      "Converting ideas into revenue. Please wait."
-    ]
   }
 ];
 
