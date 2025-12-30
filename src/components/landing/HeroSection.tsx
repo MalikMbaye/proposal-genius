@@ -45,20 +45,15 @@ function AnimatedCounter({ value, label }: { value: string; label: string }) {
   );
 }
 
-// Video display with rotating headlines
+// Clean video display - no headline overlay
 function HeroVideoDisplay() {
   const [content, setContent] = useState(() => getRandomLoadingContent());
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Rotate content every 12 seconds
+  // Rotate video every 10 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setContent(getRandomLoadingContent());
-        setIsTransitioning(false);
-      }, 300);
-    }, 12000);
+      setContent(getRandomLoadingContent());
+    }, 10000);
 
     return () => clearInterval(interval);
   }, []);
@@ -82,17 +77,6 @@ function HeroVideoDisplay() {
           >
             <source src={content.videoUrl} type="video/mp4" />
           </video>
-          
-          {/* Headline overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent flex items-end p-4">
-            <p 
-              className={`text-sm md:text-base font-medium text-foreground leading-snug transition-all duration-300 ${
-                isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
-              }`}
-            >
-              {content.headline}
-            </p>
-          </div>
         </div>
         
         {/* Floating badge */}
