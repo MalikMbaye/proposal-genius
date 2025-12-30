@@ -6,14 +6,14 @@ const pricingPlans = [
   {
     name: "Try It Free",
     price: "$0",
-    period: "1 proposal",
+    period: "3 proposals",
     description: "See the quality before you buy",
     features: [
-      { text: "Generate 1 complete proposal package", included: true },
+      { text: "Generate 3 complete proposal packages", included: true },
       { text: "All 6 deliverables included", included: true },
       { text: "See the quality before you buy", included: true },
       { text: "No proposal library access", included: false },
-      { text: "No future proposals", included: false },
+      { text: "No future proposals after trial", included: false },
     ],
     cta: "Start Free",
     ctaLink: "/auth",
