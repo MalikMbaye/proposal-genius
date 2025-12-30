@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useEffect, useState, useRef, useMemo } from "react";
 import { loadingVideos } from "@/lib/loadingContent";
+import { AsSeenInMarquee } from "@/components/landing/AsSeenInSection";
 
 const stats = [
   { value: "$1.5M+", label: "Contracts Closed" },
@@ -306,6 +307,11 @@ export function HeroSection() {
             <p className="text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: '0.6s' }}>
               Join 500+ consultants closing bigger deals 💼
             </p>
+
+            {/* Press logos (right under trust line, above stats) */}
+            <div className="animate-fade-in" style={{ animationDelay: '0.65s' }}>
+              <AsSeenInMarquee label={false} />
+            </div>
           </div>
           
           {/* Right Side - Carousel */}
