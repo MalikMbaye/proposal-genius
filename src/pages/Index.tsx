@@ -22,8 +22,8 @@ export default function Index() {
       <Navbar />
       <HeroSection />
       <ProposalComparisonSection />
-      <FounderSection />
       <ViralThreadSection />
+      <FounderSection />
       <ProblemSection />
       <InsightSection />
       <SolutionSection />
