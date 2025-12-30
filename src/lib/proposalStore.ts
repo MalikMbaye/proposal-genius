@@ -137,19 +137,25 @@ export const useProposalStore = create<ProposalState>((set, get) => ({
     
     if (state.proposalId) {
       // Update existing proposal
-      await supabase
+      const { error } = await supabase
         .from('proposals')
         .update(proposalData)
         .eq('id', state.proposalId);
+      
+      if (error) {
+        console.error('Error updating proposal:', error);
+      }
     } else {
       // Create new proposal
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('proposals')
         .insert(proposalData)
         .select('id')
         .single();
       
-      if (data) {
+      if (error) {
+        console.error('Error creating proposal:', error);
+      } else if (data) {
         set({ proposalId: data.id });
       }
     }
