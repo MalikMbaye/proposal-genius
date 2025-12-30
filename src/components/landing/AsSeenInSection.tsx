@@ -20,23 +20,49 @@ const logos = [
   { src: betLogo, alt: "BET", className: "h-5 md:h-6" },
 ];
 
+function LogoRow({ className = "" }: { className?: string }) {
+  const repeated = [...logos, ...logos];
+
+  return (
+    <div className={`group relative overflow-hidden ${className}`} aria-label="As seen in logos">
+      {/* Edge fades */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-12 md:w-16 bg-gradient-to-r from-background to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-12 md:w-16 bg-gradient-to-l from-background to-transparent" />
+
+      <div className="flex w-[200%] animate-scroll-left items-center gap-10 md:gap-14 py-3 will-change-transform group-hover:[animation-play-state:paused]">
+        {repeated.map((logo, idx) => (
+          <img
+            key={`${logo.alt}-${idx}`}
+            src={logo.src}
+            alt={logo.alt}
+            loading={idx < logos.length ? "eager" : "lazy"}
+            className={`${logo.className} w-auto object-contain`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function AsSeenInMarquee({ label = true }: { label?: boolean }) {
+  return (
+    <div className="mt-5">
+      {label && (
+        <p className="text-xs text-muted-foreground uppercase tracking-widest mb-3">
+          As seen in
+        </p>
+      )}
+      <LogoRow />
+    </div>
+  );
+}
+
+// Kept for non-hero placements (optional)
 export function AsSeenInSection() {
   return (
-    <section className="py-8 md:py-12 bg-background border-t border-border/20">
+    <section className="py-10 md:py-14 bg-background">
       <div className="container mx-auto px-4">
-        <p className="text-center text-sm text-muted-foreground mb-6 uppercase tracking-widest">
-          As Seen In
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 lg:gap-16">
-          {logos.map((logo) => (
-            <img
-              key={logo.alt}
-              src={logo.src}
-              alt={logo.alt}
-              className={`${logo.className} w-auto object-contain opacity-70 hover:opacity-100 transition-opacity grayscale hover:grayscale-0`}
-            />
-          ))}
-        </div>
+        <AsSeenInMarquee />
       </div>
     </section>
   );

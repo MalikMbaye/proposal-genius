@@ -224,4 +224,13 @@
       transform: translateX(0);
     }
   }
+
+  .animate-scroll-left {
+    animation: scroll-left 28s linear infinite;
+  }
+
+  .animate-scroll-right {
+    animation: scroll-right 28s linear infinite;
+  }
+
 }
