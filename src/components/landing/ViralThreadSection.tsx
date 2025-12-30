@@ -70,7 +70,7 @@ export function ViralThreadSection() {
       />
       
       <div className="container relative z-10 mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-10 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 items-start">
           {/* Left: Thread Screenshot Carousel */}
           <div className="space-y-4">
             <div className="relative group">
