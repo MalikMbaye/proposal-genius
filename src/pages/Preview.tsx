@@ -505,12 +505,12 @@ Key requirements:
   };
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
+    <div className="h-screen bg-slate-100 flex flex-col overflow-hidden">
       <AppHeader center={<ProposalSelector />} onNewProposal={handleNewProposal} />
 
       <div key={proposalId ?? "new"} className="flex flex-1 overflow-hidden">
       {/* Sidebar - Fixed height, no scroll needed */}
-      <aside className="w-64 border-r border-border bg-card/50 flex flex-col flex-shrink-0 overflow-hidden">
+      <aside className="w-64 border-r border-slate-200 bg-slate-50 flex flex-col flex-shrink-0 overflow-hidden">
 
         {/* Tabs - scrollable if many */}
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
@@ -573,7 +573,7 @@ Key requirements:
         </div>
 
         {/* Sidebar Actions */}
-        <div className="p-4 border-t border-border space-y-2">
+        <div className="p-4 border-t border-slate-200 space-y-2">
           {hasContent && !isDeckTab && (
             <>
               <Button onClick={handleCopy} variant="outline" className="w-full justify-start">
@@ -595,7 +595,7 @@ Key requirements:
               </Button>
             </>
           )}
-          <div className="border-t border-border pt-3 mt-2 space-y-1">
+          <div className="border-t border-slate-200 pt-3 mt-2 space-y-1">
             <Button onClick={handleNewProposal} variant="ghost" className="w-full justify-start">
               <Plus className="mr-2 h-4 w-4" />
               Generate New
@@ -611,7 +611,7 @@ Key requirements:
       </aside>
 
       {/* Main Content - Scrollable */}
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden bg-white">
         {/* Success Banner */}
         {showBanner && (
           <div className="bg-success/10 border-b border-success/20 px-6 py-3 flex items-center justify-between">

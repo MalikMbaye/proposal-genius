@@ -123,16 +123,16 @@ export function ProposalSelector() {
       <DropdownMenuTrigger asChild>
         <Button 
           variant="outline" 
-          className="h-10 px-6 gap-4 bg-white hover:bg-slate-50 border-border shadow-sm w-full max-w-xl justify-between"
+          className="h-10 px-6 gap-4 bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-100 w-full max-w-xl justify-between"
         >
           <div className="flex items-center gap-3">
-            <div className="h-7 w-7 rounded-md bg-primary/15 flex items-center justify-center">
+            <div className="h-7 w-7 rounded-md bg-primary/20 flex items-center justify-center">
               <FileText className="h-4 w-4 text-primary" />
             </div>
-            <span className="text-xs text-muted-foreground uppercase tracking-wide">Current Proposal:</span>
-            <span className="font-semibold text-sm truncate max-w-[250px] text-foreground">{displayName}</span>
+            <span className="text-xs text-slate-400 uppercase tracking-wide">Current Proposal:</span>
+            <span className="font-semibold text-sm truncate max-w-[250px] text-white">{displayName}</span>
           </div>
-          <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <ChevronDown className="h-4 w-4 text-slate-400 flex-shrink-0" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="center" className="w-[360px] bg-card border-border">
