@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/Logo";
+import { AppHeader } from "@/components/AppHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useProposalStore } from "@/lib/proposalStore";
@@ -174,29 +174,7 @@ export default function Proposals() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/">
-              <Logo />
-            </Link>
-            <div className="h-6 w-px bg-border" />
-            <Link 
-              to="/profile" 
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Account Settings
-            </Link>
-          </div>
-          <Button asChild>
-            <Link to="/generate">
-              <Plus className="mr-2 h-4 w-4" />
-              New Proposal
-            </Link>
-          </Button>
-        </div>
-      </header>
+      <AppHeader />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/Logo";
+import { AppHeader } from "@/components/AppHeader";
 import { ProposalSelector } from "@/components/ProposalSelector";
 import { useProposalStore, caseStudies } from "@/lib/proposalStore";
 import { supabase } from "@/integrations/supabase/client";
@@ -487,19 +487,7 @@ Key requirements:
 
   return (
     <div className="h-screen bg-background flex flex-col overflow-hidden">
-      {/* Top Navigation Bar with Proposal Selector - Full Width */}
-      <header className="h-14 border-b border-border bg-background flex items-center px-4 gap-4 flex-shrink-0">
-        <Link to="/" className="flex-shrink-0">
-          <Logo />
-        </Link>
-        <div className="flex-1 flex justify-center">
-          <ProposalSelector />
-        </div>
-        <Button variant="hero" size="sm" onClick={handleNewProposal} className="flex-shrink-0">
-          <Plus className="mr-2 h-4 w-4" />
-          New Proposal
-        </Button>
-      </header>
+      <AppHeader center={<ProposalSelector />} onNewProposal={handleNewProposal} />
 
       <div className="flex flex-1 overflow-hidden">
       {/* Sidebar - Fixed height, no scroll needed */}
