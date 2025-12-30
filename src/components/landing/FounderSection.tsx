@@ -23,10 +23,10 @@ export function FounderSection() {
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-5 gap-12 lg:gap-16 items-center max-w-6xl mx-auto">
-          {/* Left Column - Image & Logos */}
-          <div className="lg:col-span-2 flex flex-col items-center">
-            {/* Headshot - Full size */}
-            <div className="relative mb-8 w-full max-w-sm">
+          {/* Left Column - Image & Logo Wall */}
+          <div className="lg:col-span-2 flex flex-col">
+            {/* Headshot Card */}
+            <div className="relative mb-4 w-full">
               <div className="aspect-[3/4] w-full rounded-2xl overflow-hidden border-2 border-slate-600/50 shadow-2xl shadow-blue-900/20">
                 <img
                   src={malikHeadshot}
@@ -34,50 +34,56 @@ export function FounderSection() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              {/* Decorative glow that matches the blue jacket */}
               <div className="absolute -inset-4 bg-gradient-to-br from-blue-500/20 to-slate-700/20 rounded-3xl blur-2xl -z-10" />
             </div>
 
-            {/* Social Links */}
-            <div className="flex gap-3 mb-6">
+            {/* Bento Logo Wall */}
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              {/* Previously At - Large tile */}
+              <div className="col-span-2 bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-xl p-4">
+                <p className="text-[10px] text-slate-500 mb-3 font-medium tracking-widest uppercase">
+                  Previously at
+                </p>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                  {companies.map((name) => (
+                    <CompanyLogo key={name} name={name} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Featured In - Tile */}
+              <div className="col-span-2 bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-xl p-4">
+                <p className="text-[10px] text-slate-500 mb-3 font-medium tracking-widest uppercase">
+                  Featured in
+                </p>
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                  {pressOutlets.map((name) => (
+                    <CompanyLogo key={name} name={name} />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Social Links - At Bottom */}
+            <div className="flex items-center justify-center gap-3 mt-auto pt-2">
               <a
                 href="https://www.linkedin.com/in/malikmbaye"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2.5 rounded-full bg-slate-700/50 border border-slate-600/50 text-slate-300 hover:text-white hover:bg-blue-600/50 hover:border-blue-500/50 transition-all"
-                aria-label="LinkedIn"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0A66C2]/20 border border-[#0A66C2]/30 text-[#0A66C2] hover:bg-[#0A66C2]/30 transition-all text-sm font-medium"
               >
-                <Linkedin className="w-5 h-5" />
+                <Linkedin className="w-4 h-4" />
+                <span>LinkedIn</span>
               </a>
               <a
                 href="https://www.instagram.com/malikmbaye"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2.5 rounded-full bg-slate-700/50 border border-slate-600/50 text-slate-300 hover:text-white hover:bg-pink-600/50 hover:border-pink-500/50 transition-all"
-                aria-label="Instagram"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-pink-500/20 border border-pink-500/30 text-pink-400 hover:bg-pink-500/30 transition-all text-sm font-medium"
               >
-                <Instagram className="w-5 h-5" />
+                <Instagram className="w-4 h-4" />
+                <span>Instagram</span>
               </a>
-            </div>
-
-            {/* Company Logos */}
-            <p className="text-xs text-slate-400 mb-3 font-medium tracking-widest uppercase">
-              Previously at
-            </p>
-            <div className="flex flex-wrap justify-center items-center gap-4">
-              {companies.map((name) => (
-                <CompanyLogo key={name} name={name} />
-              ))}
-            </div>
-
-            {/* Press Logos */}
-            <p className="text-xs text-slate-400 mt-6 mb-3 font-medium tracking-widest uppercase">
-              Featured in
-            </p>
-            <div className="flex flex-wrap justify-center items-center gap-5">
-              {pressOutlets.map((name) => (
-                <CompanyLogo key={name} name={name} />
-              ))}
             </div>
           </div>
 
@@ -123,25 +129,10 @@ export function FounderSection() {
               ))}
             </div>
 
-            {/* Extra credentials */}
-            <div className="mb-8">
-              <p className="text-xs text-slate-400 mb-3 font-medium tracking-widest uppercase">
-                Education & Career Placements
-              </p>
-              <div className="flex flex-wrap items-center gap-4">
-                <CompanyLogo name="Howard University" />
-                <span className="text-slate-500">|</span>
-                <span className="text-sm text-slate-400">100+ placements at</span>
-                {placementCompanies.map((name) => (
-                  <CompanyLogo key={name} name={name} />
-                ))}
-              </div>
-            </div>
-
             {/* CTA Button */}
             <Button
               variant="outline"
-              className="group border-slate-500 text-slate-200 hover:border-primary hover:bg-primary/10"
+              className="group border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2]/10"
               asChild
             >
               <a
@@ -149,10 +140,28 @@ export function FounderSection() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                See My Full Background
+                <Linkedin className="mr-2 h-4 w-4" />
+                Add Me on LinkedIn
                 <ExternalLink className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
               </a>
             </Button>
+          </div>
+        </div>
+
+        {/* Education & Career Placements - White Background Section */}
+        <div className="mt-16 max-w-4xl mx-auto">
+          <div className="bg-white rounded-2xl p-8 shadow-xl">
+            <p className="text-xs text-slate-500 mb-4 font-medium tracking-widest uppercase text-center">
+              Education & Career Placements
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-6">
+              <CompanyLogo name="Howard University" className="!text-[#003DA5]" />
+              <span className="text-slate-300">|</span>
+              <span className="text-sm text-slate-600">100+ placements at</span>
+              {placementCompanies.map((name) => (
+                <CompanyLogo key={name} name={name} />
+              ))}
+            </div>
           </div>
         </div>
       </div>
