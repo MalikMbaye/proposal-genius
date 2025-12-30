@@ -2,8 +2,6 @@ import { ArrowRight } from "lucide-react";
 
 const journeyPoints = [
   { value: "$250", label: "First freelance project" },
-  { value: "$3K", label: "WordPress site" },
-  { value: "$300K", label: "Meta proposal review" },
   { value: "$250K+", label: "Current projects" },
 ];
 

@@ -21,12 +21,12 @@ const pricingPlans = [
     popular: false,
   },
   {
-    name: "Unlimited Access",
-    price: "$49",
+    name: "Pro Access",
+    price: "$27",
     period: "/month",
     description: "Everything you need to close bigger deals",
     features: [
-      { text: "Unlimited proposal generation", included: true },
+      { text: "Up to 20 proposals per month", included: true },
       { text: "All 6 deliverables every time", included: true },
       { text: "Access to 50+ proposal library", included: true },
       { text: "Case studies and examples", included: true },
@@ -40,12 +40,12 @@ const pricingPlans = [
   },
   {
     name: "Lifetime Access",
-    price: "$497",
+    price: "$297",
     period: "one-time",
     description: "Pay once, use forever",
     features: [
-      { text: "Everything in Unlimited", included: true },
-      { text: "Lifetime access (pay once, use forever)", included: true },
+      { text: "Everything in Pro", included: true },
+      { text: "Unlimited proposals forever", included: true },
       { text: "All future updates included", included: true },
       { text: "3-hour Strategic Positioning Masterclass", included: true },
       { text: "VIP support", included: true },
@@ -55,7 +55,7 @@ const pricingPlans = [
     variant: "outline" as const,
     popular: false,
     badge: "Best Value 💎",
-    savings: "Save $491/year vs monthly",
+    savings: "Save $27/month forever",
   },
 ];
 
