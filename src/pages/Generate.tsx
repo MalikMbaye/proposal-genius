@@ -6,14 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/Logo";
 import { ProgressStepper } from "@/components/ProgressStepper";
-import { CaseStudyCard } from "@/components/CaseStudyCard";
+
 import { GeneratingLoader } from "@/components/GeneratingLoader";
 import { EmailSignupModal } from "@/components/EmailSignupModal";
 import { BusinessTypeSelector, businessTypes } from "@/components/BusinessTypeSelector";
 import { PricingTierInput } from "@/components/PricingTierInput";
 import {
   useProposalStore,
-  caseStudies,
   proposalLengths,
 } from "@/lib/proposalStore";
 import { useStreamingProposal } from "@/hooks/useStreamingProposal";
@@ -51,8 +50,6 @@ export default function Generate() {
     setClientContext,
     background,
     setBackground,
-    selectedCaseStudies,
-    toggleCaseStudy,
     proposalLength,
     setProposalLength,
     businessType,
@@ -125,11 +122,6 @@ export default function Generate() {
       { label: "Writing proposal content", status: "pending" },
     ]);
 
-    const selectedStudyDescriptions = caseStudies
-      .filter((cs) => selectedCaseStudies.includes(cs.id))
-      .map((cs) => `${cs.title}: ${cs.description}`)
-      .join("\n");
-
     // Convert pricing tiers to the format expected by the API
     const pricingFromTiers = pricingTiers.reduce((acc, tier, idx) => {
       if (tier.name && tier.price) {
@@ -143,7 +135,6 @@ export default function Generate() {
     startStreaming({
       clientContext,
       background: `Business Type: ${getBusinessTypeLabel()}\n\n${background}`,
-      caseStudies: selectedStudyDescriptions,
       length: proposalLength,
       pricing: pricingFromTiers,
       onProgress: (progressVal) => {
@@ -268,32 +259,6 @@ export default function Generate() {
                 </p>
               </div>
 
-              {/* Case Studies */}
-              <div className="rounded-xl border border-border bg-card p-6">
-                <Label className="text-base font-semibold mb-4 block">
-                  Select Case Studies
-                  <span className="ml-2 text-sm font-normal text-muted-foreground">
-                    (Optional - select 0-3)
-                  </span>
-                </Label>
-                <div className="space-y-3">
-                  {caseStudies.map((study) => (
-                    <CaseStudyCard
-                      key={study.id}
-                      title={study.title}
-                      description={study.description}
-                      selected={selectedCaseStudies.includes(study.id)}
-                      onToggle={() => toggleCaseStudy(study.id)}
-                    />
-                  ))}
-                </div>
-                <p className="mt-4 text-sm text-muted-foreground">
-                  Don't have case studies?{" "}
-                  <Link to="#" className="text-primary hover:underline">
-                    Get our library of 50 proven examples →
-                  </Link>
-                </p>
-              </div>
 
               <Button
                 onClick={handleNext}
@@ -470,10 +435,6 @@ Budget: Mentioned $15K-40K range.`}
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Client</span>
                     <span>{clientName || 'Not specified'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Case Studies</span>
-                    <span>{selectedCaseStudies.length} selected</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Length</span>
