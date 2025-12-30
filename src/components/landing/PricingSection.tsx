@@ -1,6 +1,7 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Check, X, ArrowRight, Shield, Zap, CreditCard } from "lucide-react";
+import { Check, X, ArrowRight, Shield, Zap, CreditCard, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
@@ -19,9 +20,10 @@ const pricingPlans = [
       { text: "No future proposals after trial", included: false },
     ],
     cta: "Start Free",
-    productType: null,
+    productType: null as null,
     variant: "outline" as const,
     popular: false,
+    isLifetime: false,
   },
   {
     name: "Pro Access",
@@ -40,6 +42,7 @@ const pricingPlans = [
     productType: "pro_monthly" as const,
     variant: "hero" as const,
     popular: true,
+    isLifetime: false,
   },
   {
     name: "Lifetime Access",
@@ -59,18 +62,44 @@ const pricingPlans = [
     popular: false,
     badge: "Best Value 💎",
     savings: "Save $27/month forever",
+    isLifetime: true,
   },
 ];
 
 export function PricingSection() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { openCheckout, subscribed, subscription_type } = useSubscription();
+  const { 
+    openCheckout, 
+    subscribed, 
+    subscription_type, 
+    has_lifetime,
+    lifetime_available,
+    lifetime_spots_remaining,
+    checkLifetimeAvailability
+  } = useSubscription();
+  
+  // Check lifetime availability on mount
+  useEffect(() => {
+    checkLifetimeAvailability();
+  }, [checkLifetimeAvailability]);
 
   const handlePlanClick = async (plan: typeof pricingPlans[0]) => {
     // Free tier - just go to generate
     if (!plan.productType) {
       navigate('/generate');
+      return;
+    }
+
+    // Lifetime not available if already subscribed (only at signup)
+    if (plan.productType === 'lifetime' && subscribed) {
+      toast.error('Lifetime access is only available for new users');
+      return;
+    }
+
+    // Lifetime sold out
+    if (plan.productType === 'lifetime' && !lifetime_available) {
+      toast.error('Lifetime access is sold out');
       return;
     }
 
@@ -106,6 +135,9 @@ export function PricingSection() {
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {pricingPlans.map((plan) => {
             const isCurrentPlan = subscribed && subscription_type === plan.productType;
+            const isLifetimeSoldOut = plan.isLifetime && !lifetime_available;
+            const isLifetimeUnavailable = plan.isLifetime && subscribed && !has_lifetime;
+            const isDisabled = isCurrentPlan || isLifetimeSoldOut || isLifetimeUnavailable;
             
             return (
               <div 
@@ -114,7 +146,7 @@ export function PricingSection() {
                   plan.popular 
                     ? 'bg-card border-2 border-primary shadow-xl shadow-primary/10' 
                     : 'bg-card/50 border border-border/50'
-                } ${isCurrentPlan ? 'ring-2 ring-success' : ''}`}
+                } ${isCurrentPlan ? 'ring-2 ring-success' : ''} ${isLifetimeSoldOut ? 'opacity-75' : ''}`}
               >
                 {/* Popular badge */}
                 {plan.popular && !isCurrentPlan && (
@@ -130,8 +162,23 @@ export function PricingSection() {
                   </div>
                 )}
                 
-                {/* Badge (for lifetime) */}
-                {plan.badge && !plan.popular && !isCurrentPlan && (
+                {/* Sold out badge for lifetime */}
+                {isLifetimeSoldOut && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-destructive text-white text-sm font-bold rounded-full">
+                    Sold Out
+                  </div>
+                )}
+                
+                {/* Limited spots badge for lifetime */}
+                {plan.isLifetime && lifetime_available && !isCurrentPlan && !subscribed && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-amber-500 text-white text-sm font-bold rounded-full flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    Only {lifetime_spots_remaining} spots left!
+                  </div>
+                )}
+                
+                {/* Badge (for lifetime - only show if not sold out and no other badge) */}
+                {plan.badge && !plan.popular && !isCurrentPlan && !plan.isLifetime && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-accent-secondary text-white text-sm font-bold rounded-full">
                     {plan.badge}
                   </div>
@@ -144,12 +191,19 @@ export function PricingSection() {
                 
                 {/* Price */}
                 <div className="mb-2">
-                  <span className="text-4xl font-bold">{plan.price}</span>
+                  <span className={`text-4xl font-bold ${isLifetimeSoldOut ? 'line-through text-muted-foreground' : ''}`}>
+                    {plan.price}
+                  </span>
                   <span className="text-muted-foreground ml-1">{plan.period}</span>
                 </div>
                 
                 <p className="text-sm text-muted-foreground mb-8">
-                  {plan.description}
+                  {isLifetimeSoldOut 
+                    ? 'This offer has ended' 
+                    : isLifetimeUnavailable
+                    ? 'Only available for new users'
+                    : plan.description
+                  }
                 </p>
                 
                 {/* Features */}
@@ -174,16 +228,23 @@ export function PricingSection() {
                   size="lg" 
                   className="w-full group"
                   onClick={() => handlePlanClick(plan)}
-                  disabled={isCurrentPlan}
+                  disabled={isDisabled}
                 >
-                  {isCurrentPlan ? 'Current Plan' : plan.cta}
-                  {!isCurrentPlan && (
+                  {isCurrentPlan 
+                    ? 'Current Plan' 
+                    : isLifetimeSoldOut 
+                    ? 'Sold Out'
+                    : isLifetimeUnavailable
+                    ? 'Not Available'
+                    : plan.cta
+                  }
+                  {!isDisabled && (
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   )}
                 </Button>
                 
                 {/* Savings note */}
-                {plan.savings && (
+                {plan.savings && !isLifetimeSoldOut && (
                   <p className="text-sm text-success text-center mt-4 font-medium">
                     {plan.savings}
                   </p>
