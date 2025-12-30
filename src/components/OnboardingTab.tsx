@@ -27,7 +27,7 @@ import {
 
 const deliverables = [
   { icon: FileText, title: "Proposal", time: "~30 sec", color: "bg-blue-500" },
-  { icon: Presentation, title: "Slide Deck", time: "2-5 min", color: "bg-purple-500", premium: true },
+  { icon: Presentation, title: "Slide Deck", time: "5-7 min", color: "bg-purple-500", premium: true },
   { icon: FileCheck, title: "Contract", time: "~30 sec", color: "bg-green-500" },
   { icon: Mail, title: "Emails", time: "~15 sec", color: "bg-orange-500" },
   { icon: Receipt, title: "Invoice", time: "~15 sec", color: "bg-pink-500" },
@@ -62,18 +62,18 @@ interface OnboardingTabProps {
 
 export function OnboardingTab({ onNewProposal }: OnboardingTabProps) {
   return (
-    <div className="h-full overflow-auto bg-gradient-to-b from-slate-50 to-slate-100/50 dark:from-slate-100 dark:to-slate-50">
+    <div className="h-full overflow-auto bg-gradient-to-b from-slate-700 to-slate-700/95">
       <div className="max-w-4xl mx-auto px-8 py-10">
         {/* Hero Section */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-4">
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-4 py-1.5 text-sm font-medium text-primary mb-4">
             <Trophy className="h-4 w-4" />
             $1M+ in closed deals
           </div>
-          <h1 className="text-4xl font-bold text-slate-900 mb-4 leading-tight">
+          <h1 className="text-4xl font-bold text-slate-100 mb-4 leading-tight">
             Getting Started with Pitch Genius
           </h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+          <p className="text-lg text-slate-400 max-w-2xl mx-auto">
             Everything you need to create winning proposals.
             Written proposals in 30 seconds. Designer-quality slide decks in under 5 minutes.
           </p>
@@ -90,7 +90,7 @@ export function OnboardingTab({ onNewProposal }: OnboardingTabProps) {
 
         {/* What You Get - With Timing */}
         <div className="mb-12">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4 text-center">
+          <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 text-center">
             Your Complete Proposal Suite
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -101,8 +101,8 @@ export function OnboardingTab({ onNewProposal }: OnboardingTabProps) {
                   key={item.title}
                   className={`relative flex flex-col items-center gap-2 rounded-xl p-4 text-center ${
                     item.premium 
-                      ? "bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200" 
-                      : "bg-slate-50 border border-slate-200"
+                      ? "bg-gradient-to-br from-purple-900/50 to-pink-900/50 border-2 border-purple-500/50" 
+                      : "bg-slate-800 border border-slate-600"
                   }`}
                 >
                   {item.premium && (
@@ -113,8 +113,8 @@ export function OnboardingTab({ onNewProposal }: OnboardingTabProps) {
                   <div className={`rounded-full p-2.5 ${item.color}`}>
                     <Icon className="h-4 w-4 text-white" />
                   </div>
-                  <span className="text-sm font-medium text-slate-700">{item.title}</span>
-                  <span className={`text-xs font-medium ${item.premium ? "text-purple-600" : "text-slate-500"}`}>
+                  <span className="text-sm font-medium text-slate-200">{item.title}</span>
+                  <span className={`text-xs font-medium ${item.premium ? "text-purple-400" : "text-slate-400"}`}>
                     {item.time}
                   </span>
                 </div>
@@ -181,39 +181,39 @@ export function OnboardingTab({ onNewProposal }: OnboardingTabProps) {
 
         {/* Quick How It Works */}
         <div className="mb-12">
-          <h2 className="text-xl font-bold text-slate-900 mb-6 text-center">The Process</h2>
+          <h2 className="text-xl font-bold text-slate-100 mb-6 text-center">The Process</h2>
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 rounded-xl bg-slate-50 border border-slate-200 p-5 text-center">
+            <div className="flex-1 rounded-xl bg-slate-800 border border-slate-600 p-5 text-center">
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white font-bold mb-3">1</div>
-              <h3 className="font-semibold text-slate-900 mb-1">Paste Context</h3>
-              <p className="text-sm text-slate-600">Drop your client notes, call transcripts, or project details.</p>
+              <h3 className="font-semibold text-slate-100 mb-1">Paste Context</h3>
+              <p className="text-sm text-slate-400">Drop your client notes, call transcripts, or project details.</p>
               <div className="mt-3 flex items-center justify-center gap-1 text-xs text-slate-500">
                 <Timer className="h-3 w-3" />
                 30 seconds
               </div>
             </div>
-            <div className="hidden md:flex items-center justify-center text-slate-300">
+            <div className="hidden md:flex items-center justify-center text-slate-500">
               <ArrowRight className="h-6 w-6" />
             </div>
-            <div className="flex-1 rounded-xl bg-slate-50 border border-slate-200 p-5 text-center">
+            <div className="flex-1 rounded-xl bg-slate-800 border border-slate-600 p-5 text-center">
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white font-bold mb-3">2</div>
-              <h3 className="font-semibold text-slate-900 mb-1">Get Your Proposal</h3>
-              <p className="text-sm text-slate-600">Written proposal streams in real-time. Copy, tweak, send.</p>
+              <h3 className="font-semibold text-slate-100 mb-1">Get Your Proposal</h3>
+              <p className="text-sm text-slate-400">Written proposal streams in real-time. Copy, tweak, send.</p>
               <div className="mt-3 flex items-center justify-center gap-1 text-xs text-slate-500">
                 <Timer className="h-3 w-3" />
                 ~30 seconds
               </div>
             </div>
-            <div className="hidden md:flex items-center justify-center text-slate-300">
+            <div className="hidden md:flex items-center justify-center text-slate-500">
               <ArrowRight className="h-6 w-6" />
             </div>
-            <div className="flex-1 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 p-5 text-center">
+            <div className="flex-1 rounded-xl bg-gradient-to-br from-purple-900/50 to-pink-900/50 border-2 border-purple-500/50 p-5 text-center">
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-purple-500 text-white font-bold mb-3">3</div>
-              <h3 className="font-semibold text-slate-900 mb-1">Generate the Deck</h3>
-              <p className="text-sm text-slate-600">Our AI designer builds your presentation. Take a break.</p>
-              <div className="mt-3 flex items-center justify-center gap-1 text-xs text-purple-600 font-medium">
+              <h3 className="font-semibold text-slate-100 mb-1">Generate the Deck</h3>
+              <p className="text-sm text-slate-400">Our AI designer builds your presentation. Take a break.</p>
+              <div className="mt-3 flex items-center justify-center gap-1 text-xs text-purple-400 font-medium">
                 <Coffee className="h-3 w-3" />
-                2-5 min (worth it)
+                5-7 min (worth it)
               </div>
             </div>
           </div>
@@ -223,20 +223,20 @@ export function OnboardingTab({ onNewProposal }: OnboardingTabProps) {
         <div className="mb-8">
           <div className="flex items-center justify-center gap-2 mb-6">
             <HelpCircle className="h-5 w-5 text-slate-400" />
-            <h2 className="text-xl font-bold text-slate-900">Quick Answers</h2>
+            <h2 className="text-xl font-bold text-slate-100">Quick Answers</h2>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+          <div className="rounded-xl border border-slate-600 bg-slate-800 overflow-hidden">
             <Accordion type="single" collapsible className="w-full">
               {faqs.map((faq, index) => (
                 <AccordionItem 
                   key={index} 
                   value={`item-${index}`} 
-                  className="border-slate-200"
+                  className="border-slate-600"
                 >
-                  <AccordionTrigger className="px-5 py-4 text-left text-slate-900 hover:no-underline hover:bg-slate-50 text-sm font-medium">
+                  <AccordionTrigger className="px-5 py-4 text-left text-slate-100 hover:no-underline hover:bg-slate-700 text-sm font-medium">
                     {faq.question}
                   </AccordionTrigger>
-                  <AccordionContent className="px-5 pb-4 text-slate-600 text-sm">
+                  <AccordionContent className="px-5 pb-4 text-slate-400 text-sm">
                     {faq.answer}
                   </AccordionContent>
                 </AccordionItem>
@@ -247,8 +247,8 @@ export function OnboardingTab({ onNewProposal }: OnboardingTabProps) {
 
         {/* Quick Links Footer */}
         <div className="text-center pt-4 pb-8">
-          <p className="text-slate-500 text-sm mb-3">First time? Set up your profile for personalized proposals.</p>
-          <Button asChild variant="outline" size="sm" className="border-slate-300 text-slate-700 hover:bg-slate-100">
+          <p className="text-slate-400 text-sm mb-3">First time? Set up your profile for personalized proposals.</p>
+          <Button asChild variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white">
             <Link to="/profile">
               <Settings className="mr-2 h-4 w-4" />
               Profile Settings

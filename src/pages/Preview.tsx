@@ -611,7 +611,7 @@ Key requirements:
       </aside>
 
       {/* Main Content - Scrollable */}
-      <main className="flex-1 flex flex-col overflow-hidden bg-slate-100">
+      <main className="flex-1 flex flex-col overflow-hidden bg-slate-700">
         {/* Success Banner */}
         {showBanner && (
           <div className="bg-success/10 border-b border-success/20 px-6 py-3 flex items-center justify-between">
@@ -634,10 +634,10 @@ Key requirements:
 
         {/* Document Header - hide for home and library tabs */}
         {!isHomeTab && !isLibraryTab && (
-          <div className="border-b border-border px-6 py-4 flex items-center justify-between bg-card/30">
+          <div className="border-b border-slate-600 px-6 py-4 flex items-center justify-between bg-slate-800/50">
             <div className="flex items-center gap-3">
               <ActiveIcon className="h-5 w-5 text-primary" />
-              <span className="font-semibold">{tabLabels[activeTab]}</span>
+              <span className="font-semibold text-slate-100">{tabLabels[activeTab]}</span>
             </div>
             <div className="flex items-center gap-2">
               {/* Deck tab actions */}
@@ -669,15 +669,16 @@ Key requirements:
                     variant="outline" 
                     size="sm"
                     title={lightMode ? "Switch to dark mode" : "Switch to PDF preview"}
+                    className="border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white"
                   >
                     {lightMode ? <Moon className="mr-2 h-4 w-4" /> : <Sun className="mr-2 h-4 w-4" />}
                     {lightMode ? "Dark" : "PDF View"}
                   </Button>
-                  <Button onClick={handleCopy} variant="outline" size="sm">
+                  <Button onClick={handleCopy} variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white">
                     {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
                     Copy
                   </Button>
-                  <Button onClick={handleDownload} variant="outline" size="sm">
+                  <Button onClick={handleDownload} variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white">
                     <Download className="mr-2 h-4 w-4" />
                     TXT
                   </Button>
@@ -698,14 +699,14 @@ Key requirements:
             {isDeckTab && (
               <>
                 {deckData.status === 'idle' && (
-                  <div className="rounded-xl border border-border bg-card p-12 text-center">
+                  <div className="rounded-xl border border-slate-600 bg-slate-800 p-12 text-center">
                     <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
                       <Presentation className="h-8 w-8 text-primary" />
                     </div>
-                    <h2 className="text-xl font-semibold mb-2">Generate Slide Deck</h2>
-                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                      Create a stunning presentation from your proposal using Manus AI. 
-                      This typically takes 2-5 minutes.
+                    <h2 className="text-xl font-semibold mb-2 text-slate-100">Generate Slide Deck</h2>
+                    <p className="text-slate-400 mb-6 max-w-md mx-auto">
+                      Create a stunning presentation from your proposal using AI. 
+                      This typically takes 5-7 minutes.
                     </p>
                     <Button 
                       onClick={handleGenerateDeck}
@@ -721,12 +722,12 @@ Key requirements:
                   <DeckGeneratingLoader clientName={clientName} />
                 )}
                 {deckData.status === 'error' && (
-                  <div className="rounded-xl border border-destructive/50 bg-destructive/10 p-12 text-center">
+                  <div className="rounded-xl border border-destructive/50 bg-slate-800 p-12 text-center">
                     <div className="mx-auto w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center mb-6">
                       <X className="h-8 w-8 text-destructive" />
                     </div>
-                    <h2 className="text-xl font-semibold mb-2">Generation Failed</h2>
-                    <p className="text-muted-foreground mb-6">{deckData.error}</p>
+                    <h2 className="text-xl font-semibold mb-2 text-slate-100">Generation Failed</h2>
+                    <p className="text-slate-400 mb-6">{deckData.error}</p>
                     <Button onClick={handleGenerateDeck} size="lg">
                       <Sparkles className="mr-2 h-5 w-5" />
                       Try Again
@@ -740,13 +741,13 @@ Key requirements:
                   />
                 )}
                 {deckData.status === 'completed' && !deckData.pdfUrl && deckData.gammaUrl && (
-                  <div className="rounded-xl border border-border bg-card p-12 text-center">
+                  <div className="rounded-xl border border-slate-600 bg-slate-800 p-12 text-center">
                     <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
                       <Check className="h-8 w-8 text-primary" />
                     </div>
-                    <h2 className="text-xl font-semibold mb-2">Deck Generated!</h2>
-                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                      Your presentation has been created. Click below to view it on Manus.
+                    <h2 className="text-xl font-semibold mb-2 text-slate-100">Deck Generated!</h2>
+                    <p className="text-slate-400 mb-6 max-w-md mx-auto">
+                      Your presentation has been created. Click below to view it.
                     </p>
                     <Button size="lg" asChild>
                       <a href={deckData.gammaUrl} target="_blank" rel="noopener noreferrer">
@@ -768,14 +769,14 @@ Key requirements:
             )}
             {/* Other tabs - no content yet */}
             {!isDeckTab && !isHomeTab && !isLibraryTab && !hasContent && (
-              <div className="rounded-xl border border-border bg-card p-12 text-center">
+              <div className="rounded-xl border border-slate-600 bg-slate-800 p-12 text-center">
                 <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
                   <ActiveIcon className="h-8 w-8 text-primary" />
                 </div>
                 {!hasProposal ? (
                   <>
-                    <h2 className="text-xl font-semibold mb-2">No Proposal Yet</h2>
-                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                    <h2 className="text-xl font-semibold mb-2 text-slate-100">No Proposal Yet</h2>
+                    <p className="text-slate-400 mb-6 max-w-md mx-auto">
                       Create a proposal first, then you can generate {tabLabels[activeTab].toLowerCase()}.
                     </p>
                     <Button onClick={handleNewProposal} size="lg">
@@ -785,8 +786,8 @@ Key requirements:
                   </>
                 ) : (
                   <>
-                    <h2 className="text-xl font-semibold mb-2">Generate {tabLabels[activeTab]}</h2>
-                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                    <h2 className="text-xl font-semibold mb-2 text-slate-100">Generate {tabLabels[activeTab]}</h2>
+                    <p className="text-slate-400 mb-6 max-w-md mx-auto">
                       This asset hasn't been generated yet. Click below to create it based on your proposal.
                     </p>
                     <Button 
