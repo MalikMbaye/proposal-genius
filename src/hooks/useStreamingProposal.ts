@@ -12,7 +12,7 @@ interface StreamingState {
 interface StreamingOptions {
   clientContext: string;
   background: string;
-  caseStudies: string;
+  caseStudies?: string;
   length: string;
   pricing: {
     strategy: string;
@@ -39,7 +39,7 @@ export function useStreamingProposal() {
     const { 
       clientContext, 
       background, 
-      caseStudies, 
+      caseStudies = '', 
       length, 
       pricing,
       onProgress,
