@@ -8,6 +8,7 @@ import { Logo } from "@/components/Logo";
 import { ProgressStepper } from "@/components/ProgressStepper";
 
 import { LoadingScreen } from "@/components/LoadingScreen";
+import { GeneratePageVideo } from "@/components/GeneratePageVideo";
 import { EmailSignupModal } from "@/components/EmailSignupModal";
 import { BusinessTypeSelector, businessTypes } from "@/components/BusinessTypeSelector";
 import { PricingTierInput } from "@/components/PricingTierInput";
@@ -216,7 +217,8 @@ export default function Generate() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-12">
-        <div className="mx-auto max-w-3xl">
+        <div className="grid lg:grid-cols-[1fr,320px] gap-8 max-w-5xl mx-auto">
+          <div className="max-w-3xl">
           {/* Step 1: Your Business */}
           {currentStep === 1 && (
             <div className="animate-fade-in">
@@ -466,6 +468,14 @@ Budget: Mentioned $15K-40K range.`}
               </div>
             </div>
           )}
+          </div>
+          
+          {/* Sidebar with Video - Hidden on mobile */}
+          <div className="hidden lg:block">
+            <div className="sticky top-24">
+              <GeneratePageVideo step={currentStep} />
+            </div>
+          </div>
         </div>
       </main>
 

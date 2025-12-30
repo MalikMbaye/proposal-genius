@@ -11,6 +11,7 @@ import { PricingSection } from "@/components/landing/PricingSection";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { FinalCTASection } from "@/components/landing/FinalCTASection";
 import { Footer } from "@/components/landing/Footer";
+import { VideoShowcaseSection } from "@/components/landing/VideoShowcaseSection";
 
 
 export default function Index() {
@@ -23,6 +24,7 @@ export default function Index() {
       <InsightSection />
       <SolutionSection />
       <HowItWorksSection />
+      <VideoShowcaseSection />
       <DifferentiationSection />
       <TestimonialsSection />
       <PricingSection />
