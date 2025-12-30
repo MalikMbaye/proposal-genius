@@ -5,76 +5,100 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const GAMMA_API_URL = 'https://public-api.gamma.app/v1.0/generations';
+const MANUS_API_URL = 'https://api.manus.ai/v1';
 
-interface GammaGenerateRequest {
-  inputText: string;
-  textMode: string;
-  format: string;
-  numCards?: number;
-  exportAs?: string;
-  themeId?: string;
-  additionalInstructions?: string;
-  textOptions?: {
-    amount?: string;
-    tone?: string;
-    audience?: string;
-    language?: string;
-  };
-  imageOptions?: {
-    source?: string;
-  };
+interface ManusTaskResponse {
+  task_id: string;
+  task_title: string;
+  task_url: string;
+  share_url?: string;
 }
 
-interface GammaResponse {
-  id?: string;
-  generationId?: string;
-  status: 'queued' | 'pending' | 'in_progress' | 'completed' | 'failed';
-  gammaUrl?: string;
-  exportUrl?: string;
-  pptxUrl?: string;
-  thumbnailUrl?: string;
+interface ManusTaskStatus {
+  id: string;
+  status: 'pending' | 'running' | 'completed' | 'failed';
   error?: string;
-  credits?: {
-    deducted: number;
-    remaining: number;
-  };
+  output?: Array<{
+    id: string;
+    status: string;
+    role: string;
+    type: string;
+    content: Array<{
+      type: string;
+      text?: string;
+      fileUrl?: string;
+      fileName?: string;
+      mimeType?: string;
+    }>;
+  }>;
 }
 
-async function pollForCompletion(generationId: string, apiKey: string, maxAttempts = 60): Promise<GammaResponse> {
+async function pollForCompletion(taskId: string, apiKey: string, maxAttempts = 120): Promise<ManusTaskStatus> {
+  console.log(`Starting to poll for task ${taskId}`);
+  
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    console.log(`Polling attempt ${attempt + 1} for generation ${generationId}`);
+    console.log(`Polling attempt ${attempt + 1} for task ${taskId}`);
     
-    const response = await fetch(`${GAMMA_API_URL}/${generationId}`, {
+    const response = await fetch(`${MANUS_API_URL}/tasks/${taskId}`, {
       method: 'GET',
       headers: {
-        'X-API-KEY': apiKey,
+        'API_KEY': apiKey,
         'Content-Type': 'application/json',
       },
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Gamma poll error:', response.status, errorText);
-      throw new Error(`Gamma API error: ${response.status}`);
+      console.error('Manus poll error:', response.status, errorText);
+      throw new Error(`Manus API error: ${response.status}`);
     }
 
-    const data: GammaResponse = await response.json();
-    console.log(`Generation status: ${data.status}`);
+    const data: ManusTaskStatus = await response.json();
+    console.log(`Task status: ${data.status}`);
 
     if (data.status === 'completed') {
       return data;
     }
 
     if (data.status === 'failed') {
-      throw new Error(data.error || 'Deck generation failed');
+      throw new Error(data.error || 'Task failed');
     }
 
-    // Wait 5 seconds before next poll
+    // Wait 5 seconds before next poll (Manus tasks take longer)
     await new Promise(resolve => setTimeout(resolve, 5000));
   }
 
-  throw new Error('Deck generation timed out');
+  throw new Error('Task timed out after 10 minutes');
+}
+
+function extractPdfUrl(taskOutput: ManusTaskStatus['output']): string | null {
+  if (!taskOutput) return null;
+  
+  for (const output of taskOutput) {
+    if (output.content) {
+      for (const content of output.content) {
+        if (content.fileUrl && content.mimeType?.includes('pdf')) {
+          return content.fileUrl;
+        }
+        if (content.fileUrl && content.fileName?.toLowerCase().endsWith('.pdf')) {
+          return content.fileUrl;
+        }
+      }
+    }
+  }
+  
+  // If no PDF found, look for any file URL
+  for (const output of taskOutput) {
+    if (output.content) {
+      for (const content of output.content) {
+        if (content.fileUrl) {
+          return content.fileUrl;
+        }
+      }
+    }
+  }
+  
+  return null;
 }
 
 serve(async (req) => {
@@ -83,9 +107,9 @@ serve(async (req) => {
   }
 
   try {
-    const GAMMA_API_KEY = Deno.env.get('GAMMA_API_KEY');
-    if (!GAMMA_API_KEY) {
-      throw new Error('GAMMA_API_KEY is not configured');
+    const MANUS_API_KEY = Deno.env.get('MANUS_API_KEY');
+    if (!MANUS_API_KEY) {
+      throw new Error('MANUS_API_KEY is not configured');
     }
 
     const { deckPrompt, clientName, numSlides = 10 } = await req.json();
@@ -94,67 +118,72 @@ serve(async (req) => {
       throw new Error('deckPrompt is required');
     }
 
-    console.log('Starting Gamma deck generation for:', clientName);
+    console.log('Starting Manus deck generation for:', clientName);
 
-    // Create generation request - omit themeId to use Gamma's default
-    const generatePayload: GammaGenerateRequest = {
-      inputText: deckPrompt,
-      textMode: 'generate',
-      format: 'presentation',
-      numCards: numSlides,
-      exportAs: 'pdf',
-      additionalInstructions: 'Create a professional, visually appealing presentation with clear sections and engaging visuals.',
-      textOptions: {
-        amount: 'detailed',
-        tone: 'professional, compelling',
-        audience: 'business stakeholders',
-        language: 'en',
-      },
-      imageOptions: {
-        source: 'aiGenerated',
-      },
-    };
+    // Create the presentation prompt for Manus
+    const fullPrompt = `Create a professional presentation slide deck (${numSlides} slides) for a client proposal.
 
-    console.log('Sending request to Gamma API...');
+CLIENT: ${clientName || 'Client'}
 
-    const createResponse = await fetch(GAMMA_API_URL, {
+PRESENTATION REQUIREMENTS:
+${deckPrompt}
+
+IMPORTANT INSTRUCTIONS:
+1. Create a visually stunning, professional presentation
+2. Use modern design with clean layouts
+3. Include data visualizations, charts, and graphics where appropriate
+4. Export the final presentation as a PDF file
+5. Make it presentation-ready with consistent branding
+
+Please create this presentation and provide the PDF download.`;
+
+    console.log('Sending request to Manus API...');
+
+    // Create the task
+    const createResponse = await fetch(`${MANUS_API_URL}/tasks`, {
       method: 'POST',
       headers: {
-        'X-API-KEY': GAMMA_API_KEY,
+        'API_KEY': MANUS_API_KEY,
         'Content-Type': 'application/json',
-        'accept': 'application/json',
       },
-      body: JSON.stringify(generatePayload),
+      body: JSON.stringify({
+        prompt: fullPrompt,
+        agentProfile: 'manus-1.5',
+        hideInTaskList: true,
+        createShareableLink: true,
+      }),
     });
 
     if (!createResponse.ok) {
       const errorText = await createResponse.text();
-      console.error('Gamma create error:', createResponse.status, errorText);
+      console.error('Manus create error:', createResponse.status, errorText);
       throw new Error(`Failed to start deck generation: ${errorText}`);
     }
 
-    const createData = await createResponse.json();
-    console.log('Gamma create response:', createData);
+    const createData: ManusTaskResponse = await createResponse.json();
+    console.log('Manus create response:', createData);
 
-    const generationId = createData.generationId ?? createData.id;
-    if (!generationId) {
-      throw new Error(`Gamma did not return generationId. Response: ${JSON.stringify(createData)}`);
+    const taskId = createData.task_id;
+    if (!taskId) {
+      throw new Error(`Manus did not return task_id. Response: ${JSON.stringify(createData)}`);
     }
 
-    console.log('Generation started with ID:', generationId);
+    console.log('Task started with ID:', taskId);
 
     // Poll for completion
-    const completedGeneration = await pollForCompletion(generationId, GAMMA_API_KEY);
+    const completedTask = await pollForCompletion(taskId, MANUS_API_KEY);
 
-    console.log('Generation completed:', completedGeneration);
+    console.log('Task completed:', completedTask);
+
+    // Extract PDF URL from output
+    const pdfUrl = extractPdfUrl(completedTask.output);
 
     return new Response(JSON.stringify({
       success: true,
-      generationId,
-      gammaUrl: completedGeneration.gammaUrl,
-      pdfUrl: completedGeneration.exportUrl,
-      pptxUrl: completedGeneration.pptxUrl,
-      thumbnailUrl: completedGeneration.thumbnailUrl,
+      taskId,
+      taskUrl: createData.task_url,
+      shareUrl: createData.share_url,
+      pdfUrl,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

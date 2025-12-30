@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { useProposalStore, caseStudies } from "@/lib/proposalStore";
 import { supabase } from "@/integrations/supabase/client";
+import { PDFViewer } from "@/components/PDFViewer";
+import { DeckGeneratingLoader } from "@/components/DeckGeneratingLoader";
 import jsPDF from "jspdf";
 import {
   FileText,
@@ -26,10 +28,10 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
+// Consolidated tabs - removed deckPrompt, merged into deck
 const tabs = [
   { id: "proposal", label: "Proposal", icon: FileText },
   { id: "deck", label: "Slide Deck", icon: Presentation },
-  { id: "deckPrompt", label: "Deck Prompt", icon: FileText },
   { id: "contract", label: "Contract", icon: FileCheck },
   { id: "contractEmail", label: "Contract Email", icon: Send },
   { id: "invoiceDescription", label: "Invoice", icon: Receipt },
@@ -40,8 +42,7 @@ type TabId = (typeof tabs)[number]["id"];
 
 const tabInstructions: Record<TabId, string> = {
   proposal: "Copy and paste into Google Docs or Word. Review, save as PDF, send.",
-  deck: "Preview your AI-generated slide deck. Download as PDF or PPTX.",
-  deckPrompt: "Copy entire prompt. Paste into GenSpark AI Slides. Click Generate.",
+  deck: "Preview your AI-generated slide deck. Download the PDF when ready.",
   contract: "Paste into Square Contracts. Fill in [BRACKETED] fields. Send for signature.",
   contractEmail: "Copy and paste into your email client. Customize the [BRACKETED] fields.",
   invoiceDescription: "Copy and paste into your invoice or accounting system.",
@@ -51,7 +52,6 @@ const tabInstructions: Record<TabId, string> = {
 const tabLabels: Record<TabId, string> = {
   proposal: "Proposal",
   deck: "Slide Deck",
-  deckPrompt: "Deck Prompt",
   contract: "Contract",
   contractEmail: "Contract Email",
   invoiceDescription: "Invoice Description",
@@ -64,7 +64,7 @@ export default function Preview() {
   const [showBanner, setShowBanner] = useState(true);
   const [copied, setCopied] = useState(false);
   const [generatingAsset, setGeneratingAsset] = useState<TabId | null>(null);
-  const [lightMode, setLightMode] = useState(true); // PDF-like preview by default
+  const [lightMode, setLightMode] = useState(true);
   
   const { 
     deliverables, 
@@ -91,15 +91,14 @@ export default function Preview() {
     return null;
   }
 
-  // For deck tab, check deckData; for others, check deliverables
   const isDeckTab = activeTab === 'deck';
   const currentContent = isDeckTab ? '' : (deliverables[activeTab as keyof typeof deliverables] || '');
   const hasContent = isDeckTab ? deckData.status === 'completed' : currentContent.length > 0;
   const ActiveIcon = tabs.find((t) => t.id === activeTab)?.icon || FileText;
 
   const handleGenerateAsset = async (assetType: TabId) => {
-    if (assetType === 'proposal') return; // Proposal is already generated
-    if (assetType === 'deck') return; // Deck has its own handler
+    if (assetType === 'proposal') return;
+    if (assetType === 'deck') return;
     
     setGeneratingAsset(assetType);
     
@@ -146,10 +145,13 @@ export default function Preview() {
   };
 
   const handleGenerateDeck = async () => {
-    if (!deliverables.deckPrompt) {
+    // Use the deck prompt if available, otherwise use proposal content as the prompt
+    const promptToUse = deliverables.deckPrompt || createDeckPromptFromProposal();
+    
+    if (!promptToUse) {
       toast({
-        title: "Deck prompt required",
-        description: "Please generate the deck prompt first.",
+        title: "Unable to generate deck",
+        description: "Please ensure you have a proposal generated first.",
         variant: "destructive",
       });
       return;
@@ -160,7 +162,7 @@ export default function Preview() {
     try {
       const { data, error } = await supabase.functions.invoke('generate-deck', {
         body: {
-          deckPrompt: deliverables.deckPrompt,
+          deckPrompt: promptToUse,
           clientName: clientName || 'Client',
           numSlides: 10,
         },
@@ -171,11 +173,11 @@ export default function Preview() {
 
       setDeckData({
         status: 'completed',
-        generationId: data.generationId,
-        gammaUrl: data.gammaUrl,
+        generationId: data.taskId,
+        gammaUrl: data.taskUrl,
         pdfUrl: data.pdfUrl,
-        pptxUrl: data.pptxUrl,
-        thumbnailUrl: data.thumbnailUrl,
+        pptxUrl: null,
+        thumbnailUrl: null,
       });
 
       toast({
@@ -194,6 +196,21 @@ export default function Preview() {
         variant: "destructive",
       });
     }
+  };
+
+  // Create a deck prompt from the proposal if no deckPrompt exists
+  const createDeckPromptFromProposal = () => {
+    if (!deliverables.proposal) return null;
+    
+    return `Create a professional presentation based on this proposal content:
+
+${deliverables.proposal.substring(0, 3000)}
+
+Key requirements:
+- Make it visually compelling with modern design
+- Include clear sections: Problem, Solution, Approach, Timeline, Investment
+- Use data visualizations where appropriate
+- Keep text minimal, focus on visual impact`;
   };
 
   const handleCopy = async () => {
@@ -259,13 +276,11 @@ export default function Preview() {
     };
 
     lines.forEach((line) => {
-      // Skip empty lines but add spacing
       if (line.trim() === "") {
         y += 4;
         return;
       }
 
-      // Horizontal rule
       if (line.trim() === "---" || line.trim() === "***") {
         addNewPageIfNeeded(8);
         doc.setDrawColor(200, 200, 200);
@@ -274,7 +289,6 @@ export default function Preview() {
         return;
       }
 
-      // H1
       if (line.startsWith("# ")) {
         addNewPageIfNeeded(14);
         doc.setFont("helvetica", "bold");
@@ -287,7 +301,6 @@ export default function Preview() {
         return;
       }
 
-      // H2
       if (line.startsWith("## ")) {
         addNewPageIfNeeded(12);
         doc.setFont("helvetica", "bold");
@@ -297,14 +310,12 @@ export default function Preview() {
         const splitText = doc.splitTextToSize(text, maxWidth);
         doc.text(splitText, margin, y);
         y += splitText.length * 6 + 4;
-        // Add underline
         doc.setDrawColor(220, 220, 220);
         doc.line(margin, y - 2, pageWidth - margin, y - 2);
         y += 4;
         return;
       }
 
-      // H3
       if (line.startsWith("### ")) {
         addNewPageIfNeeded(10);
         doc.setFont("helvetica", "bold");
@@ -317,7 +328,6 @@ export default function Preview() {
         return;
       }
 
-      // Bullet points
       if (line.startsWith("- ") || line.startsWith("• ")) {
         addNewPageIfNeeded(8);
         doc.setFont("helvetica", "normal");
@@ -332,7 +342,6 @@ export default function Preview() {
         return;
       }
 
-      // Numbered lists
       if (/^\d+\.\s/.test(line)) {
         addNewPageIfNeeded(8);
         doc.setFont("helvetica", "normal");
@@ -349,7 +358,6 @@ export default function Preview() {
         return;
       }
 
-      // Checkmarks and X marks
       if (line.startsWith("✓ ") || line.startsWith("✗ ")) {
         addNewPageIfNeeded(8);
         doc.setFont("helvetica", "normal");
@@ -368,7 +376,6 @@ export default function Preview() {
         return;
       }
 
-      // Blockquotes
       if (line.startsWith("> ")) {
         addNewPageIfNeeded(8);
         doc.setFont("helvetica", "italic");
@@ -384,7 +391,6 @@ export default function Preview() {
         return;
       }
 
-      // Regular paragraph
       addNewPageIfNeeded(8);
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
@@ -395,7 +401,6 @@ export default function Preview() {
       y += splitText.length * 4 + 3;
     });
 
-    // Add page numbers
     const totalPages = doc.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
@@ -440,7 +445,6 @@ export default function Preview() {
             const isActive = activeTab === tab.id;
             const isGenerating = generatingAsset === tab.id || (tab.id === 'deck' && deckData.status === 'generating');
             
-            // Determine if tab has content
             let hasTabContent = false;
             if (tab.id === 'deck') {
               hasTabContent = deckData.status === 'completed';
@@ -477,7 +481,7 @@ export default function Preview() {
 
         {/* Sidebar Actions */}
         <div className="p-4 border-t border-border space-y-2">
-          {hasContent && (
+          {hasContent && !isDeckTab && (
             <>
               <Button onClick={handleCopy} variant="outline" className="w-full justify-start">
                 {copied ? (
@@ -504,26 +508,6 @@ export default function Preview() {
               Generate New
             </Button>
           </div>
-
-          {/* GenSpark CTA for Deck Prompt */}
-          {activeTab === "deckPrompt" && hasContent && (
-            <div className="mt-4 rounded-lg bg-primary/10 border border-primary/20 p-4">
-              <h4 className="font-semibold text-sm mb-2">Create Your Deck</h4>
-              <p className="text-xs text-muted-foreground mb-3">
-                Copy this prompt and paste into GenSpark AI Slides
-              </p>
-              <Button size="sm" className="w-full" asChild>
-                <a
-                  href="https://www.genspark.ai"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Open GenSpark
-                  <ExternalLink className="ml-2 h-3 w-3" />
-                </a>
-              </Button>
-            </div>
-          )}
         </div>
       </aside>
 
@@ -560,26 +544,18 @@ export default function Preview() {
             {activeTab === "deck" && hasContent && (
               <>
                 {deckData.pdfUrl && (
-                  <Button size="sm" variant="outline" asChild>
-                    <a href={deckData.pdfUrl} target="_blank" rel="noopener noreferrer">
+                  <Button size="sm" asChild>
+                    <a href={deckData.pdfUrl} target="_blank" rel="noopener noreferrer" download>
                       <FileDown className="mr-2 h-4 w-4" />
                       Download PDF
                     </a>
                   </Button>
                 )}
-                {deckData.pptxUrl && (
-                  <Button size="sm" variant="outline" asChild>
-                    <a href={deckData.pptxUrl} target="_blank" rel="noopener noreferrer">
-                      <Download className="mr-2 h-4 w-4" />
-                      Download PPTX
-                    </a>
-                  </Button>
-                )}
                 {deckData.gammaUrl && (
-                  <Button size="sm" asChild>
+                  <Button size="sm" variant="outline" asChild>
                     <a href={deckData.gammaUrl} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="mr-2 h-4 w-4" />
-                      Edit in Gamma
+                      View on Manus
                     </a>
                   </Button>
                 )}
@@ -627,13 +603,12 @@ export default function Preview() {
                     </div>
                     <h2 className="text-xl font-semibold mb-2">Generate Slide Deck</h2>
                     <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                      {deliverables.deckPrompt 
-                        ? "Create a professional presentation from your deck prompt using Gamma AI."
-                        : "First generate the Deck Prompt, then come back here to create your slides."}
+                      Create a stunning presentation from your proposal using Manus AI. 
+                      This typically takes 2-5 minutes.
                     </p>
                     <Button 
                       onClick={handleGenerateDeck}
-                      disabled={!deliverables.deckPrompt}
+                      disabled={!deliverables.proposal}
                       size="lg"
                     >
                       <Sparkles className="mr-2 h-5 w-5" />
@@ -642,20 +617,7 @@ export default function Preview() {
                   </div>
                 )}
                 {deckData.status === 'generating' && (
-                  <div className="rounded-xl border border-border bg-card p-12 text-center">
-                    <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6 animate-pulse">
-                      <Loader2 className="h-8 w-8 text-primary animate-spin" />
-                    </div>
-                    <h2 className="text-xl font-semibold mb-2">Generating Your Deck...</h2>
-                    <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-                      Gamma AI is creating your presentation. This may take 1-2 minutes.
-                    </p>
-                    <div className="flex justify-center gap-1">
-                      {[0, 1, 2].map((i) => (
-                        <div key={i} className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
-                      ))}
-                    </div>
-                  </div>
+                  <DeckGeneratingLoader clientName={clientName} />
                 )}
                 {deckData.status === 'error' && (
                   <div className="rounded-xl border border-destructive/50 bg-destructive/10 p-12 text-center">
@@ -670,28 +632,27 @@ export default function Preview() {
                     </Button>
                   </div>
                 )}
-                {deckData.status === 'completed' && deckData.gammaUrl && (
-                  <div className="rounded-xl border border-border bg-card overflow-hidden">
-                    <iframe 
-                      src={`https://gamma.app/embed/${deckData.gammaUrl.split('/').pop()}`}
-                      className="w-full"
-                      style={{ height: '70vh', minHeight: '500px' }}
-                      title="Slide Deck Preview"
-                      allow="fullscreen"
-                    />
-                    <div className="p-3 text-center border-t border-border bg-muted/30">
-                      <p className="text-sm text-muted-foreground">
-                        Can't see the preview?{' '}
-                        <a 
-                          href={deckData.gammaUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline"
-                        >
-                          Open in Gamma
-                        </a>
-                      </p>
+                {deckData.status === 'completed' && deckData.pdfUrl && (
+                  <PDFViewer 
+                    url={deckData.pdfUrl} 
+                    className="min-h-[70vh]"
+                  />
+                )}
+                {deckData.status === 'completed' && !deckData.pdfUrl && deckData.gammaUrl && (
+                  <div className="rounded-xl border border-border bg-card p-12 text-center">
+                    <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                      <Check className="h-8 w-8 text-primary" />
                     </div>
+                    <h2 className="text-xl font-semibold mb-2">Deck Generated!</h2>
+                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                      Your presentation has been created. Click below to view it on Manus.
+                    </p>
+                    <Button size="lg" asChild>
+                      <a href={deckData.gammaUrl} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="mr-2 h-5 w-5" />
+                        View Presentation
+                      </a>
+                    </Button>
                   </div>
                 )}
               </>
@@ -726,7 +687,6 @@ export default function Preview() {
               </div>
             )}
             {!isDeckTab && hasContent && (
-              // Document Content - PDF-like preview
               <div 
                 className={`rounded-xl border shadow-lg transition-colors ${
                   lightMode 
@@ -740,15 +700,13 @@ export default function Preview() {
               >
                 <div 
                   className={`p-12 ${
-                    activeTab === "deckPrompt" || activeTab === "invoiceDescription"
+                    activeTab === "invoiceDescription"
                       ? "font-mono text-sm"
                       : "font-serif"
                   }`}
                 >
                   {currentContent.split("\n").map((line, idx) => {
-                    // Enhanced markdown rendering
                     const renderFormattedText = (text: string) => {
-                      // Handle bold (**text**) and italic (*text*)
                       const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
                       return parts.map((part, i) => {
                         if (part.startsWith('**') && part.endsWith('**')) {
