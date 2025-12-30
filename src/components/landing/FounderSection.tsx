@@ -1,9 +1,11 @@
 import { ExternalLink, Instagram, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CompanyLogo } from "./CompanyLogo";
 import malikHeadshot from "@/assets/malik-headshot.jpeg";
 
-const companyNames = ["Facebook", "LinkedIn", "Lyft", "Google", "Bain & Company"];
-const pressNames = ["Forbes", "TechCrunch", "Fast Company"];
+const companies = ["Facebook", "LinkedIn", "Lyft", "Google", "Bain & Company"];
+const pressOutlets = ["Forbes", "TechCrunch", "Fast Company"];
+const placementCompanies = ["McKinsey & Company", "Goldman Sachs", "Deloitte"];
 
 const achievements = [
   "Started first business at 16, scaled to 23 countries",
@@ -63,13 +65,8 @@ export function FounderSection() {
               Previously at
             </p>
             <div className="flex flex-wrap justify-center items-center gap-4">
-              {companyNames.map((name) => (
-                <span 
-                  key={name} 
-                  className="text-slate-400 hover:text-slate-200 transition-colors font-semibold text-sm tracking-wide"
-                >
-                  {name}
-                </span>
+              {companies.map((name) => (
+                <CompanyLogo key={name} name={name} />
               ))}
             </div>
 
@@ -78,13 +75,8 @@ export function FounderSection() {
               Featured in
             </p>
             <div className="flex flex-wrap justify-center items-center gap-5">
-              {pressNames.map((name) => (
-                <span 
-                  key={name} 
-                  className="text-slate-500 hover:text-slate-300 transition-colors font-semibold text-sm"
-                >
-                  {name}
-                </span>
+              {pressOutlets.map((name) => (
+                <CompanyLogo key={name} name={name} />
               ))}
             </div>
           </div>
@@ -132,13 +124,18 @@ export function FounderSection() {
             </div>
 
             {/* Extra credentials */}
-            <div className="flex flex-wrap gap-2 mb-8">
-              <span className="px-3 py-1.5 bg-slate-700/60 border border-slate-600/50 rounded-full text-sm text-slate-300">
-                Howard University alum
-              </span>
-              <span className="px-3 py-1.5 bg-slate-700/60 border border-slate-600/50 rounded-full text-sm text-slate-300">
-                100+ career placements at McKinsey, Goldman, Deloitte
-              </span>
+            <div className="mb-8">
+              <p className="text-xs text-slate-400 mb-3 font-medium tracking-widest uppercase">
+                Education & Career Placements
+              </p>
+              <div className="flex flex-wrap items-center gap-4">
+                <CompanyLogo name="Howard University" />
+                <span className="text-slate-500">|</span>
+                <span className="text-sm text-slate-400">100+ placements at</span>
+                {placementCompanies.map((name) => (
+                  <CompanyLogo key={name} name={name} />
+                ))}
+              </div>
             </div>
 
             {/* CTA Button */}
