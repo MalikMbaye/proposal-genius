@@ -32,13 +32,13 @@ export function AppHeader({ center, onNewProposal }: AppHeaderProps) {
   };
 
   return (
-    <header className="h-14 border-b border-border bg-card/80 backdrop-blur-xl shadow-sm flex items-center px-4 gap-4 flex-shrink-0">
+    <header className="h-14 border-b border-slate-200 bg-slate-900 flex items-center px-4 gap-4 flex-shrink-0">
       <Link to="/preview" className="flex-shrink-0" aria-label="Go to dashboard">
         <Logo />
       </Link>
 
       <nav className="hidden md:flex items-center">
-        <Button asChild variant="ghost" size="sm" className="justify-start">
+        <Button asChild variant="ghost" size="sm" className="justify-start text-slate-300 hover:text-white hover:bg-slate-800">
           <Link to="/dashboard" className="flex items-center">
             <LayoutDashboard className="mr-2 h-4 w-4" />
             Dashboard
@@ -57,7 +57,7 @@ export function AppHeader({ center, onNewProposal }: AppHeaderProps) {
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full" aria-label="Open user menu">
+              <Button variant="ghost" size="icon" className="rounded-full text-slate-300 hover:text-white hover:bg-slate-800" aria-label="Open user menu">
                 <User className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
