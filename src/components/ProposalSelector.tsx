@@ -107,27 +107,24 @@ export function ProposalSelector() {
   const displayName = clientName || "Untitled Proposal";
 
   return (
-    <div className="flex items-center gap-2">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button 
-            variant="outline" 
-            size="lg" 
-            className="h-12 px-4 gap-3 bg-card border-border hover:bg-muted/50 min-w-[200px] justify-between"
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <FileText className="h-4 w-4 text-primary" />
-              </div>
-              <div className="text-left">
-                <div className="font-semibold truncate max-w-[180px]">{displayName}</div>
-                <div className="text-xs text-muted-foreground">Current Proposal</div>
-              </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button 
+          variant="ghost" 
+          className="h-10 px-4 gap-3 bg-secondary/50 hover:bg-secondary border border-border/50 w-full max-w-md justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center">
+              <FileText className="h-4 w-4 text-primary" />
             </div>
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-[280px] bg-card border-border">
+            <div className="text-left">
+              <div className="font-semibold text-sm truncate max-w-[200px]">{displayName}</div>
+            </div>
+          </div>
+          <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-[320px] bg-card border-border">
           <DropdownMenuItem onClick={handleNewProposal} className="gap-3 py-3">
             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
               <Plus className="h-4 w-4 text-primary" />
@@ -189,8 +186,7 @@ export function ProposalSelector() {
             <User className="h-4 w-4 text-muted-foreground" />
             <span>Account & Business Profile</span>
           </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

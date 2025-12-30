@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/Navbar";
@@ -86,13 +86,13 @@ export default function Profile() {
 
       <main className="relative pt-24 pb-16 px-4">
         <div className="container mx-auto max-w-2xl">
-          <button
-            onClick={() => navigate(-1)}
+          <Link
+            to="/proposals"
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back
-          </button>
+            Back to Proposals
+          </Link>
 
           <div className="glass-card rounded-2xl p-8">
             <h1 className="text-2xl font-bold mb-2">Account Settings</h1>

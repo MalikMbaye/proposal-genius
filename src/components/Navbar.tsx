@@ -41,7 +41,7 @@ export function Navbar() {
           {user ? (
             <>
               <Button variant="outline" size="sm" asChild>
-                <Link to="/generate">Dashboard</Link>
+                <Link to="/generate">+ New Proposal</Link>
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
