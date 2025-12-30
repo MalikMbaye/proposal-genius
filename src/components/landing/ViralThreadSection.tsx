@@ -20,22 +20,22 @@ import thread15 from "@/assets/threads/thread-15.png";
 import thread16 from "@/assets/threads/thread-16.png";
 
 const threads = [
-  { src: thread1, alt: "Thread 1/18 - Intro: What's the difference between $10K and $100K projects" },
-  { src: thread2, alt: "Thread 2/18 - First project $250, scaling journey" },
-  { src: thread3, alt: "Thread 3/18 - $3K fintech project at Meta" },
-  { src: thread4, alt: "Thread 4/18 - $300K WordPress site wasn't more complex" },
-  { src: thread5, alt: "Thread 5/18 - Three factors: client, process, risk" },
-  { src: thread6, alt: "Thread 6/18 - Who is the client: risk tolerance" },
-  { src: thread7, alt: "Thread 7/18 - Certainty and minimizing brand risk" },
-  { src: thread8, alt: "Thread 8/18 - The process behind the work" },
-  { src: thread9, alt: "Thread 9/18 - Process > product at large companies" },
-  { src: thread10, alt: "Thread 10/18 - Reputation and credibility" },
-  { src: thread11, alt: "Thread 11/18 - Big resume opens doors to $100K+ projects" },
-  { src: thread12, alt: "Thread 12/18 - A-list teams and elite credentials" },
-  { src: thread13, alt: "Thread 13/18 - Scaling from $250 to $250K+" },
-  { src: thread14, alt: "Thread 14/18 - Path to six-figure contracts" },
-  { src: thread15, alt: "Thread 15/18 - Scalable systems are the future" },
-  { src: thread16, alt: "Thread 16/18 - The leap from $10K to $100K" },
+  { src: thread1, alt: "Thread 1/16 - Intro" },
+  { src: thread2, alt: "Thread 2/16" },
+  { src: thread3, alt: "Thread 3/16" },
+  { src: thread4, alt: "Thread 4/16" },
+  { src: thread5, alt: "Thread 5/16" },
+  { src: thread6, alt: "Thread 6/16" },
+  { src: thread7, alt: "Thread 7/16" },
+  { src: thread8, alt: "Thread 8/16" },
+  { src: thread9, alt: "Thread 9/16" },
+  { src: thread10, alt: "Thread 10/16" },
+  { src: thread11, alt: "Thread 11/16" },
+  { src: thread12, alt: "Thread 12/16" },
+  { src: thread13, alt: "Thread 13/16" },
+  { src: thread14, alt: "Thread 14/16" },
+  { src: thread15, alt: "Thread 15/16" },
+  { src: thread16, alt: "Thread 16/16" },
 ];
 
 // Confetti particle component
@@ -56,7 +56,6 @@ function ConfettiParticle({ delay, left, color }: { delay: number; left: number;
 export function ViralThreadSection() {
   const [showConfetti, setShowConfetti] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Trigger confetti on scroll into view
   useEffect(() => {
@@ -80,11 +79,11 @@ export function ViralThreadSection() {
 
   // Generate confetti particles
   const confettiColors = [
-    'hsl(48, 100%, 50%)',  // Bright gold
-    'hsl(45, 90%, 60%)',   // Light gold
-    'hsl(38, 80%, 45%)',   // Deep gold
-    'hsl(30, 70%, 50%)',   // Bronze
-    'hsl(0, 0%, 100%)',    // White sparkle
+    'hsl(48, 100%, 50%)',
+    'hsl(45, 90%, 60%)',
+    'hsl(38, 80%, 45%)',
+    'hsl(30, 70%, 50%)',
+    'hsl(0, 0%, 100%)',
   ];
 
   const confettiParticles = Array.from({ length: 50 }, (_, i) => ({
@@ -95,7 +94,7 @@ export function ViralThreadSection() {
   }));
 
   return (
-    <section ref={sectionRef} className="relative pt-28 pb-16 overflow-hidden">
+    <section ref={sectionRef} className="relative py-24 overflow-hidden">
       {/* Deep luxe near-black background */}
       <div 
         className="absolute inset-0"
@@ -120,23 +119,13 @@ export function ViralThreadSection() {
         }}
       />
 
-      {/* 3D Trophy ambient motif - blended into background */}
-      <div className="absolute right-[-5%] top-[5%] opacity-[0.25] pointer-events-none blur-[2px]">
+      {/* 3D Trophy ambient motif */}
+      <div className="absolute right-[-5%] top-[5%] opacity-[0.2] pointer-events-none blur-[2px]">
         <img 
           src={trophy3D} 
           alt=""
-          className="w-72 h-72 md:w-96 md:h-96 object-contain"
+          className="w-48 h-48 md:w-64 md:h-64 object-contain"
           style={{ filter: 'saturate(1.2) brightness(0.8)' }}
-        />
-      </div>
-      
-      {/* Secondary 3D trophy accent bottom-left */}
-      <div className="absolute left-[-3%] bottom-[10%] opacity-[0.15] pointer-events-none rotate-[-15deg] blur-[1px]">
-        <img 
-          src={trophy3D} 
-          alt=""
-          className="w-40 h-40 md:w-52 md:h-52 object-contain"
-          style={{ filter: 'saturate(1.1) brightness(0.7)' }}
         />
       </div>
 
@@ -145,10 +134,8 @@ export function ViralThreadSection() {
         className="absolute inset-0 opacity-30 pointer-events-none"
         style={{
           backgroundImage: `radial-gradient(circle at 20% 30%, hsl(45, 100%, 50%) 1px, transparent 1px),
-                           radial-gradient(circle at 80% 70%, hsl(45, 100%, 50%) 1px, transparent 1px),
-                           radial-gradient(circle at 40% 80%, hsl(45, 100%, 50%) 0.5px, transparent 0.5px),
-                           radial-gradient(circle at 60% 20%, hsl(45, 100%, 50%) 0.5px, transparent 0.5px)`,
-          backgroundSize: '100px 100px, 150px 150px, 80px 80px, 120px 120px',
+                           radial-gradient(circle at 80% 70%, hsl(45, 100%, 50%) 1px, transparent 1px)`,
+          backgroundSize: '100px 100px, 150px 150px',
         }}
       />
 
@@ -168,26 +155,26 @@ export function ViralThreadSection() {
       
       {/* Single Column Centered Content */}
       <div className="container relative z-10 mx-auto px-4">
-        <div className="max-w-3xl mx-auto text-center space-y-8">
+        <div className="max-w-2xl mx-auto text-center space-y-4 mb-10">
           {/* Trophy badge */}
           <div className="flex justify-center">
             <div 
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
               style={{
                 background: 'linear-gradient(135deg, hsl(45, 70%, 20%) 0%, hsl(35, 60%, 15%) 100%)',
                 border: '1px solid hsl(45, 60%, 35%)',
                 boxShadow: '0 0 20px -5px hsl(45, 100%, 40%)'
               }}
             >
-              <Trophy className="w-5 h-5" style={{ color: 'hsl(45, 100%, 55%)' }} />
-              <span className="text-sm font-semibold" style={{ color: 'hsl(45, 100%, 60%)' }}>
+              <Trophy className="w-4 h-4" style={{ color: 'hsl(45, 100%, 55%)' }} />
+              <span className="text-xs font-semibold" style={{ color: 'hsl(45, 100%, 60%)' }}>
                 Viral Milestone
               </span>
             </div>
           </div>
           
           <h2 
-            className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight"
+            className="text-2xl md:text-3xl font-bold leading-tight"
             style={{ 
               background: 'linear-gradient(135deg, hsl(45, 100%, 60%) 0%, hsl(38, 100%, 50%) 50%, hsl(45, 100%, 55%) 100%)',
               WebkitBackgroundClip: 'text',
@@ -198,21 +185,20 @@ export function ViralThreadSection() {
             The Thread That Started It All
           </h2>
           
-          <div className="space-y-1">
+          <div className="flex items-center justify-center gap-3">
             <p 
-              className="text-6xl md:text-7xl lg:text-8xl font-black tracking-tight"
+              className="text-3xl md:text-4xl font-black tracking-tight"
               style={{ 
                 background: 'linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(45, 30%, 85%) 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
-                textShadow: '0 0 60px hsl(45, 100%, 50%)'
               }}
             >
               35,700+
             </p>
             <p 
-              className="text-3xl md:text-4xl font-bold uppercase tracking-widest"
+              className="text-lg md:text-xl font-bold uppercase tracking-widest"
               style={{ 
                 background: 'linear-gradient(90deg, hsl(45, 100%, 50%), hsl(38, 100%, 45%))',
                 WebkitBackgroundClip: 'text',
@@ -224,17 +210,16 @@ export function ViralThreadSection() {
             </p>
           </div>
           
-          <div className="space-y-4">
+          <div className="flex items-center justify-center gap-4 pt-2">
             <p 
-              className="text-xl font-medium"
+              className="text-sm font-medium"
               style={{ color: 'hsl(45, 30%, 70%)' }}
             >
-              Built by Mālik Mbaye
+              by Mālik Mbaye
             </p>
             
-            {/* Social Icons - gold themed */}
-            <div className="flex items-center justify-center gap-6">
-              {/* X (Twitter) */}
+            {/* Social Icons - compact */}
+            <div className="flex items-center gap-3">
               <a 
                 href="https://x.com/malickio" 
                 target="_blank" 
@@ -243,26 +228,11 @@ export function ViralThreadSection() {
                 style={{ color: 'hsl(45, 60%, 50%)' }}
                 aria-label="Follow on X"
               >
-                <svg className="w-8 h-8 hover:drop-shadow-[0_0_8px_hsl(45,100%,50%)]" viewBox="0 0 24 24" fill="currentColor">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
               </a>
               
-              {/* Instagram */}
-              <a 
-                href="https://www.instagram.com/malick.io/" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="transition-all duration-300 hover:scale-110"
-                style={{ color: 'hsl(45, 60%, 50%)' }}
-                aria-label="Follow on Instagram"
-              >
-                <svg className="w-9 h-9 hover:drop-shadow-[0_0_8px_hsl(45,100%,50%)]" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                </svg>
-              </a>
-              
-              {/* Threads */}
               <a 
                 href="https://www.threads.com/@malick.io" 
                 target="_blank"
@@ -271,12 +241,11 @@ export function ViralThreadSection() {
                 style={{ color: 'hsl(45, 60%, 50%)' }}
                 aria-label="Follow on Threads"
               >
-                <svg className="w-8 h-8 hover:drop-shadow-[0_0_8px_hsl(45,100%,50%)]" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.912 3.589 12c.027 3.086.718 5.494 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.96-.065-1.182.408-2.256 1.33-3.022.88-.73 2.082-1.167 3.476-1.263 1.02-.07 2.045-.032 3.063.088l.031.004v-.001c-.003-.851-.088-1.56-.255-2.103-.223-.72-.59-1.243-1.133-1.606-.594-.397-1.395-.61-2.318-.617h-.026c-.9.006-1.728.196-2.392.547l-.928-1.788c.932-.492 2.07-.764 3.296-.772h.033c1.327.012 2.463.32 3.38.915.87.564 1.5 1.36 1.872 2.365.339.918.506 2.023.512 3.364v.067c0 .11-.002.218-.003.327-.014 1.13-.056 2.162-.78 3.196-.82 1.173-2.188 1.94-4.088 2.29-.39.072-.797.108-1.206.108-.193 0-.386-.007-.58-.02-1.25-.082-2.318-.425-3.085-.994-.847-.628-1.264-1.462-1.212-2.42.054-1.006.543-1.832 1.378-2.324.748-.44 1.72-.654 2.803-.617 1.017.035 2.086.217 3.172.543l.078.023c.107-.408.161-.86.161-1.347 0-.115-.003-.227-.01-.334-.818-.125-1.632-.19-2.439-.19-1.72 0-3.127.372-4.065 1.076-1.053.79-1.61 1.964-1.566 3.304.05 1.477.71 2.726 1.862 3.521.982.676 2.26 1.007 3.796.984 1.843-.04 3.304-.613 4.344-1.704.886-.93 1.413-2.172 1.579-3.73.798.442 1.45 1.035 1.932 1.76.72 1.086 1.004 2.446.823 3.937-.18 1.502-.882 2.846-2.025 3.894-1.555 1.427-3.676 2.18-6.319 2.242h-.07zm-.036-11.635l-.032-.002c-.758.053-1.395.282-1.843.662-.442.373-.659.86-.628 1.41.03.542.284.976.756 1.29.512.339 1.222.508 2.108.502.702-.042 1.262-.24 1.66-.588.385-.338.642-.823.766-1.444-.904-.257-1.853-.4-2.787-.43z"/>
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.912 3.589 12c.027 3.086.718 5.494 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.96-.065-1.182.408-2.256 1.33-3.022.88-.73 2.082-1.167 3.476-1.263 1.02-.07 2.045-.032 3.063.088l.031.004v-.001c-.003-.851-.088-1.56-.255-2.103-.223-.72-.59-1.243-1.133-1.606-.594-.397-1.395-.61-2.318-.617h-.026c-.9.006-1.728.196-2.392.547l-.928-1.788c.932-.492 2.07-.764 3.296-.772h.033c1.327.012 2.463.32 3.38.915.87.564 1.5 1.36 1.872 2.365.339.918.506 2.023.512 3.364v.067c0 .11-.002.218-.003.327-.014 1.13-.056 2.162-.78 3.196-.82 1.173-2.188 1.94-4.088 2.29-.39.072-.797.108-1.206.108-.193 0-.386-.007-.58-.02-1.25-.082-2.318-.425-3.085-.994-.847-.628-1.264-1.462-1.212-2.42.054-1.006.543-1.832 1.378-2.324.748-.44 1.72-.654 2.803-.617 1.017.035 2.086.217 3.172.543l.078.023c.107-.408.161-.86.161-1.347 0-.115-.003-.227-.01-.334-.818-.125-1.632-.19-2.439-.19-1.72 0-3.127.372-4.065 1.076-1.053.79-1.61 1.964-1.566 3.304.05 1.477.71 2.726 1.862 3.521.982.676 2.26 1.007 3.796.984 1.843-.04 3.304-.613 4.344-1.704.886-.93 1.413-2.172 1.579-3.73.798.442 1.45 1.035 1.932 1.76.72 1.086 1.004 2.446.823 3.937-.18 1.502-.882 2.846-2.025 3.894-1.555 1.427-3.676 2.18-6.319 2.242h-.07z"/>
                 </svg>
               </a>
               
-              {/* LinkedIn */}
               <a 
                 href="https://www.linkedin.com/in/malickmbaye/" 
                 target="_blank"
@@ -285,7 +254,7 @@ export function ViralThreadSection() {
                 style={{ color: 'hsl(45, 60%, 50%)' }}
                 aria-label="Connect on LinkedIn"
               >
-                <svg className="w-8 h-8 hover:drop-shadow-[0_0_8px_hsl(45,100%,50%)]" viewBox="0 0 24 24" fill="currentColor">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
                 </svg>
               </a>
@@ -294,11 +263,11 @@ export function ViralThreadSection() {
         </div>
       </div>
 
-      {/* Horizontal Scrolling Thread Gallery */}
-      <div className="relative mt-12">
+      {/* Horizontal Scrolling Thread Gallery with Connecting Line */}
+      <div className="relative">
         {/* Gradient fade on left edge */}
         <div 
-          className="absolute left-0 top-0 bottom-0 w-16 md:w-32 z-10 pointer-events-none"
+          className="absolute left-0 top-0 bottom-0 w-12 md:w-24 z-10 pointer-events-none"
           style={{
             background: 'linear-gradient(to right, hsl(0, 0%, 3%) 0%, transparent 100%)'
           }}
@@ -306,7 +275,7 @@ export function ViralThreadSection() {
         
         {/* Gradient fade on right edge */}
         <div 
-          className="absolute right-0 top-0 bottom-0 w-16 md:w-32 z-10 pointer-events-none"
+          className="absolute right-0 top-0 bottom-0 w-12 md:w-24 z-10 pointer-events-none"
           style={{
             background: 'linear-gradient(to left, hsl(0, 0%, 3%) 0%, transparent 100%)'
           }}
@@ -314,8 +283,7 @@ export function ViralThreadSection() {
         
         {/* Scrollable container */}
         <div 
-          ref={scrollContainerRef}
-          className="flex gap-4 md:gap-6 overflow-x-auto pb-6 px-8 md:px-16 scrollbar-hide cursor-grab active:cursor-grabbing"
+          className="flex items-center gap-0 overflow-x-auto pb-4 px-6 md:px-12 scrollbar-hide"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
@@ -323,57 +291,66 @@ export function ViralThreadSection() {
           }}
         >
           {threads.map((thread, index) => (
-            <a 
+            <div 
               key={index}
-              href="https://www.threads.com/@malick.io/post/DEwQ0atOqQO?xmt=AQGzXlX8yUYcbOJixlBXYuoC7XOxHNASHjsQkmXIAKNYog"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0 group"
-              style={{
-                scrollSnapAlign: 'center',
-              }}
+              className="flex items-center flex-shrink-0"
+              style={{ scrollSnapAlign: 'center' }}
             >
-              <div className="relative">
-                {/* Gold glow behind image */}
-                <div 
-                  className="absolute -inset-2 rounded-xl opacity-0 group-hover:opacity-60 transition-opacity duration-300 blur-xl"
-                  style={{ 
-                    background: 'linear-gradient(135deg, hsl(45, 100%, 45%) 0%, hsl(35, 90%, 30%) 100%)',
-                  }}
-                />
-                
-                <img 
-                  src={thread.src} 
-                  alt={thread.alt}
-                  className="relative w-48 md:w-64 lg:w-72 h-auto rounded-xl shadow-xl transition-all duration-300 group-hover:scale-105"
-                  style={{
-                    boxShadow: '0 15px 40px -10px rgba(0,0,0,0.6), 0 0 20px -5px hsl(45, 100%, 30%)'
-                  }}
-                  draggable={false}
-                />
-                
-                {/* Thread number badge */}
-                <div 
-                  className="absolute top-3 left-3 px-2 py-1 rounded-full text-xs font-bold"
-                  style={{
-                    background: 'linear-gradient(135deg, hsl(45, 80%, 25%) 0%, hsl(35, 70%, 20%) 100%)',
-                    border: '1px solid hsl(45, 60%, 40%)',
-                    color: 'hsl(45, 100%, 65%)',
-                  }}
-                >
-                  {index + 1}/{threads.length}
+              {/* Thread image */}
+              <a 
+                href="https://www.threads.com/@malick.io/post/DEwQ0atOqQO?xmt=AQGzXlX8yUYcbOJixlBXYuoC7XOxHNASHjsQkmXIAKNYog"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex-shrink-0"
+              >
+                <div className="relative">
+                  {/* Gold glow behind image on hover */}
+                  <div 
+                    className="absolute -inset-2 rounded-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300 blur-xl"
+                    style={{ 
+                      background: 'linear-gradient(135deg, hsl(45, 100%, 45%) 0%, hsl(35, 90%, 30%) 100%)',
+                    }}
+                  />
+                  
+                  <img 
+                    src={thread.src} 
+                    alt={thread.alt}
+                    className="relative w-64 md:w-80 lg:w-96 h-auto rounded-xl shadow-xl transition-all duration-300 group-hover:scale-[1.02]"
+                    style={{
+                      boxShadow: '0 15px 40px -10px rgba(0,0,0,0.6), 0 0 20px -5px hsl(45, 100%, 30%)'
+                    }}
+                    draggable={false}
+                  />
                 </div>
-              </div>
-            </a>
+              </a>
+              
+              {/* Connecting arrow between images (not after last) */}
+              {index < threads.length - 1 && (
+                <div className="flex items-center px-2 md:px-3 flex-shrink-0">
+                  <div 
+                    className="w-8 md:w-12 h-0.5 rounded-full"
+                    style={{
+                      background: 'linear-gradient(90deg, hsl(45, 100%, 50%), hsl(45, 80%, 40%))'
+                    }}
+                  />
+                  <div 
+                    className="w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-l-[6px]"
+                    style={{
+                      borderLeftColor: 'hsl(45, 80%, 40%)'
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           ))}
         </div>
         
         {/* Scroll hint */}
         <p 
-          className="text-center text-sm mt-4"
-          style={{ color: 'hsl(45, 30%, 50%)' }}
+          className="text-center text-xs mt-3"
+          style={{ color: 'hsl(45, 30%, 45%)' }}
         >
-          ← Scroll to read the full thread →
+          ← Swipe to read the full thread →
         </p>
       </div>
 
