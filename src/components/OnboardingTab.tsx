@@ -67,8 +67,8 @@ export function OnboardingTab({ onNewProposal }: OnboardingTabProps) {
         {/* Hero Section */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary mb-4">
-            <Trophy className="h-4 w-4" />
-            $1M+ in closed deals
+            <Zap className="h-4 w-4" />
+            Start Here
           </div>
           <h1 className="text-4xl font-bold text-slate-900 mb-4 leading-tight">
             Getting Started with Pitch Genius
@@ -123,7 +123,47 @@ export function OnboardingTab({ onNewProposal }: OnboardingTabProps) {
           </div>
         </div>
 
-        {/* The Slide Deck Pitch - Main Marketing Block */}
+        {/* The Process - Moved up */}
+        <div className="mb-12">
+          <h2 className="text-xl font-bold text-slate-900 mb-6 text-center">The Process</h2>
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 rounded-xl bg-white border border-slate-200 p-5 text-center shadow-sm">
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white font-bold mb-3">1</div>
+              <h3 className="font-semibold text-slate-900 mb-1">Paste Context</h3>
+              <p className="text-sm text-slate-600">Drop your client notes, call transcripts, or project details.</p>
+              <div className="mt-3 flex items-center justify-center gap-1 text-xs text-slate-500">
+                <Timer className="h-3 w-3" />
+                30 seconds
+              </div>
+            </div>
+            <div className="hidden md:flex items-center justify-center text-slate-300">
+              <ArrowRight className="h-6 w-6" />
+            </div>
+            <div className="flex-1 rounded-xl bg-white border border-slate-200 p-5 text-center shadow-sm">
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white font-bold mb-3">2</div>
+              <h3 className="font-semibold text-slate-900 mb-1">Get Your Proposal</h3>
+              <p className="text-sm text-slate-600">Written proposal streams in real-time. Copy, tweak, send.</p>
+              <div className="mt-3 flex items-center justify-center gap-1 text-xs text-slate-500">
+                <Timer className="h-3 w-3" />
+                ~30 seconds
+              </div>
+            </div>
+            <div className="hidden md:flex items-center justify-center text-slate-300">
+              <ArrowRight className="h-6 w-6" />
+            </div>
+            <div className="flex-1 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 p-5 text-center shadow-sm">
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-purple-500 text-white font-bold mb-3">3</div>
+              <h3 className="font-semibold text-slate-900 mb-1">Generate the Deck</h3>
+              <p className="text-sm text-slate-600">Our AI designer builds your presentation. Take a break.</p>
+              <div className="mt-3 flex items-center justify-center gap-1 text-xs text-purple-600 font-medium">
+                <Coffee className="h-3 w-3" />
+                5+ min (worth it)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* About Those Slide Decks - Moved down */}
         <div className="mb-12 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-8 text-white overflow-hidden relative">
           <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-500/20 rounded-full blur-3xl" />
@@ -174,46 +214,6 @@ export function OnboardingTab({ onNewProposal }: OnboardingTabProps) {
                 <p className="text-sm text-slate-400">
                   Hit generate, take a break, come back to a presentation that'll make your competitors jealous.
                 </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick How It Works */}
-        <div className="mb-12">
-          <h2 className="text-xl font-bold text-slate-900 mb-6 text-center">The Process</h2>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 rounded-xl bg-white border border-slate-200 p-5 text-center shadow-sm">
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white font-bold mb-3">1</div>
-              <h3 className="font-semibold text-slate-900 mb-1">Paste Context</h3>
-              <p className="text-sm text-slate-600">Drop your client notes, call transcripts, or project details.</p>
-              <div className="mt-3 flex items-center justify-center gap-1 text-xs text-slate-500">
-                <Timer className="h-3 w-3" />
-                30 seconds
-              </div>
-            </div>
-            <div className="hidden md:flex items-center justify-center text-slate-300">
-              <ArrowRight className="h-6 w-6" />
-            </div>
-            <div className="flex-1 rounded-xl bg-white border border-slate-200 p-5 text-center shadow-sm">
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white font-bold mb-3">2</div>
-              <h3 className="font-semibold text-slate-900 mb-1">Get Your Proposal</h3>
-              <p className="text-sm text-slate-600">Written proposal streams in real-time. Copy, tweak, send.</p>
-              <div className="mt-3 flex items-center justify-center gap-1 text-xs text-slate-500">
-                <Timer className="h-3 w-3" />
-                ~30 seconds
-              </div>
-            </div>
-            <div className="hidden md:flex items-center justify-center text-slate-300">
-              <ArrowRight className="h-6 w-6" />
-            </div>
-            <div className="flex-1 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 p-5 text-center shadow-sm">
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-purple-500 text-white font-bold mb-3">3</div>
-              <h3 className="font-semibold text-slate-900 mb-1">Generate the Deck</h3>
-              <p className="text-sm text-slate-600">Our AI designer builds your presentation. Take a break.</p>
-              <div className="mt-3 flex items-center justify-center gap-1 text-xs text-purple-600 font-medium">
-                <Coffee className="h-3 w-3" />
-                5+ min (worth it)
               </div>
             </div>
           </div>
