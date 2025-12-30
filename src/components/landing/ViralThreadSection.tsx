@@ -2,7 +2,6 @@ import { useState, useCallback, useEffect } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import viralThread from "@/assets/viral-thread.png";
 import thread1 from "@/assets/threads/thread-1.png";
 import thread2 from "@/assets/threads/thread-2.png";
 import thread3 from "@/assets/threads/thread-3.png";
@@ -11,17 +10,32 @@ import thread5 from "@/assets/threads/thread-5.png";
 import thread6 from "@/assets/threads/thread-6.png";
 import thread7 from "@/assets/threads/thread-7.png";
 import thread8 from "@/assets/threads/thread-8.png";
+import thread9 from "@/assets/threads/thread-9.png";
+import thread10 from "@/assets/threads/thread-10.png";
+import thread11 from "@/assets/threads/thread-11.png";
+import thread12 from "@/assets/threads/thread-12.png";
+import thread13 from "@/assets/threads/thread-13.png";
+import thread14 from "@/assets/threads/thread-14.png";
+import thread15 from "@/assets/threads/thread-15.png";
+import thread16 from "@/assets/threads/thread-16.png";
 
 const threads = [
-  { src: viralThread, alt: "Viral thread intro - What's the difference between $10K and $100K" },
-  { src: thread1, alt: "Thread 1/18 - A friend texted about the difference between $10K and $100K projects" },
-  { src: thread2, alt: "Thread 2-3/18 - First project $250, then scaled to $3K" },
-  { src: thread3, alt: "Thread 4-5/18 - $300K WordPress site comparison" },
-  { src: thread4, alt: "Thread 6-7/18 - Who is the client and risk factors" },
-  { src: thread5, alt: "Thread 8-9/18 - The process behind the work" },
-  { src: thread6, alt: "Thread 10-11/18 - Risk and reputation" },
-  { src: thread7, alt: "Thread 12-13/18 - A-list teams and scaling" },
-  { src: thread8, alt: "Thread 14-16/18 - Path to six-figure contracts" },
+  { src: thread1, alt: "Thread 1/18 - Intro: What's the difference between $10K and $100K projects" },
+  { src: thread2, alt: "Thread 2/18 - First project $250, scaling journey" },
+  { src: thread3, alt: "Thread 3/18 - $3K fintech project at Meta" },
+  { src: thread4, alt: "Thread 4/18 - $300K WordPress site wasn't more complex" },
+  { src: thread5, alt: "Thread 5/18 - Three factors: client, process, risk" },
+  { src: thread6, alt: "Thread 6/18 - Who is the client: risk tolerance" },
+  { src: thread7, alt: "Thread 7/18 - Certainty and minimizing brand risk" },
+  { src: thread8, alt: "Thread 8/18 - The process behind the work" },
+  { src: thread9, alt: "Thread 9/18 - Process > product at large companies" },
+  { src: thread10, alt: "Thread 10/18 - Reputation and credibility" },
+  { src: thread11, alt: "Thread 11/18 - Big resume opens doors to $100K+ projects" },
+  { src: thread12, alt: "Thread 12/18 - A-list teams and elite credentials" },
+  { src: thread13, alt: "Thread 13/18 - Scaling from $250 to $250K+" },
+  { src: thread14, alt: "Thread 14/18 - Path to six-figure contracts" },
+  { src: thread15, alt: "Thread 15/18 - Scalable systems are the future" },
+  { src: thread16, alt: "Thread 16/18 - The leap from $10K to $100K" },
 ];
 
 export function ViralThreadSection() {
