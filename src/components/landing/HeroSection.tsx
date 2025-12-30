@@ -79,9 +79,9 @@ function HeroCarousel() {
   const currentVideo = selectedVideos[currentIndex];
 
   return (
-    <div className="relative w-full max-w-md mx-auto lg:mx-0">
+    <div className="relative w-full max-w-2xl mx-auto lg:mx-0">
       {/* Glow effect */}
-      <div className="absolute -inset-4 rounded-3xl blur-2xl opacity-40 animate-pulse-slow bg-gradient-to-r from-primary/30 to-orange-400/30" />
+      <div className="absolute -inset-6 rounded-3xl blur-3xl opacity-50 animate-pulse-slow bg-gradient-to-r from-primary/40 to-orange-400/40" />
       
       {/* Content Container */}
       <div className="relative animate-float">
