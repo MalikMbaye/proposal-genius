@@ -112,15 +112,11 @@ export function FounderSection() {
 
           {/* Right Column - Content */}
           <div>
-            {/* Name */}
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-3 tracking-tight">
-              MĀLIK MBAYE
+            {/* Headline */}
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-8 leading-tight">
+              Built by a Seven-Figure Consultant Who's Closed{" "}
+              <span className="text-gradient">$1.5M+ with Fortune 500s & Venture-Backed Startups</span>
             </h2>
-            
-            {/* Tagline */}
-            <p className="text-lg md:text-xl text-slate-400 mb-8">
-              Ex-Meta | AI Growth Operator | Startup Advisor
-            </p>
 
             {/* Stat Cards */}
             <div className="flex flex-wrap gap-4 mb-10">
