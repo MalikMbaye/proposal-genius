@@ -6,9 +6,9 @@ import { loadingVideos } from "@/lib/loadingContent";
 import { AsSeenInMarquee } from "@/components/landing/AsSeenInSection";
 
 const stats = [
-  { value: "$1.5M+", label: "In Agency Deals Closed", description: "Trained on winning proposals" },
-  { value: "100+", label: "6 & 7-Figure Templates", description: "Proven proposal library" },
-  { value: "5 min", label: "To Your Proposal", description: "From input to ready-to-send" },
+  { value: "$1.5M+", label: "In Deals Closed" },
+  { value: "100+", label: "Real 6 & 7-Figure Proposals" },
+  { value: "5 min", label: "To Generate Your Proposal" },
 ];
 
 // Proposal comparison cards
@@ -51,8 +51,8 @@ const proposalCards = [
   },
 ];
 
-// Stat bubble component with gradient
-function StatBubble({ value, label, description, delay = 0 }: { value: string; label: string; description: string; delay?: number }) {
+// Stat bubble component with filled gradient
+function StatBubble({ value, label, delay = 0 }: { value: string; label: string; delay?: number }) {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -76,17 +76,13 @@ function StatBubble({ value, label, description, delay = 0 }: { value: string; l
   return (
     <div 
       ref={ref}
-      className={`relative p-6 rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 backdrop-blur-sm transition-all duration-700 ${
+      className={`relative px-5 py-4 rounded-xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 shadow-lg transition-all duration-700 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       }`}
       style={{ animationDelay: `${delay}s` }}
     >
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-transparent opacity-50" />
-      <div className="relative">
-        <div className="text-3xl md:text-4xl font-bold text-primary mb-1">{value}</div>
-        <div className="text-sm font-medium text-slate-700">{label}</div>
-        <div className="text-xs text-slate-500 mt-1">{description}</div>
-      </div>
+      <div className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">{value}</div>
+      <div className="text-xs text-white/80 font-medium mt-0.5">{label}</div>
     </div>
   );
 }
@@ -327,8 +323,8 @@ export function HeroSection() {
         </div>
         
         {/* Stats Row - Gradient Bubbles */}
-        <div className="mt-20 pt-12 border-t border-slate-200">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="mt-14 pt-10 border-t border-slate-200">
+          <div className="flex flex-wrap justify-center lg:justify-start gap-4">
             {stats.map((stat, index) => (
               <StatBubble key={stat.label} {...stat} delay={index * 0.1} />
             ))}
