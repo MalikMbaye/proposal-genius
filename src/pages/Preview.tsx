@@ -505,12 +505,12 @@ Key requirements:
   };
 
   return (
-    <div className="h-screen bg-slate-100 flex flex-col overflow-hidden">
+    <div className="h-screen bg-slate-800 flex flex-col overflow-hidden">
       <AppHeader center={<ProposalSelector />} onNewProposal={handleNewProposal} />
 
       <div key={proposalId ?? "new"} className="flex flex-1 overflow-hidden">
       {/* Sidebar - Fixed height, no scroll needed */}
-      <aside className="w-64 border-r border-slate-200 bg-slate-50 flex flex-col flex-shrink-0 overflow-hidden">
+      <aside className="w-64 border-r border-slate-700 bg-slate-800 flex flex-col flex-shrink-0 overflow-hidden">
 
         {/* Tabs - scrollable if many */}
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
@@ -536,8 +536,8 @@ Key requirements:
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-700"
                 }`}
               >
                 {isGenerating ? (
@@ -573,10 +573,10 @@ Key requirements:
         </div>
 
         {/* Sidebar Actions */}
-        <div className="p-4 border-t border-slate-200 space-y-2">
+        <div className="p-4 border-t border-slate-700 space-y-2">
           {hasContent && !isDeckTab && (
             <>
-              <Button onClick={handleCopy} variant="outline" className="w-full justify-start">
+              <Button onClick={handleCopy} variant="outline" className="w-full justify-start border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white">
                 {copied ? (
                   <>
                     <Check className="mr-2 h-4 w-4 text-success" />
@@ -589,18 +589,18 @@ Key requirements:
                   </>
                 )}
               </Button>
-              <Button onClick={handleDownload} variant="outline" className="w-full justify-start">
+              <Button onClick={handleDownload} variant="outline" className="w-full justify-start border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white">
                 <Download className="mr-2 h-4 w-4" />
                 Download
               </Button>
             </>
           )}
-          <div className="border-t border-slate-200 pt-3 mt-2 space-y-1">
-            <Button onClick={handleNewProposal} variant="ghost" className="w-full justify-start">
+          <div className="border-t border-slate-700 pt-3 mt-2 space-y-1">
+            <Button onClick={handleNewProposal} variant="ghost" className="w-full justify-start text-slate-400 hover:text-white hover:bg-slate-700">
               <Plus className="mr-2 h-4 w-4" />
               Generate New
             </Button>
-            <Button asChild variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground">
+            <Button asChild variant="ghost" className="w-full justify-start text-slate-400 hover:text-white hover:bg-slate-700">
               <Link to="/profile">
                 <User className="mr-2 h-4 w-4" />
                 Account Settings
@@ -611,7 +611,7 @@ Key requirements:
       </aside>
 
       {/* Main Content - Scrollable */}
-      <main className="flex-1 flex flex-col overflow-hidden bg-white">
+      <main className="flex-1 flex flex-col overflow-hidden bg-slate-100">
         {/* Success Banner */}
         {showBanner && (
           <div className="bg-success/10 border-b border-success/20 px-6 py-3 flex items-center justify-between">
