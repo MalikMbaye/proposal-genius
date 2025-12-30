@@ -81,7 +81,7 @@ function AnimatedCounter({ value, label }: { value: string; label: string }) {
       }`}
     >
       <div className="text-3xl md:text-4xl font-bold text-primary">{value}</div>
-      <div className="mt-1 text-sm text-muted-foreground">{label}</div>
+      <div className="mt-1 text-sm text-slate-500">{label}</div>
     </div>
   );
 }
@@ -139,17 +139,17 @@ function HeroCarousel() {
   return (
     <div className="relative w-full max-w-md mx-auto lg:mx-0">
       {/* Glow effect */}
-      <div className={`absolute -inset-4 rounded-3xl blur-2xl opacity-60 animate-pulse-slow transition-colors duration-500 ${
+      <div className={`absolute -inset-4 rounded-3xl blur-2xl opacity-40 animate-pulse-slow transition-colors duration-500 ${
         currentItem.type === 'card' && currentItem.card.type === 'strategic'
-          ? 'bg-gradient-to-r from-primary/30 to-success/30'
+          ? 'bg-gradient-to-r from-primary/40 to-green-500/30'
           : currentItem.type === 'card' && currentItem.card.type === 'generic'
-          ? 'bg-gradient-to-r from-destructive/20 to-muted/20'
-          : 'bg-gradient-to-r from-primary/20 to-accent-secondary/20'
+          ? 'bg-gradient-to-r from-red-400/30 to-slate-300/30'
+          : 'bg-gradient-to-r from-primary/30 to-orange-400/30'
       }`} />
       
       {/* Content Container */}
       <div className="relative animate-float">
-        <div className={`relative rounded-2xl overflow-hidden shadow-2xl border border-border/50 transition-all duration-300 ${
+        <div className={`relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200 transition-all duration-300 ${
           currentItem.type === 'video' ? 'aspect-video' : 'min-h-[280px]'
         }`}>
           {/* Video */}
@@ -171,13 +171,13 @@ function HeroCarousel() {
           
           {/* Proposal Card */}
           {currentItem.type === 'card' && (
-            <div className="bg-card p-6 h-full flex flex-col">
+            <div className="bg-white p-6 h-full flex flex-col">
               {/* Window controls */}
-              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border/30">
-                <div className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
-                <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
-                <div className="w-2.5 h-2.5 rounded-full bg-success/60" />
-                <span className="ml-2 text-xs text-muted-foreground font-mono">proposal.md</span>
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+                <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                <span className="ml-2 text-xs text-slate-400 font-mono">proposal.md</span>
               </div>
               
               {/* Content */}
@@ -185,25 +185,25 @@ function HeroCarousel() {
                 isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
               }`}>
                 <div className={`text-xs uppercase tracking-wider mb-3 font-semibold ${
-                  currentItem.card.type === 'strategic' ? 'text-success' : 'text-destructive'
+                  currentItem.card.type === 'strategic' ? 'text-green-600' : 'text-red-500'
                 }`}>
                   {currentItem.card.label}
                 </div>
-                <p className="text-sm leading-relaxed text-foreground flex-1">
+                <p className="text-sm leading-relaxed text-slate-700 flex-1">
                   {currentItem.card.quote}
                 </p>
-                <div className="pt-4 mt-4 border-t border-border/30 flex items-end justify-between">
+                <div className="pt-4 mt-4 border-t border-slate-100 flex items-end justify-between">
                   <div>
                     <div className={`text-2xl font-bold ${
-                      currentItem.card.type === 'strategic' ? 'text-primary' : 'text-muted-foreground'
+                      currentItem.card.type === 'strategic' ? 'text-primary' : 'text-slate-400'
                     }`}>
                       {currentItem.card.value}
                     </div>
-                    <div className="text-xs text-muted-foreground">Project Value</div>
+                    <div className="text-xs text-slate-400">Project Value</div>
                   </div>
                   {currentItem.card.type === 'strategic' && (
-                    <div className="bg-success/10 border border-success/20 rounded px-2 py-1">
-                      <span className="text-success font-semibold text-xs">+900% ROI</span>
+                    <div className="bg-green-50 border border-green-200 rounded px-2 py-1">
+                      <span className="text-green-600 font-semibold text-xs">+900% ROI</span>
                     </div>
                   )}
                 </div>
@@ -213,7 +213,7 @@ function HeroCarousel() {
         </div>
         
         {/* Floating badge */}
-        <div className="absolute -top-3 -right-3 bg-primary/20 border border-primary/30 rounded-xl px-3 py-2 backdrop-blur-sm animate-pulse-slow">
+        <div className="absolute -top-3 -right-3 bg-white border border-primary/30 rounded-xl px-3 py-2 shadow-lg animate-pulse-slow">
           <span className="text-xs font-medium text-primary">
             {currentItem.type === 'video' ? 'AI at Work ⚡' : currentItem.card.type === 'strategic' ? '10x Value 🚀' : 'vs.'}
           </span>
@@ -234,8 +234,8 @@ function HeroCarousel() {
             }}
             className={`h-1.5 rounded-full transition-all duration-300 ${
               index === currentIndex 
-                ? `w-6 ${item.type === 'video' ? 'bg-primary' : item.type === 'card' && item.card.type === 'strategic' ? 'bg-success' : 'bg-destructive/60'}`
-                : 'w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                ? `w-6 ${item.type === 'video' ? 'bg-primary' : item.type === 'card' && item.card.type === 'strategic' ? 'bg-green-500' : 'bg-red-400'}`
+                : 'w-1.5 bg-slate-300 hover:bg-slate-400'
             }`}
           />
         ))}
@@ -246,14 +246,20 @@ function HeroCarousel() {
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen pt-24 pb-20 overflow-hidden flex items-center">
-      {/* Background effects */}
-      <div className="absolute inset-0 bg-radial-gradient" />
-      <div className="absolute inset-0 bg-grid-pattern opacity-20" />
+    <section className="relative min-h-screen pt-24 pb-20 overflow-hidden flex items-center bg-white">
+      {/* Background effects - light theme */}
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-white" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,hsl(345,100%,60%,0.08),transparent)]" />
       
-      {/* Animated gradient orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-slow" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent-secondary/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }} />
+      {/* Subtle grid pattern */}
+      <div className="absolute inset-0 opacity-[0.03]" style={{
+        backgroundImage: `linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)`,
+        backgroundSize: '60px 60px'
+      }} />
+      
+      {/* Animated gradient orbs - softer for light theme */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse-slow" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-300/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }} />
       
       <div className="container relative mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -266,7 +272,7 @@ export function HeroSection() {
             </div>
             
             {/* Headline - Staggered animation */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6 text-slate-900">
               <span className="block animate-slide-up" style={{ animationDelay: '0.1s' }}>
                 Stop Underpricing.
               </span>
@@ -276,13 +282,13 @@ export function HeroSection() {
             </h1>
             
             {/* Sub-headline */}
-            <p className="text-lg md:text-xl text-muted-foreground mb-6 max-w-xl animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <p className="text-lg md:text-xl text-slate-600 mb-6 max-w-xl animate-fade-in" style={{ animationDelay: '0.3s' }}>
               AI-powered proposal packages that position you as the obvious choice.
               Get a complete proposal, contract, deck, emails, and invoice—in seconds.
             </p>
             
             {/* Problem hook */}
-            <p className="text-sm text-muted-foreground/70 mb-8 max-w-lg animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <p className="text-sm text-slate-500 mb-8 max-w-lg animate-fade-in" style={{ animationDelay: '0.4s' }}>
               You're charging $5K for work that should cost $50K.
               Not because you're underqualified—because you don't know
               what six-figure proposals actually look like.
@@ -296,7 +302,7 @@ export function HeroSection() {
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
-              <Button variant="hero-outline" size="xl" asChild>
+              <Button variant="outline" size="xl" asChild className="border-slate-300 text-slate-700 hover:bg-slate-50">
                 <Link to="#solution">
                   See a Sample Proposal
                 </Link>
@@ -304,7 +310,7 @@ export function HeroSection() {
             </div>
             
             {/* Trust line */}
-            <p className="text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <p className="text-sm text-slate-500 animate-fade-in" style={{ animationDelay: '0.6s' }}>
               Join 500+ consultants closing bigger deals 💼
             </p>
 
@@ -321,7 +327,7 @@ export function HeroSection() {
         </div>
         
         {/* Stats Row */}
-        <div className="mt-20 pt-12 border-t border-border/30">
+        <div className="mt-20 pt-12 border-t border-slate-200">
           <div className="flex flex-wrap justify-center lg:justify-start gap-12 md:gap-20">
             {stats.map((stat, index) => (
               <AnimatedCounter key={stat.label} {...stat} />
