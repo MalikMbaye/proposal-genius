@@ -558,17 +558,20 @@ Key requirements:
         </nav>
         
         {/* Proposal Library - Separated at bottom */}
-        <div className="px-3 pb-2 border-t border-border pt-3">
+        <div className="px-3 pb-2 border-t border-slate-700 pt-3">
           <button
             onClick={() => setActiveTab('library')}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
               activeTab === 'library'
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "text-emerald-400 hover:text-emerald-300 border border-emerald-500/50 hover:border-emerald-400 hover:bg-emerald-500/10 animate-pulse-slow"
             }`}
           >
             <Library className="h-4 w-4" />
             <span className="flex-1 text-left">Proposal Library</span>
+            {activeTab !== 'library' && (
+              <span className="text-[10px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded">PRO</span>
+            )}
           </button>
         </div>
 
