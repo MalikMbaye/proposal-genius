@@ -176,14 +176,9 @@ export function ProposalSelector() {
           
           <DropdownMenuSeparator />
           
-          <DropdownMenuItem onClick={handleViewAllProposals} className="gap-3 py-2.5">
+          <DropdownMenuItem onClick={handleViewAllProposals} className="gap-3 py-2.5 cursor-pointer">
             <FolderOpen className="h-4 w-4 text-muted-foreground" />
             <span>View All Proposals</span>
-          </DropdownMenuItem>
-          
-          <DropdownMenuItem onClick={handleGoToProfile} className="gap-3 py-2.5">
-            <User className="h-4 w-4 text-muted-foreground" />
-            <span>Account & Business Profile</span>
           </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

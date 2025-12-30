@@ -26,6 +26,7 @@ import {
   Sun,
   Moon,
   FileDown,
+  User,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -568,10 +569,16 @@ Key requirements:
               </Button>
             </>
           )}
-          <div className="border-t border-border pt-2 mt-2">
+          <div className="border-t border-border pt-3 mt-2 space-y-1">
             <Button onClick={handleNewProposal} variant="ghost" className="w-full justify-start">
               <Plus className="mr-2 h-4 w-4" />
               Generate New
+            </Button>
+            <Button asChild variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground">
+              <Link to="/profile">
+                <User className="mr-2 h-4 w-4" />
+                Account Settings
+              </Link>
             </Button>
           </div>
         </div>
