@@ -52,7 +52,7 @@ export function ViralThreadSection() {
   }, [emblaApi, onSelect]);
 
   return (
-    <section className="relative py-20 overflow-hidden">
+    <section className="relative py-12 overflow-hidden">
       {/* Warm gradient background */}
       <div 
         className="absolute inset-0"
@@ -70,73 +70,40 @@ export function ViralThreadSection() {
       />
       
       <div className="container relative z-10 mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left: Thread Screenshot Carousel with Glassmorphic Frame */}
-          <div className="space-y-6">
+        <div className="grid lg:grid-cols-2 gap-10 items-center">
+          {/* Left: Thread Screenshot Carousel */}
+          <div className="space-y-4">
             <div className="relative group">
-              {/* Animated glow behind */}
+              {/* Subtle glow behind */}
               <div 
-                className="absolute -inset-4 rounded-3xl opacity-60 blur-2xl animate-pulse"
+                className="absolute -inset-2 rounded-2xl opacity-40 blur-xl"
                 style={{ 
                   background: 'linear-gradient(135deg, hsl(35, 60%, 40%) 0%, hsl(25, 50%, 30%) 100%)',
-                  animationDuration: '3s'
                 }}
               />
               
-              {/* Glassmorphic container */}
-              <div 
-                className="relative rounded-2xl overflow-hidden"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-                  backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1)'
-                }}
-              >
-                {/* Shimmer effect overlay */}
-                <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
-                  <div 
-                    className="absolute -inset-full animate-[shimmer_3s_ease-in-out_infinite]"
-                    style={{
-                      background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)',
-                      transform: 'translateX(-100%) rotate(12deg)'
-                    }}
-                  />
-                </div>
-                
-                {/* Top reflection line */}
-                <div 
-                  className="absolute top-0 left-0 right-0 h-px z-10"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)'
-                  }}
-                />
-                
-                {/* Carousel */}
-                <div ref={emblaRef} className="overflow-hidden">
-                  <div className="flex">
-                    {threads.map((thread, index) => (
-                      <div key={index} className="flex-[0_0_100%] min-w-0">
-                        <a 
-                          href="https://www.threads.com/@malick.io/post/DEwQ0atOqQO?xmt=AQGzXlX8yUYcbOJixlBXYuoC7XOxHNASHjsQkmXIAKNYog"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block"
-                        >
-                          <div 
-                            className="relative w-full flex items-center justify-center p-4"
-                            style={{ aspectRatio: '4/5' }}
-                          >
-                            <img 
-                              src={thread.src} 
-                              alt={thread.alt}
-                              className="max-w-full max-h-full w-auto h-auto object-contain relative z-0 transition-transform duration-500 group-hover:scale-[1.02]"
-                            />
-                          </div>
-                        </a>
-                      </div>
-                    ))}
-                  </div>
+              {/* Carousel - images directly displayed */}
+              <div ref={emblaRef} className="overflow-hidden relative rounded-xl">
+                <div className="flex">
+                  {threads.map((thread, index) => (
+                    <div key={index} className="flex-[0_0_100%] min-w-0">
+                      <a 
+                        href="https://www.threads.com/@malick.io/post/DEwQ0atOqQO?xmt=AQGzXlX8yUYcbOJixlBXYuoC7XOxHNASHjsQkmXIAKNYog"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block"
+                      >
+                        <img 
+                          src={thread.src} 
+                          alt={thread.alt}
+                          className="w-full h-auto rounded-xl shadow-2xl transition-transform duration-500 group-hover:scale-[1.01]"
+                          style={{
+                            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)'
+                          }}
+                        />
+                      </a>
+                    </div>
+                  ))}
                 </div>
 
                 {/* Navigation Arrows */}
@@ -166,53 +133,34 @@ export function ViralThreadSection() {
                   <ChevronRight className="w-5 h-5" style={{ color: 'hsl(40, 70%, 60%)' }} />
                 </button>
               </div>
-              
-              {/* Corner accent glow */}
-              <div 
-                className="absolute -top-2 -right-2 w-24 h-24 rounded-full blur-2xl opacity-40"
-                style={{ background: 'hsl(40, 70%, 50%)' }}
-              />
             </div>
 
             {/* Thumbnail previews */}
-            <div className="flex gap-3 justify-center">
+            <div className="flex gap-2 justify-center">
               {threads.slice(0, 5).map((thread, index) => (
               <button
                   key={index}
                   onClick={() => emblaApi?.scrollTo(index)}
-                  className={`relative rounded-lg overflow-hidden transition-all duration-300 w-[60px] h-[75px] ${
+                  className={`relative rounded-md overflow-hidden transition-all duration-300 w-[50px] h-[62px] ${
                     index === selectedIndex 
-                      ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-transparent scale-105' 
+                      ? 'ring-2 ring-amber-400 ring-offset-1 ring-offset-transparent scale-105' 
                       : 'opacity-60 hover:opacity-100'
                   }`}
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-                    border: '1px solid rgba(255,255,255,0.15)',
-                  }}
                 >
                   <img 
                     src={thread.src} 
                     alt={`Thread ${index + 1}`}
-                    className="w-full h-full object-cover object-top"
-                  />
-                  {/* Glassmorphic overlay */}
-                  <div 
-                    className="absolute inset-0"
-                    style={{
-                      background: index === selectedIndex 
-                        ? 'transparent' 
-                        : 'rgba(0,0,0,0.2)'
-                    }}
+                    className="w-full h-full object-cover object-top rounded-md"
                   />
                 </button>
               ))}
               {threads.length > 5 && (
                 <div 
-                  className="flex items-center justify-center rounded-lg"
+                  className="flex items-center justify-center rounded-md"
                   style={{
-                    width: '60px',
-                    height: '75px',
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+                    width: '50px',
+                    height: '62px',
+                    background: 'rgba(255,255,255,0.1)',
                     border: '1px solid rgba(255,255,255,0.15)',
                   }}
                 >
@@ -224,14 +172,14 @@ export function ViralThreadSection() {
             </div>
 
             {/* Dots & counter */}
-            <div className="flex items-center justify-center gap-4">
-              <div className="flex gap-1.5">
+            <div className="flex items-center justify-center gap-3">
+              <div className="flex gap-1">
                 {threads.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => emblaApi?.scrollTo(index)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      index === selectedIndex ? 'w-6' : 'w-2'
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      index === selectedIndex ? 'w-5' : 'w-1.5'
                     }`}
                     style={{
                       background: index === selectedIndex 
@@ -243,7 +191,7 @@ export function ViralThreadSection() {
                 ))}
               </div>
               <span 
-                className="text-sm font-medium"
+                className="text-xs font-medium"
                 style={{ color: 'hsl(35, 30%, 60%)' }}
               >
                 {selectedIndex + 1}/{threads.length}
