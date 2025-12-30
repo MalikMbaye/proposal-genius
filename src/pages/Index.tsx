@@ -21,7 +21,6 @@ export default function Index() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <HeroSection />
-      <ProposalComparisonSection />
       <ViralThreadSection />
       <FounderSection />
       <ProblemSection />
@@ -31,6 +30,7 @@ export default function Index() {
       <DifferentiationSection />
       <TestimonialsSection />
       <PricingSection />
+      <ProposalComparisonSection />
       <FAQSection />
       <FinalCTASection />
       <Footer />
