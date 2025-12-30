@@ -9,19 +9,23 @@ import { Logo } from "@/components/Logo";
 import { ProgressStepper } from "@/components/ProgressStepper";
 import { CaseStudyCard } from "@/components/CaseStudyCard";
 import { GeneratingLoader } from "@/components/GeneratingLoader";
+import { EmailSignupModal } from "@/components/EmailSignupModal";
 import {
   useProposalStore,
   caseStudies,
   proposalLengths,
 } from "@/lib/proposalStore";
 import { useStreamingProposal } from "@/hooks/useStreamingProposal";
+import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, ArrowRight, Lightbulb, Check, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
 export default function Generate() {
   const navigate = useNavigate();
+  const { user, quickSignUp } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
+  const [showEmailModal, setShowEmailModal] = useState(false);
   const [generatingSteps, setGeneratingSteps] = useState<
     { label: string; status: "pending" | "active" | "completed" }[]
   >([
@@ -80,7 +84,26 @@ export default function Generate() {
     }
   };
 
-  const handleGenerate = async () => {
+  const handleGenerateClick = () => {
+    // If user is not logged in, show email modal first
+    if (!user) {
+      setShowEmailModal(true);
+      return;
+    }
+    // If user is logged in, proceed directly
+    startGeneration();
+  };
+
+  const handleEmailSignup = async (email: string) => {
+    const result = await quickSignUp(email);
+    if (!result.error) {
+      // After signup, start generation
+      startGeneration();
+    }
+    return result;
+  };
+
+  const startGeneration = () => {
     // Reset steps for proposal-only generation
     setGeneratingSteps([
       { label: "Analyzing client context", status: "active" },
@@ -472,7 +495,7 @@ Budget: Mentioned $15K-40K range.`}
                   Back
                 </Button>
                 <Button
-                  onClick={handleGenerate}
+                  onClick={handleGenerateClick}
                   variant="hero"
                   size="lg"
                   className="flex-1"
@@ -495,6 +518,13 @@ Budget: Mentioned $15K-40K range.`}
           Don't have case studies? Get our library →
         </Link>
       </div>
+
+      {/* Email Signup Modal */}
+      <EmailSignupModal
+        open={showEmailModal}
+        onOpenChange={setShowEmailModal}
+        onSubmit={handleEmailSignup}
+      />
     </div>
   );
 }

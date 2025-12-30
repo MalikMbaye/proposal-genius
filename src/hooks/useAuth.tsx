@@ -9,6 +9,7 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
+  quickSignUp: (email: string) => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -62,8 +63,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
   };
 
+  // Quick signup with just email - auto-generates a password
+  const quickSignUp = async (email: string) => {
+    const redirectUrl = `${window.location.origin}/`;
+    // Generate a random secure password - user can reset later
+    const randomPassword = crypto.randomUUID() + 'Aa1!';
+    
+    const { error } = await supabase.auth.signUp({
+      email,
+      password: randomPassword,
+      options: {
+        emailRedirectTo: redirectUrl
+      }
+    });
+    return { error };
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut, quickSignUp }}>
       {children}
     </AuthContext.Provider>
   );
