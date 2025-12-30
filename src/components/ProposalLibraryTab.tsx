@@ -28,16 +28,18 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-// Color system based on specs
+// Color system - Deep Emerald/Green palette
 const colors = {
-  bgPrimary: "#0A1628",
-  bgSecondary: "#1E293B",
-  cardBg: "#1A2942",
-  accent: "#F59E0B",
+  bgPrimary: "#0A1A14",
+  bgSecondary: "#0F2920",
+  cardBg: "#132B22",
+  accent: "#10B981",
+  accentLight: "#34D399",
   textPrimary: "#FFFFFF",
-  textSecondary: "#94A3B8",
-  border: "#2D3748",
-  success: "#10B981",
+  textSecondary: "#9CA3AF",
+  border: "#1F3D32",
+  success: "#22C55E",
+  warning: "#F59E0B",
 };
 
 const masterclassModules = [
@@ -703,7 +705,7 @@ export function ProposalLibraryTab() {
             
             <div className="mb-6">
               <span className="text-6xl md:text-7xl font-bold" style={{ color: colors.textPrimary }}>
-                $500
+                $497
               </span>
               <span className="block text-sm mt-2" style={{ color: colors.textSecondary }}>
                 one-time payment
@@ -877,7 +879,7 @@ export function ProposalLibraryTab() {
             }}
           >
             <Lock className="mr-2 h-6 w-6" />
-            Get Instant Access — $500
+            Get Instant Access — $497
             <ArrowRight className="ml-2 h-6 w-6" />
           </Button>
           
