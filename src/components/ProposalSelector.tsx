@@ -86,6 +86,9 @@ export function ProposalSelector() {
         contractEmail: data.contract_email || "",
         invoiceDescription: data.invoice_description || "",
       });
+      
+      // Navigate to preview with state to trigger UI refresh
+      navigate("/preview", { state: { fromProposalSwitch: true }, replace: true });
     } catch (error) {
       console.error("Error loading proposal:", error);
     }
