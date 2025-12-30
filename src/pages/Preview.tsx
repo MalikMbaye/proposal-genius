@@ -37,13 +37,13 @@ import { toast } from "@/hooks/use-toast";
 // Consolidated tabs - removed deckPrompt, merged into deck
 const tabs = [
   { id: "home", label: "Welcome", icon: Home },
-  { id: "library", label: "Proposal Library", icon: Library },
   { id: "proposal", label: "Proposal", icon: FileText },
   { id: "deck", label: "Slide Deck", icon: Presentation },
   { id: "contract", label: "Contract", icon: FileCheck },
   { id: "contractEmail", label: "Contract Email", icon: Send },
   { id: "invoiceDescription", label: "Invoice", icon: Receipt },
   { id: "proposalEmail", label: "Proposal Email", icon: Mail },
+  { id: "library", label: "Proposal Library", icon: Library },
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
