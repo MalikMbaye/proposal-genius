@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/Navbar";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { FounderSection } from "@/components/landing/FounderSection";
+import { ViralThreadSection } from "@/components/landing/ViralThreadSection";
 import { ProblemSection } from "@/components/landing/ProblemSection";
 import { InsightSection } from "@/components/landing/InsightSection";
 import { SolutionSection } from "@/components/landing/SolutionSection";
@@ -22,6 +23,7 @@ export default function Index() {
       <HeroSection />
       <ProposalComparisonSection />
       <FounderSection />
+      <ViralThreadSection />
       <ProblemSection />
       <InsightSection />
       <SolutionSection />
