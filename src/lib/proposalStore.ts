@@ -157,6 +157,7 @@ export const useProposalStore = create<ProposalState>((set, get) => ({
       project_context: state.clientContext,
       proposal: state.deliverables?.proposal || null,
       deck_prompt: state.deliverables?.deckPrompt || null,
+      deck_url: state.deckData.pdfUrl || state.deckData.gammaUrl || null,
       contract: state.deliverables?.contract || null,
       proposal_email: state.deliverables?.proposalEmail || null,
       contract_email: state.deliverables?.contractEmail || null,
