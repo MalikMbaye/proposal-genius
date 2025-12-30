@@ -57,6 +57,7 @@ export type Database = {
           contract_email: string | null
           created_at: string
           deck_prompt: string | null
+          deck_url: string | null
           id: string
           invoice_description: string | null
           project_context: string | null
@@ -75,6 +76,7 @@ export type Database = {
           contract_email?: string | null
           created_at?: string
           deck_prompt?: string | null
+          deck_url?: string | null
           id?: string
           invoice_description?: string | null
           project_context?: string | null
@@ -93,6 +95,7 @@ export type Database = {
           contract_email?: string | null
           created_at?: string
           deck_prompt?: string | null
+          deck_url?: string | null
           id?: string
           invoice_description?: string | null
           project_context?: string | null
