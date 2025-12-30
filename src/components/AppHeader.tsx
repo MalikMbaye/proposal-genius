@@ -33,13 +33,13 @@ export function AppHeader({ center, onNewProposal }: AppHeaderProps) {
 
   return (
     <header className="h-14 border-b border-slate-700/50 bg-gradient-to-r from-slate-900 via-slate-800/95 to-slate-900 backdrop-blur-sm flex items-center px-4 gap-4 flex-shrink-0 shadow-lg">
-      <Link to="/preview" className="flex-shrink-0" aria-label="Go to dashboard">
+      <Link to="/" className="flex-shrink-0" aria-label="Go to home">
         <Logo />
       </Link>
 
       <nav className="hidden md:flex items-center">
         <Button asChild variant="ghost" size="sm" className="justify-start text-slate-300 hover:text-white hover:bg-slate-800">
-          <Link to="/dashboard" className="flex items-center">
+          <Link to="/generate" className="flex items-center">
             <LayoutDashboard className="mr-2 h-4 w-4" />
             Dashboard
           </Link>
@@ -67,7 +67,7 @@ export function AppHeader({ center, onNewProposal }: AppHeaderProps) {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild className="cursor-pointer">
-                <Link to="/preview" className="flex items-center w-full">
+                <Link to="/generate" className="flex items-center w-full">
                   <LayoutDashboard className="mr-2 h-4 w-4" />
                   Dashboard
                 </Link>
