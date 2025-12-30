@@ -1,7 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Check, Circle, Loader2, Clock, Sparkles, Palette, Layout, FileCheck, Wand2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Check, Circle, Loader2, Clock, Sparkles, Palette, Layout, FileCheck, Wand2, Terminal } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getRandomLoadingContent, getContextSubtitle } from '@/lib/loadingContent';
+import { loadingVideos, getContextSubtitle } from '@/lib/loadingContent';
 
 interface DeckGeneratingLoaderProps {
   clientName?: string;
@@ -16,21 +16,58 @@ const stages = [
 ];
 
 const tips = [
-  "Manus AI creates each slide with custom graphics and layouts",
+  "Your AI creates each slide with custom graphics and layouts",
   "Your presentation will include data visualizations where appropriate",
   "Professional design templates are applied automatically",
-  "High-quality presentations typically take 2-5 minutes to generate",
+  "High-quality presentations take 5-7 minutes to generate",
   "Your deck will be exported as a downloadable PDF",
+];
+
+// Terminal simulation lines for deck generation
+const deckTerminalLines = [
+  "Parsing proposal structure...",
+  "Extracting key value propositions...",
+  "Analyzing content for slide breakdown...",
+  "Generating slide layouts...",
+  "Creating visual hierarchy...",
+  "Rendering data visualizations...",
+  "Applying brand styling...",
+  "Optimizing slide transitions...",
+  "Generating cover slide...",
+  "Building pricing comparison charts...",
+  "Rendering testimonial layouts...",
+  "Finalizing slide deck structure...",
+  "Exporting to PDF format...",
 ];
 
 export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) {
   const [currentStage, setCurrentStage] = useState(0);
   const [tipIndex, setTipIndex] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [terminalOutput, setTerminalOutput] = useState<string[]>([]);
+  const [currentTerminalLine, setCurrentTerminalLine] = useState(0);
 
-  // Select random video + headline on mount
-  const { videoUrl, headline } = useMemo(() => getRandomLoadingContent(), []);
-  const subtitle = useMemo(() => getContextSubtitle('slides'), []);
+  // Get subtitle once
+  const [subtitle] = useState(() => getContextSubtitle('slides'));
+
+  // Current video and headline
+  const currentVideo = loadingVideos[currentVideoIndex];
+  const currentHeadline = currentVideo.headlines[0];
+
+  // Rotate videos every 8 seconds for deck generation (longer process)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentVideoIndex((prev) => (prev + 1) % loadingVideos.length);
+        setIsTransitioning(false);
+      }, 300);
+    }, 8000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     // Progress through stages with varying durations
@@ -67,6 +104,24 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
     return () => clearInterval(timeInterval);
   }, []);
 
+  // Terminal line animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTerminalLine((prev) => {
+        const nextLine = prev + 1;
+        if (nextLine < deckTerminalLines.length) {
+          setTerminalOutput((output) => [...output.slice(-5), deckTerminalLines[nextLine]]);
+        }
+        return nextLine >= deckTerminalLines.length ? 0 : nextLine;
+      });
+    }, 3000);
+
+    // Initialize with first line
+    setTerminalOutput([deckTerminalLines[0]]);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -82,11 +137,16 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background overflow-hidden">
-      <div className="flex flex-col items-center gap-6 animate-fade-in w-full max-w-2xl px-4">
-        {/* Headline */}
+      <div className="flex flex-col items-center gap-5 animate-fade-in w-full max-w-3xl px-4">
+        {/* Headline - rotates with video */}
         <div className="text-center space-y-2">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground leading-tight">
-            {headline}
+          <h2 
+            className={cn(
+              "text-2xl md:text-3xl font-bold text-foreground leading-tight transition-opacity duration-300",
+              isTransitioning ? "opacity-0" : "opacity-100"
+            )}
+          >
+            {currentHeadline}
           </h2>
           <p className="text-muted-foreground text-sm md:text-base">
             {clientName ? `Building a stunning deck for ${clientName}` : subtitle}
@@ -96,15 +156,34 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
         {/* Video Container */}
         <div className="relative w-full max-w-lg aspect-video rounded-2xl overflow-hidden shadow-2xl border border-border/50">
           <video
+            key={currentVideo.videoUrl}
             autoPlay
             loop
             muted
             playsInline
             preload="metadata"
-            className="w-full h-full object-cover"
+            className={cn(
+              "w-full h-full object-cover transition-opacity duration-300",
+              isTransitioning ? "opacity-0" : "opacity-100"
+            )}
           >
-            <source src={videoUrl} type="video/mp4" />
+            <source src={currentVideo.videoUrl} type="video/mp4" />
           </video>
+        </div>
+
+        {/* Video indicator dots */}
+        <div className="flex justify-center gap-1.5">
+          {loadingVideos.map((_, index) => (
+            <div
+              key={index}
+              className={cn(
+                "h-1.5 rounded-full transition-all duration-300",
+                index === currentVideoIndex 
+                  ? "w-6 bg-primary"
+                  : "w-1.5 bg-muted-foreground/30"
+              )}
+            />
+          ))}
         </div>
 
         {/* Steps */}
@@ -129,6 +208,35 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
               <span>{step.label}</span>
             </div>
           ))}
+        </div>
+
+        {/* Terminal visualization */}
+        <div className="w-full max-w-lg bg-slate-900 rounded-lg border border-slate-700 overflow-hidden shadow-lg">
+          <div className="flex items-center gap-2 px-3 py-2 bg-slate-800 border-b border-slate-700">
+            <Terminal className="h-3.5 w-3.5 text-green-400" />
+            <span className="text-xs text-slate-400 font-mono">Deck Generator</span>
+            <div className="ml-auto flex gap-1">
+              <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
+              <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
+              <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
+            </div>
+          </div>
+          <div className="p-3 font-mono text-xs space-y-1 h-24 overflow-hidden">
+            {terminalOutput.map((line, idx) => (
+              <div 
+                key={idx} 
+                className={cn(
+                  "text-green-400 transition-opacity duration-300",
+                  idx === terminalOutput.length - 1 ? "opacity-100" : "opacity-50"
+                )}
+              >
+                <span className="text-slate-500">$</span> {line}
+                {idx === terminalOutput.length - 1 && (
+                  <span className="inline-block w-2 h-3.5 bg-green-400 ml-1 animate-pulse" />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Metrics */}

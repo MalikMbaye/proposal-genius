@@ -1,7 +1,7 @@
-import { useEffect, useState, useMemo } from "react";
-import { Check, Circle, Loader2, Clock } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { Check, Circle, Loader2, Clock, Terminal } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getRandomLoadingContent, getContextSubtitle } from "@/lib/loadingContent";
+import { loadingVideos, getContextSubtitle } from "@/lib/loadingContent";
 
 export interface LoadingStep {
   label: string;
@@ -17,7 +17,25 @@ export interface LoadingScreenProps {
   timeElapsed?: number;
   progress?: number;
   manusVisualization?: React.ReactNode;
+  showTerminal?: boolean;
 }
+
+// Simulated AI terminal output lines
+const terminalLines = [
+  "Initializing proposal engine...",
+  "Loading client context analysis module...",
+  "Parsing industry benchmarks...",
+  "Analyzing competitive positioning...",
+  "Generating value propositions...",
+  "Structuring pricing tiers...",
+  "Crafting executive summary...",
+  "Optimizing language for conversion...",
+  "Applying persuasion frameworks...",
+  "Validating proposal structure...",
+  "Refining key differentiators...",
+  "Calculating ROI projections...",
+  "Polishing final deliverable...",
+];
 
 export function LoadingScreen({
   context,
@@ -28,13 +46,34 @@ export function LoadingScreen({
   timeElapsed = 0,
   progress = 0,
   manusVisualization,
+  showTerminal = true,
 }: LoadingScreenProps) {
   const [displayProgress, setDisplayProgress] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(timeElapsed);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [terminalOutput, setTerminalOutput] = useState<string[]>([]);
+  const [currentTerminalLine, setCurrentTerminalLine] = useState(0);
 
-  // Select random video + headline on mount (memoized to prevent re-selection)
-  const { videoUrl, headline } = useMemo(() => getRandomLoadingContent(), []);
-  const subtitle = useMemo(() => getContextSubtitle(context), [context]);
+  // Get subtitle once on mount
+  const [subtitle] = useState(() => getContextSubtitle(context));
+
+  // Current video and headline
+  const currentVideo = loadingVideos[currentVideoIndex];
+  const currentHeadline = currentVideo.headlines[0];
+
+  // Rotate videos every 6 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentVideoIndex((prev) => (prev + 1) % loadingVideos.length);
+        setIsTransitioning(false);
+      }, 300);
+    }, 6000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Smooth progress animation
   useEffect(() => {
@@ -54,6 +93,26 @@ export function LoadingScreen({
     return () => clearInterval(interval);
   }, []);
 
+  // Terminal line animation
+  useEffect(() => {
+    if (!showTerminal) return;
+    
+    const interval = setInterval(() => {
+      setCurrentTerminalLine((prev) => {
+        const nextLine = prev + 1;
+        if (nextLine < terminalLines.length) {
+          setTerminalOutput((output) => [...output.slice(-5), terminalLines[nextLine]]);
+        }
+        return nextLine >= terminalLines.length ? 0 : nextLine;
+      });
+    }, 2500);
+
+    // Initialize with first line
+    setTerminalOutput([terminalLines[0]]);
+
+    return () => clearInterval(interval);
+  }, [showTerminal]);
+
   // Format time as MM:SS
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -63,11 +122,16 @@ export function LoadingScreen({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background overflow-hidden">
-      <div className="flex flex-col items-center gap-6 animate-fade-in w-full max-w-2xl px-4">
-        {/* Headline */}
+      <div className="flex flex-col items-center gap-5 animate-fade-in w-full max-w-3xl px-4">
+        {/* Headline - rotates with video */}
         <div className="text-center space-y-2">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground leading-tight">
-            {headline}
+          <h2 
+            className={cn(
+              "text-2xl md:text-3xl font-bold text-foreground leading-tight transition-opacity duration-300",
+              isTransitioning ? "opacity-0" : "opacity-100"
+            )}
+          >
+            {currentHeadline}
           </h2>
           <p className="text-muted-foreground text-sm md:text-base">{subtitle}</p>
         </div>
@@ -75,19 +139,23 @@ export function LoadingScreen({
         {/* Video Container */}
         <div className="relative w-full max-w-lg aspect-video rounded-2xl overflow-hidden shadow-2xl border border-border/50">
           <video
+            key={currentVideo.videoUrl}
             autoPlay
             loop
             muted
             playsInline
             preload="metadata"
-            className="w-full h-full object-cover"
+            className={cn(
+              "w-full h-full object-cover transition-opacity duration-300",
+              isTransitioning ? "opacity-0" : "opacity-100"
+            )}
           >
-            <source src={videoUrl} type="video/mp4" />
+            <source src={currentVideo.videoUrl} type="video/mp4" />
           </video>
           
           {/* Progress overlay */}
           {progress > 0 && (
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted/50">
+            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-muted/50">
               <div 
                 className="h-full bg-primary transition-all duration-300 ease-out"
                 style={{ width: `${displayProgress}%` }}
@@ -96,10 +164,25 @@ export function LoadingScreen({
           )}
         </div>
 
+        {/* Video indicator dots */}
+        <div className="flex justify-center gap-1.5">
+          {loadingVideos.map((_, index) => (
+            <div
+              key={index}
+              className={cn(
+                "h-1.5 rounded-full transition-all duration-300",
+                index === currentVideoIndex 
+                  ? "w-6 bg-primary"
+                  : "w-1.5 bg-muted-foreground/30"
+              )}
+            />
+          ))}
+        </div>
+
         {/* Steps */}
         {steps.length > 0 && (
           <div className="flex flex-wrap justify-center gap-2 md:gap-3">
-            {steps.map((step, index) => (
+            {steps.map((step) => (
               <div
                 key={step.label}
                 className={cn(
@@ -119,6 +202,37 @@ export function LoadingScreen({
                 <span>{step.label}</span>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Terminal visualization */}
+        {showTerminal && (
+          <div className="w-full max-w-lg bg-slate-900 rounded-lg border border-slate-700 overflow-hidden shadow-lg">
+            <div className="flex items-center gap-2 px-3 py-2 bg-slate-800 border-b border-slate-700">
+              <Terminal className="h-3.5 w-3.5 text-green-400" />
+              <span className="text-xs text-slate-400 font-mono">AI Agent</span>
+              <div className="ml-auto flex gap-1">
+                <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
+                <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
+                <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
+              </div>
+            </div>
+            <div className="p-3 font-mono text-xs space-y-1 h-24 overflow-hidden">
+              {terminalOutput.map((line, idx) => (
+                <div 
+                  key={idx} 
+                  className={cn(
+                    "text-green-400 transition-opacity duration-300",
+                    idx === terminalOutput.length - 1 ? "opacity-100" : "opacity-50"
+                  )}
+                >
+                  <span className="text-slate-500">$</span> {line}
+                  {idx === terminalOutput.length - 1 && (
+                    <span className="inline-block w-2 h-3.5 bg-green-400 ml-1 animate-pulse" />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

@@ -109,8 +109,9 @@ export const contextSubtitles: Record<string, string[]> = {
     "AI is writing copy that would take you hours"
   ],
   slides: [
-    "2-5 minutes for a deck that wins pitches",
-    "Go grab a coffee. We got this."
+    "5-7 minutes for a deck that wins pitches. Max 7 minutes.",
+    "Go grab a coffee. We got this.",
+    "Your deck is being crafted. 7 minutes max."
   ],
   contract: [
     "Generating airtight terms",

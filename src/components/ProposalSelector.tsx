@@ -123,14 +123,14 @@ export function ProposalSelector() {
       <DropdownMenuTrigger asChild>
         <Button 
           variant="outline" 
-          className="h-10 px-6 gap-4 bg-muted/30 hover:bg-muted/50 border-border w-full max-w-xl justify-between"
+          className="h-10 px-6 gap-4 bg-white hover:bg-slate-50 border-border shadow-sm w-full max-w-xl justify-between"
         >
           <div className="flex items-center gap-3">
             <div className="h-7 w-7 rounded-md bg-primary/15 flex items-center justify-center">
               <FileText className="h-4 w-4 text-primary" />
             </div>
             <span className="text-xs text-muted-foreground uppercase tracking-wide">Current Proposal:</span>
-            <span className="font-semibold text-sm truncate max-w-[250px]">{displayName}</span>
+            <span className="font-semibold text-sm truncate max-w-[250px] text-foreground">{displayName}</span>
           </div>
           <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         </Button>
