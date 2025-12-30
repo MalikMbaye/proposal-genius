@@ -5,7 +5,6 @@ import malikHeadshot from "@/assets/malik-headshot.jpeg";
 
 const companies = ["Facebook", "LinkedIn", "Lyft", "Google", "Bain & Company"];
 const pressOutlets = ["Forbes", "TechCrunch", "Fast Company"];
-const placementCompanies = ["McKinsey & Company", "Goldman Sachs", "Deloitte"];
 
 const achievements = [
   "Started first business at 16, scaled to 23 countries",
@@ -131,8 +130,7 @@ export function FounderSection() {
 
             {/* CTA Button */}
             <Button
-              variant="outline"
-              className="group border-[#0A66C2] text-[#0A66C2] hover:bg-[#0A66C2]/10"
+              className="group bg-white text-[#0A66C2] hover:bg-slate-100 border border-slate-200"
               asChild
             >
               <a
@@ -148,22 +146,6 @@ export function FounderSection() {
           </div>
         </div>
 
-        {/* Education & Career Placements - White Background Section */}
-        <div className="mt-16 max-w-4xl mx-auto">
-          <div className="bg-white rounded-2xl p-8 shadow-xl">
-            <p className="text-xs text-slate-500 mb-4 font-medium tracking-widest uppercase text-center">
-              Education & Career Placements
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-6">
-              <CompanyLogo name="Howard University" className="!text-[#003DA5]" />
-              <span className="text-slate-300">|</span>
-              <span className="text-sm text-slate-600">100+ placements at</span>
-              {placementCompanies.map((name) => (
-                <CompanyLogo key={name} name={name} />
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );
