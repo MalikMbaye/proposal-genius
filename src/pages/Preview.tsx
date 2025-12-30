@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AppHeader } from "@/components/AppHeader";
@@ -10,6 +10,7 @@ import { DeckGeneratingLoader } from "@/components/DeckGeneratingLoader";
 import { OnboardingTab } from "@/components/OnboardingTab";
 import { ProposalLibraryTab } from "@/components/ProposalLibraryTab";
 import { StyledProposalPreview } from "@/components/StyledProposalPreview";
+import { LoadingScreen, LoadingStep } from "@/components/LoadingScreen";
 import jsPDF from "jspdf";
 import {
   FileText,
@@ -38,6 +39,38 @@ import { EditProposalModal } from "@/components/EditProposalModal";
 import { useStreamingProposal } from "@/hooks/useStreamingProposal";
 import { businessTypes } from "@/components/BusinessTypeSelector";
 import { toast } from "@/hooks/use-toast";
+
+// Asset generation loading steps by type
+const assetLoadingSteps: Record<string, { label: string }[]> = {
+  contract: [
+    { label: "Analyzing proposal terms" },
+    { label: "Structuring legal clauses" },
+    { label: "Generating contract" },
+  ],
+  contractEmail: [
+    { label: "Extracting key points" },
+    { label: "Crafting email copy" },
+    { label: "Finalizing message" },
+  ],
+  invoiceDescription: [
+    { label: "Parsing deliverables" },
+    { label: "Formatting line items" },
+    { label: "Creating invoice" },
+  ],
+  proposalEmail: [
+    { label: "Summarizing proposal" },
+    { label: "Writing email body" },
+    { label: "Adding call-to-action" },
+  ],
+};
+
+// Map asset types to loading contexts
+const assetToContext: Record<string, "contract" | "invoice" | "proposal" | "email"> = {
+  contract: "contract",
+  contractEmail: "email",
+  invoiceDescription: "invoice",
+  proposalEmail: "email",
+};
 
 // Consolidated tabs - removed deckPrompt, merged into deck
 const tabs = [
@@ -84,6 +117,9 @@ export default function Preview() {
   const [showBanner, setShowBanner] = useState(false);
   const [copied, setCopied] = useState(false);
   const [generatingAsset, setGeneratingAsset] = useState<TabId | null>(null);
+  const [assetGenerationSteps, setAssetGenerationSteps] = useState<LoadingStep[]>([]);
+  const [assetGenerationProgress, setAssetGenerationProgress] = useState(0);
+  const assetProgressInterval = useRef<NodeJS.Timeout | null>(null);
   const [lightMode, setLightMode] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   
@@ -186,7 +222,36 @@ export default function Preview() {
     if (assetType === 'proposal') return;
     if (assetType === 'deck') return;
     
+    // Initialize loading state with steps
+    const steps = assetLoadingSteps[assetType] || [{ label: "Generating content" }];
+    setAssetGenerationSteps(steps.map((s, i) => ({
+      label: s.label,
+      status: i === 0 ? 'active' : 'pending' as const,
+    })));
+    setAssetGenerationProgress(0);
     setGeneratingAsset(assetType);
+    
+    // Simulate progress with step transitions
+    let currentStep = 0;
+    const progressPerStep = 100 / steps.length;
+    
+    assetProgressInterval.current = setInterval(() => {
+      setAssetGenerationProgress(prev => {
+        const newProgress = Math.min(prev + 2, 95);
+        
+        // Update step status based on progress
+        const newStepIndex = Math.floor(newProgress / progressPerStep);
+        if (newStepIndex > currentStep && newStepIndex < steps.length) {
+          currentStep = newStepIndex;
+          setAssetGenerationSteps(prev => prev.map((s, i) => ({
+            ...s,
+            status: i < newStepIndex ? 'completed' : i === newStepIndex ? 'active' : 'pending',
+          })));
+        }
+        
+        return newProgress;
+      });
+    }, 150);
     
     try {
       const selectedStudyDescriptions = caseStudies
@@ -212,7 +277,17 @@ export default function Preview() {
       if (error) throw error;
       if (data.error) throw new Error(data.error);
 
+      // Complete the progress
+      if (assetProgressInterval.current) {
+        clearInterval(assetProgressInterval.current);
+      }
+      setAssetGenerationProgress(100);
+      setAssetGenerationSteps(prev => prev.map(s => ({ ...s, status: 'completed' as const })));
+
       updateDeliverable(assetType as keyof typeof deliverables, data.content);
+      
+      // Brief delay to show completion
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       toast({
         title: `${tabLabels[assetType]} generated`,
@@ -226,7 +301,12 @@ export default function Preview() {
         variant: "destructive",
       });
     } finally {
+      if (assetProgressInterval.current) {
+        clearInterval(assetProgressInterval.current);
+      }
       setGeneratingAsset(null);
+      setAssetGenerationProgress(0);
+      setAssetGenerationSteps([]);
     }
   };
 
@@ -568,6 +648,19 @@ Key requirements:
     reset();
     navigate("/generate");
   };
+
+  // Show full loading screen when generating any asset (except deck which has its own loader)
+  if (generatingAsset && generatingAsset !== 'deck') {
+    return (
+      <LoadingScreen
+        context={assetToContext[generatingAsset] || 'proposal'}
+        steps={assetGenerationSteps}
+        progress={assetGenerationProgress}
+        showMetrics={true}
+        showTerminal={true}
+      />
+    );
+  }
 
   return (
     <div className="h-screen bg-slate-800 flex flex-col overflow-hidden">
@@ -1028,24 +1121,19 @@ Key requirements:
         isRegenerating={isStreaming}
       />
 
-      {/* Loading overlay when regenerating */}
+      {/* Loading screen when regenerating proposal */}
       {isStreaming && (
-        <div className="fixed inset-0 bg-slate-900/90 z-50 flex items-center justify-center">
-          <div className="text-center max-w-md">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-              <Loader2 className="h-8 w-8 text-primary animate-spin" />
-            </div>
-            <h2 className="text-2xl font-semibold text-slate-100 mb-2">Regenerating Proposal</h2>
-            <p className="text-slate-400 mb-4">Updating your proposal with the new inputs...</p>
-            <div className="w-full bg-slate-700 rounded-full h-2 mb-2">
-              <div 
-                className="bg-primary h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <p className="text-sm text-slate-500">{progress}% complete</p>
-          </div>
-        </div>
+        <LoadingScreen
+          context="proposal"
+          steps={[
+            { label: "Analyzing updated inputs", status: progress < 30 ? 'active' : 'completed' },
+            { label: "Restructuring proposal", status: progress < 30 ? 'pending' : progress < 70 ? 'active' : 'completed' },
+            { label: "Writing new content", status: progress < 70 ? 'pending' : 'active' },
+          ]}
+          progress={progress}
+          showMetrics={true}
+          showTerminal={true}
+        />
       )}
     </div>
   );

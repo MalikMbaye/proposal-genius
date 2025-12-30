@@ -115,11 +115,17 @@ export const contextSubtitles: Record<string, string[]> = {
   ],
   contract: [
     "Generating airtight terms",
-    "Legal magic in progress"
+    "Legal magic in progress",
+    "Crafting your contract. ~15 seconds."
   ],
   invoice: [
     "Making getting paid look professional",
-    "Invoice incoming..."
+    "Invoice incoming...",
+    "Formatting your invoice. Almost there."
+  ],
+  email: [
+    "Writing your email. ~10 seconds.",
+    "Crafting the perfect message."
   ],
   "full-package": [
     "The whole enchilada. Give us a few minutes.",

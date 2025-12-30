@@ -9,7 +9,7 @@ export interface LoadingStep {
 }
 
 export interface LoadingScreenProps {
-  context: "proposal" | "slides" | "contract" | "invoice" | "full-package";
+  context: "proposal" | "slides" | "contract" | "invoice" | "email" | "full-package";
   steps?: LoadingStep[];
   showMetrics?: boolean;
   tokensUsed?: number;
