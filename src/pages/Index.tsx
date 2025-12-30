@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { AsSeenInSection } from "@/components/landing/AsSeenInSection";
 import { BrandLogosSection } from "@/components/landing/BrandLogosSection";
 import { FounderSection } from "@/components/landing/FounderSection";
 import { PressLogosSection } from "@/components/landing/PressLogosSection";
@@ -23,6 +24,7 @@ export default function Index() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <HeroSection />
+      <AsSeenInSection />
       <BrandLogosSection />
       <FounderSection />
       <PressLogosSection />
