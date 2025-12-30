@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PDFViewer } from "@/components/PDFViewer";
 import { DeckGeneratingLoader } from "@/components/DeckGeneratingLoader";
 import { OnboardingTab } from "@/components/OnboardingTab";
+import { ProposalLibraryTab } from "@/components/ProposalLibraryTab";
 import jsPDF from "jspdf";
 import {
   FileText,
@@ -26,6 +27,7 @@ import {
   Loader2,
   Sun,
   Moon,
+  Library,
   FileDown,
   User,
   Home,
@@ -35,6 +37,7 @@ import { toast } from "@/hooks/use-toast";
 // Consolidated tabs - removed deckPrompt, merged into deck
 const tabs = [
   { id: "home", label: "Welcome", icon: Home },
+  { id: "library", label: "Proposal Library", icon: Library },
   { id: "proposal", label: "Proposal", icon: FileText },
   { id: "deck", label: "Slide Deck", icon: Presentation },
   { id: "contract", label: "Contract", icon: FileCheck },
@@ -47,6 +50,7 @@ type TabId = (typeof tabs)[number]["id"];
 
 const tabInstructions: Record<TabId, string> = {
   home: "Welcome to Proposal AI. Your proposal toolkit awaits.",
+  library: "Access 50+ real proposals that closed real deals.",
   proposal: "Copy and paste into Google Docs or Word. Review, save as PDF, send.",
   deck: "Preview your AI-generated slide deck. Download the PDF when ready.",
   contract: "Paste into Square Contracts. Fill in [BRACKETED] fields. Send for signature.",
@@ -57,6 +61,7 @@ const tabInstructions: Record<TabId, string> = {
 
 const tabLabels: Record<TabId, string> = {
   home: "Welcome",
+  library: "Proposal Library",
   proposal: "Proposal",
   deck: "Slide Deck",
   contract: "Contract",
@@ -104,9 +109,10 @@ export default function Preview() {
 
   const hasProposal = deliverables?.proposal;
   const isHomeTab = activeTab === 'home';
+  const isLibraryTab = activeTab === 'library';
   const isDeckTab = activeTab === 'deck';
-  const currentContent = isDeckTab || isHomeTab ? '' : (deliverables?.[activeTab as keyof typeof deliverables] || '');
-  const hasContent = isDeckTab ? deckData.status === 'completed' : isHomeTab ? false : currentContent.length > 0;
+  const currentContent = isDeckTab || isHomeTab || isLibraryTab ? '' : (deliverables?.[activeTab as keyof typeof deliverables] || '');
+  const hasContent = isDeckTab ? deckData.status === 'completed' : isHomeTab || isLibraryTab ? false : currentContent.length > 0;
   const ActiveIcon = tabs.find((t) => t.id === activeTab)?.icon || FileText;
 
   const handleGenerateAsset = async (assetType: TabId) => {
@@ -512,8 +518,8 @@ Key requirements:
             const isGenerating = generatingAsset === tab.id || (tab.id === 'deck' && deckData.status === 'generating');
             
             let hasTabContent = false;
-            if (tab.id === 'home') {
-              hasTabContent = true; // Home always has content
+            if (tab.id === 'home' || tab.id === 'library') {
+              hasTabContent = true; // Home and Library always have content
             } else if (tab.id === 'deck') {
               hasTabContent = deckData.status === 'completed';
             } else if (tab.id === 'proposal') {
@@ -538,10 +544,10 @@ Key requirements:
                   <Icon className="h-4 w-4" />
                 )}
                 <span className="flex-1 text-left">{tab.label}</span>
-                {!hasTabContent && tab.id !== 'home' && (
+                {!hasTabContent && tab.id !== 'home' && tab.id !== 'library' && (
                   <span className="text-xs opacity-60">•</span>
                 )}
-                {hasTabContent && tab.id !== 'home' && tab.id !== 'proposal' && (
+                {hasTabContent && tab.id !== 'home' && tab.id !== 'library' && tab.id !== 'proposal' && (
                   <Check className="h-3 w-3 opacity-60" />
                 )}
               </button>
@@ -609,8 +615,8 @@ Key requirements:
           </div>
         )}
 
-        {/* Document Header - hide for home tab */}
-        {!isHomeTab && (
+        {/* Document Header - hide for home and library tabs */}
+        {!isHomeTab && !isLibraryTab && (
           <div className="border-b border-border px-6 py-4 flex items-center justify-between bg-card/30">
             <div className="flex items-center gap-3">
               <ActiveIcon className="h-5 w-5 text-primary" />
@@ -669,8 +675,8 @@ Key requirements:
         )}
 
         {/* Document Content */}
-        <div className={`flex-1 overflow-auto ${isHomeTab ? '' : 'p-6'}`}>
-          <div className={`mx-auto ${isHomeTab ? 'h-full' : isDeckTab ? 'max-w-6xl' : 'max-w-4xl'}`}>
+        <div className={`flex-1 overflow-auto ${isHomeTab || isLibraryTab ? '' : 'p-6'}`}>
+          <div className={`mx-auto ${isHomeTab || isLibraryTab ? 'h-full' : isDeckTab ? 'max-w-6xl' : 'max-w-4xl'}`}>
             {/* Deck Tab - Special handling */}
             {isDeckTab && (
               <>
@@ -739,8 +745,12 @@ Key requirements:
             {isHomeTab && (
               <OnboardingTab onNewProposal={handleNewProposal} />
             )}
+            {/* Library Tab */}
+            {isLibraryTab && (
+              <ProposalLibraryTab />
+            )}
             {/* Other tabs - no content yet */}
-            {!isDeckTab && !isHomeTab && !hasContent && (
+            {!isDeckTab && !isHomeTab && !isLibraryTab && !hasContent && (
               <div className="rounded-xl border border-border bg-card p-12 text-center">
                 <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
                   <ActiveIcon className="h-8 w-8 text-primary" />
@@ -783,7 +793,7 @@ Key requirements:
                 )}
               </div>
             )}
-            {!isDeckTab && !isHomeTab && hasContent && (
+            {!isDeckTab && !isHomeTab && !isLibraryTab && hasContent && (
               <div 
                 className={`rounded-xl border shadow-lg transition-colors ${
                   lightMode 
