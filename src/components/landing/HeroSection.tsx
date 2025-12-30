@@ -6,9 +6,9 @@ import { loadingVideos } from "@/lib/loadingContent";
 import { AsSeenInMarquee } from "@/components/landing/AsSeenInSection";
 
 const stats = [
-  { value: "$1.5M+", label: "In Deals Closed" },
-  { value: "100+", label: "Real 6 & 7-Figure Proposals" },
-  { value: "5 min", label: "To Generate Your Proposal" },
+  { value: "$1.5M+", label: "In Deals Closed", gradient: "from-emerald-500 via-green-500 to-teal-500" },
+  { value: "100+", label: "Real 6 & 7-Figure Proposals", gradient: "from-violet-500 via-purple-500 to-indigo-500" },
+  { value: "5 min", label: "To Generate Your Proposal", gradient: "from-amber-500 via-orange-500 to-yellow-500" },
 ];
 
 // Proposal comparison cards
@@ -51,8 +51,8 @@ const proposalCards = [
   },
 ];
 
-// Stat bubble component with filled gradient
-function StatBubble({ value, label, delay = 0 }: { value: string; label: string; delay?: number }) {
+// Stat bubble component with unique gradient and shimmer
+function StatBubble({ value, label, gradient, delay = 0 }: { value: string; label: string; gradient: string; delay?: number }) {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -76,13 +76,18 @@ function StatBubble({ value, label, delay = 0 }: { value: string; label: string;
   return (
     <div 
       ref={ref}
-      className={`relative px-6 py-5 rounded-2xl bg-gradient-to-br from-primary via-primary to-primary/90 shadow-xl transition-all duration-700 text-center ${
+      className={`relative px-6 py-5 rounded-2xl bg-gradient-to-br ${gradient} shadow-xl transition-all duration-700 text-center overflow-hidden group hover:scale-105 hover:shadow-2xl ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       }`}
       style={{ animationDelay: `${delay}s` }}
     >
-      <div className="text-3xl md:text-4xl font-black text-white tracking-tight">{value}</div>
-      <div className="text-sm text-white/90 font-medium mt-1">{label}</div>
+      {/* Shimmer overlay */}
+      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+      
+      <div className="relative">
+        <div className="text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-lg">{value}</div>
+        <div className="text-sm text-white/95 font-medium mt-1">{label}</div>
+      </div>
     </div>
   );
 }

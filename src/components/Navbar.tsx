@@ -19,23 +19,23 @@ export function Navbar() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-b border-slate-100">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900 border-b border-slate-800">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center">
-          <Logo />
+          <Logo variant="light" />
         </Link>
         
         <div className="hidden md:flex items-center gap-8">
-          <a href="#founder" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <a href="#founder" className="text-sm text-slate-300 hover:text-white transition-colors">
             About
           </a>
-          <a href="#solution" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <a href="#solution" className="text-sm text-slate-300 hover:text-white transition-colors">
             Features
           </a>
-          <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <a href="#how-it-works" className="text-sm text-slate-300 hover:text-white transition-colors">
             How It Works
           </a>
-          <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <a href="#pricing" className="text-sm text-slate-300 hover:text-white transition-colors">
             Pricing
           </a>
         </div>
@@ -79,15 +79,12 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <Button variant="ghost" size="sm" asChild>
+              <Button variant="ghost" size="sm" asChild className="text-slate-300 hover:text-white hover:bg-slate-800">
                 <Link to="/auth">Log in</Link>
               </Button>
-              <div className="relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary via-accent-secondary to-primary rounded-md blur opacity-60 group-hover:opacity-100 transition duration-500 animate-gradient-x"></div>
-                <Button size="sm" className="relative bg-white text-slate-900 hover:bg-slate-50 font-semibold" asChild>
-                  <Link to="/generate">New Proposal</Link>
-                </Button>
-              </div>
+              <Button size="sm" variant="hero" asChild>
+                <Link to="/generate">New Proposal</Link>
+              </Button>
             </>
           )}
         </div>
