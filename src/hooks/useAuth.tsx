@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
   };
 
-  // Quick signup with just email - auto-generates a password
+  // Quick signup with just email - auto-generates a password and sends reset link
   const quickSignUp = async (email: string) => {
     const redirectUrl = `${window.location.origin}/`;
     // Generate a random secure password - user can reset later
@@ -76,6 +76,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         emailRedirectTo: redirectUrl
       }
     });
+    
+    if (!error) {
+      // Send password reset email so user can set their own password later
+      setTimeout(() => {
+        supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth`
+        });
+      }, 0);
+    }
+    
     return { error };
   };
 
