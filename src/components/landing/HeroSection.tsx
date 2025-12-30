@@ -76,13 +76,13 @@ function StatBubble({ value, label, delay = 0 }: { value: string; label: string;
   return (
     <div 
       ref={ref}
-      className={`relative px-5 py-4 rounded-xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 shadow-lg transition-all duration-700 ${
+      className={`relative px-6 py-5 rounded-2xl bg-gradient-to-br from-primary via-primary to-primary/90 shadow-xl transition-all duration-700 text-center ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       }`}
       style={{ animationDelay: `${delay}s` }}
     >
-      <div className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">{value}</div>
-      <div className="text-xs text-white/80 font-medium mt-0.5">{label}</div>
+      <div className="text-3xl md:text-4xl font-black text-white tracking-tight">{value}</div>
+      <div className="text-sm text-white/90 font-medium mt-1">{label}</div>
     </div>
   );
 }
@@ -248,19 +248,17 @@ function HeroCarousel() {
 export function HeroSection() {
   return (
     <section className="relative min-h-screen pt-24 pb-20 overflow-hidden flex items-center bg-white">
-      {/* Background effects - light theme */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-white" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,hsl(345,100%,60%,0.08),transparent)]" />
+      {/* Background effects - clean light theme */}
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-50/50 to-white" />
       
       {/* Subtle grid pattern */}
-      <div className="absolute inset-0 opacity-[0.03]" style={{
-        backgroundImage: `linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)`,
-        backgroundSize: '60px 60px'
+      <div className="absolute inset-0 opacity-[0.02]" style={{
+        backgroundImage: `linear-gradient(to right, #64748b 1px, transparent 1px), linear-gradient(to bottom, #64748b 1px, transparent 1px)`,
+        backgroundSize: '80px 80px'
       }} />
       
-      {/* Animated gradient orbs - softer for light theme */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse-slow" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-300/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }} />
+      {/* Very subtle accent orb - just one, positioned top-right */}
+      <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-gradient-to-br from-primary/[0.03] to-transparent rounded-full blur-3xl" />
       
       <div className="container relative mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
@@ -305,9 +303,9 @@ export function HeroSection() {
               </Button>
             </div>
             
-            {/* Trust line */}
-            <p className="text-sm text-slate-500 animate-fade-in" style={{ animationDelay: '0.6s' }}>
-              Join 500+ consultants closing bigger deals 💼
+            {/* Trust line - cleaner */}
+            <p className="text-xs text-slate-400 mt-4 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+              Trusted by 500+ consultants worldwide
             </p>
 
             {/* Press logos (right under trust line, above stats) */}
@@ -322,9 +320,9 @@ export function HeroSection() {
           </div>
         </div>
         
-        {/* Stats Row - Gradient Bubbles */}
-        <div className="mt-14 pt-10 border-t border-slate-200">
-          <div className="flex flex-wrap justify-center lg:justify-start gap-4">
+        {/* Stats Row - Full Width Distribution */}
+        <div className="mt-16 pt-10 border-t border-slate-100">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto lg:max-w-none">
             {stats.map((stat, index) => (
               <StatBubble key={stat.label} {...stat} delay={index * 0.1} />
             ))}
