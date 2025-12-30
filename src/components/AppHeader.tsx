@@ -32,7 +32,7 @@ export function AppHeader({ center, onNewProposal }: AppHeaderProps) {
   };
 
   return (
-    <header className="h-14 border-b border-slate-200 bg-slate-900 flex items-center px-4 gap-4 flex-shrink-0">
+    <header className="h-14 border-b border-slate-700/50 bg-gradient-to-r from-slate-900 via-slate-800/95 to-slate-900 backdrop-blur-sm flex items-center px-4 gap-4 flex-shrink-0 shadow-lg">
       <Link to="/preview" className="flex-shrink-0" aria-label="Go to dashboard">
         <Logo />
       </Link>
