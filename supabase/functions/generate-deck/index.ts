@@ -99,11 +99,21 @@ serve(async (req) => {
       console.log(`Task ${taskId} status: ${data.status}`);
 
       if (data.status === 'completed') {
+        console.log('Task output:', JSON.stringify(data.output, null, 2));
         const pdfUrl = extractPdfUrl(data.output);
+        console.log('Extracted PDF URL:', pdfUrl);
+        
+        // If no PDF found, check if there's a share URL we can use instead
+        if (!pdfUrl) {
+          console.log('No PDF URL found in output, checking for alternative URLs...');
+        }
+        
         return new Response(JSON.stringify({
           success: true,
           status: 'completed',
           pdfUrl,
+          hasOutput: !!data.output,
+          outputLength: data.output?.length || 0,
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
