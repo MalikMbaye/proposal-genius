@@ -1,16 +1,18 @@
-import { useState, useEffect } from 'react';
-import { Loader2, Sparkles, Palette, Layout, FileCheck, Wand2 } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Check, Circle, Loader2, Clock, Sparkles, Palette, Layout, FileCheck, Wand2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { getRandomLoadingContent, getContextSubtitle } from '@/lib/loadingContent';
 
 interface DeckGeneratingLoaderProps {
   clientName?: string;
 }
 
 const stages = [
-  { id: 1, label: 'Analyzing your proposal', icon: Sparkles, duration: 8000 },
-  { id: 2, label: 'Designing slide layouts', icon: Layout, duration: 15000 },
-  { id: 3, label: 'Generating visuals & graphics', icon: Palette, duration: 20000 },
-  { id: 4, label: 'Applying professional styling', icon: Wand2, duration: 15000 },
-  { id: 5, label: 'Finalizing your deck', icon: FileCheck, duration: 10000 },
+  { id: 1, label: 'Analyzing proposal', icon: Sparkles },
+  { id: 2, label: 'Designing layouts', icon: Layout },
+  { id: 3, label: 'Generating visuals', icon: Palette },
+  { id: 4, label: 'Applying styling', icon: Wand2 },
+  { id: 5, label: 'Finalizing deck', icon: FileCheck },
 ];
 
 const tips = [
@@ -26,19 +28,25 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
   const [tipIndex, setTipIndex] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
 
+  // Select random video + headline on mount
+  const { videoUrl, headline } = useMemo(() => getRandomLoadingContent(), []);
+  const subtitle = useMemo(() => getContextSubtitle('slides'), []);
+
   useEffect(() => {
-    // Progress through stages
-    let stageTimeout: NodeJS.Timeout;
+    // Progress through stages with varying durations
+    const durations = [8000, 15000, 20000, 15000, 10000];
     let totalTime = 0;
+    const timeouts: NodeJS.Timeout[] = [];
     
-    stages.forEach((stage, index) => {
-      stageTimeout = setTimeout(() => {
+    durations.forEach((duration, index) => {
+      const timeout = setTimeout(() => {
         setCurrentStage(index);
       }, totalTime);
-      totalTime += stage.duration;
+      timeouts.push(timeout);
+      totalTime += duration;
     });
 
-    return () => clearTimeout(stageTimeout);
+    return () => timeouts.forEach(t => clearTimeout(t));
   }, []);
 
   useEffect(() => {
@@ -62,99 +70,83 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Convert stages to step format
+  const steps = stages.map((stage, index) => ({
+    label: stage.label,
+    status: index < currentStage ? 'completed' as const : 
+            index === currentStage ? 'active' as const : 'pending' as const
+  }));
+
   return (
-    <div className="rounded-xl border border-border bg-card p-8 md:p-12">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-6 relative">
-          <div className="absolute inset-0 rounded-full bg-primary/10 animate-ping" style={{ animationDuration: '2s' }} />
-          <Loader2 className="h-10 w-10 text-primary animate-spin" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background overflow-hidden">
+      <div className="flex flex-col items-center gap-6 animate-fade-in w-full max-w-2xl px-4">
+        {/* Headline */}
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground leading-tight">
+            {headline}
+          </h2>
+          <p className="text-muted-foreground text-sm md:text-base">
+            {clientName ? `Building a stunning deck for ${clientName}` : subtitle}
+          </p>
         </div>
-        <h2 className="text-2xl font-semibold mb-2">Creating Your Presentation</h2>
-        <p className="text-muted-foreground">
-          {clientName ? `Building a stunning deck for ${clientName}` : 'Manus AI is designing your slides'}
-        </p>
-      </div>
 
-      {/* Progress Stages */}
-      <div className="max-w-md mx-auto mb-8">
-        <div className="space-y-3">
-          {stages.map((stage, index) => {
-            const Icon = stage.icon;
-            const isActive = index === currentStage;
-            const isComplete = index < currentStage;
-            const isPending = index > currentStage;
-
-            return (
-              <div
-                key={stage.id}
-                className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-500 ${
-                  isActive
-                    ? 'bg-primary/10 border border-primary/20'
-                    : isComplete
-                    ? 'bg-muted/50 opacity-60'
-                    : 'opacity-40'
-                }`}
-              >
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : isComplete
-                      ? 'bg-muted-foreground/20 text-muted-foreground'
-                      : 'bg-muted text-muted-foreground/50'
-                  }`}
-                >
-                  {isActive ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Icon className="h-4 w-4" />
-                  )}
-                </div>
-                <span
-                  className={`text-sm font-medium ${
-                    isActive
-                      ? 'text-foreground'
-                      : isComplete
-                      ? 'text-muted-foreground'
-                      : 'text-muted-foreground/50'
-                  }`}
-                >
-                  {stage.label}
-                </span>
-              </div>
-            );
-          })}
+        {/* Video Container */}
+        <div className="relative w-full max-w-lg aspect-video rounded-2xl overflow-hidden shadow-2xl border border-border/50">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            className="w-full h-full object-cover"
+          >
+            <source src={videoUrl} type="video/mp4" />
+          </video>
         </div>
-      </div>
 
-      {/* Timer */}
-      <div className="text-center mb-6">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 text-sm">
-          <span className="text-muted-foreground">Elapsed time:</span>
-          <span className="font-mono font-medium">{formatTime(elapsedTime)}</span>
+        {/* Steps */}
+        <div className="flex flex-wrap justify-center gap-2 md:gap-3">
+          {steps.map((step) => (
+            <div
+              key={step.label}
+              className={cn(
+                "flex items-center gap-2 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium transition-all duration-300",
+                step.status === "completed" && "bg-success/20 text-success",
+                step.status === "active" && "bg-primary/20 text-primary",
+                step.status === "pending" && "bg-muted text-muted-foreground"
+              )}
+            >
+              {step.status === "completed" ? (
+                <Check className="h-3.5 w-3.5" />
+              ) : step.status === "active" ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Circle className="h-3.5 w-3.5" />
+              )}
+              <span>{step.label}</span>
+            </div>
+          ))}
         </div>
-      </div>
 
-      {/* Tips Carousel */}
-      <div className="bg-muted/30 rounded-lg p-4 text-center">
-        <p className="text-sm text-muted-foreground transition-opacity duration-500">
-          💡 {tips[tipIndex]}
-        </p>
-      </div>
+        {/* Metrics */}
+        <div className="flex items-center gap-4 text-xs md:text-sm text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5" />
+            <span className="font-mono">{formatTime(elapsedTime)}</span>
+          </div>
+          <span className="text-muted-foreground/50">•</span>
+          <span>Stage {currentStage + 1} of {stages.length}</span>
+        </div>
 
-      {/* Bouncing Dots */}
-      <div className="flex justify-center gap-1 mt-6">
-        {[0, 1, 2].map((i) => (
-          <div
-            key={i}
-            className="w-2 h-2 rounded-full bg-primary animate-bounce"
-            style={{ animationDelay: `${i * 0.15}s` }}
-          />
-        ))}
+        {/* Tips Carousel */}
+        <div className="w-full max-w-md bg-muted/30 rounded-lg p-4 text-center">
+          <p className="text-sm text-muted-foreground transition-opacity duration-500">
+            💡 {tips[tipIndex]}
+          </p>
+        </div>
       </div>
     </div>
   );
