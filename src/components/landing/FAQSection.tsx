@@ -1,0 +1,68 @@
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+const faqs = [
+  {
+    question: "How is this different from proposal templates?",
+    answer: "Templates give you fill-in-the-blank structure. We give you the patterns from $1M+ in closed deals—the language, pricing frameworks, and positioning strategies that actually win six-figure contracts.",
+  },
+  {
+    question: "Can I customize the proposals?",
+    answer: "Yes! Every proposal is editable. The AI generates the first draft based on proven patterns, then you customize it for your specific client.",
+  },
+  {
+    question: "What if I don't like the output?",
+    answer: "Regenerate with different inputs or options. Most users get what they need on the first try, but you can iterate unlimited times.",
+  },
+  {
+    question: "Is my data secure?",
+    answer: "Yes. We don't store client details. Your proposals are private. We use enterprise-grade encryption and never sell or share your data.",
+  },
+  {
+    question: "Can I cancel anytime?",
+    answer: "Yes. Cancel anytime. No long-term contracts. If you have lifetime access, it's yours forever—no cancellation needed.",
+  },
+  {
+    question: "Do you offer refunds?",
+    answer: "Yes. 30-day money-back guarantee. If you're not satisfied, we'll refund you in full—no questions asked.",
+  },
+];
+
+export function FAQSection() {
+  return (
+    <section className="py-24 border-t border-border/50 bg-card/30">
+      <div className="container mx-auto px-4">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Questions? We've Got Answers.
+          </h2>
+        </div>
+        
+        {/* FAQ Grid */}
+        <div className="max-w-3xl mx-auto">
+          <Accordion type="single" collapsible className="space-y-4">
+            {faqs.map((faq, index) => (
+              <AccordionItem 
+                key={index} 
+                value={`item-${index}`}
+                className="bg-card border border-border/50 rounded-xl px-6 data-[state=open]:border-primary/30"
+              >
+                <AccordionTrigger className="text-left hover:no-underline py-6">
+                  <span className="font-semibold text-foreground">{faq.question}</span>
+                </AccordionTrigger>
+                <AccordionContent className="pb-6 text-muted-foreground leading-relaxed">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </div>
+    </section>
+  );
+}
