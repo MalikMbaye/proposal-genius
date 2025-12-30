@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trophy } from "lucide-react";
 
 import thread1 from "@/assets/threads/thread-1.png";
 import thread2 from "@/assets/threads/thread-2.png";
@@ -38,6 +38,21 @@ const threads = [
   { src: thread16, alt: "Thread 16/18 - The leap from $10K to $100K" },
 ];
 
+// Confetti particle component
+function ConfettiParticle({ delay, left, color }: { delay: number; left: number; color: string }) {
+  return (
+    <div
+      className="absolute w-2 h-2 rounded-sm opacity-0"
+      style={{
+        left: `${left}%`,
+        top: '-10px',
+        background: color,
+        animation: `confetti-fall 3s ease-out ${delay}s forwards`,
+      }}
+    />
+  );
+}
+
 export function ViralThreadSection() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: true,
@@ -45,6 +60,8 @@ export function ViralThreadSection() {
     skipSnaps: false
   });
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
@@ -65,53 +82,114 @@ export function ViralThreadSection() {
     };
   }, [emblaApi, onSelect]);
 
+  // Trigger confetti on scroll into view
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !showConfetti) {
+            setShowConfetti(true);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [showConfetti]);
+
+  // Generate confetti particles
+  const confettiColors = [
+    'hsl(48, 100%, 50%)',  // Bright gold
+    'hsl(45, 90%, 60%)',   // Light gold
+    'hsl(38, 80%, 45%)',   // Deep gold
+    'hsl(30, 70%, 50%)',   // Bronze
+    'hsl(0, 0%, 100%)',    // White sparkle
+  ];
+
+  const confettiParticles = Array.from({ length: 50 }, (_, i) => ({
+    id: i,
+    delay: Math.random() * 0.8,
+    left: Math.random() * 100,
+    color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+  }));
+
   return (
-    <section className="relative pt-28 pb-12 overflow-hidden">
-      {/* Rich dark background with golden undertones */}
+    <section ref={sectionRef} className="relative pt-28 pb-12 overflow-hidden">
+      {/* Deep luxe near-black background */}
       <div 
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(135deg, hsl(25, 25%, 8%) 0%, hsl(35, 30%, 12%) 40%, hsl(40, 25%, 10%) 100%)'
+          background: 'linear-gradient(180deg, hsl(0, 0%, 3%) 0%, hsl(30, 15%, 6%) 50%, hsl(0, 0%, 4%) 100%)'
         }}
       />
       
-      {/* Celebratory gold radial glow */}
+      {/* Dramatic gold spotlight from top-right */}
       <div 
-        className="absolute inset-0 opacity-50"
+        className="absolute inset-0 opacity-40"
         style={{
-          background: 'radial-gradient(ellipse at 70% 40%, hsl(45, 80%, 35%) 0%, transparent 55%)'
+          background: 'radial-gradient(ellipse 60% 50% at 80% 20%, hsl(45, 100%, 40%) 0%, transparent 60%)'
         }}
       />
       
-      {/* Secondary warm accent glow */}
+      {/* Secondary warm glow from bottom-left */}
       <div 
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 opacity-25"
         style={{
-          background: 'radial-gradient(ellipse at 30% 70%, hsl(40, 70%, 25%) 0%, transparent 50%)'
+          background: 'radial-gradient(ellipse 50% 40% at 20% 80%, hsl(35, 80%, 35%) 0%, transparent 55%)'
         }}
       />
+
+      {/* Trophy ambient motif - more prominent */}
+      <div className="absolute right-[5%] top-[15%] opacity-[0.08] pointer-events-none">
+        <Trophy className="w-64 h-64 md:w-80 md:h-80" style={{ color: 'hsl(45, 100%, 50%)' }} />
+      </div>
       
-      {/* Subtle ambient laurel/trophy motif */}
+      {/* Smaller trophy accent bottom-left */}
+      <div className="absolute left-[8%] bottom-[20%] opacity-[0.05] pointer-events-none rotate-[-15deg]">
+        <Trophy className="w-32 h-32" style={{ color: 'hsl(45, 100%, 50%)' }} />
+      </div>
+
+      {/* Gold particle dust overlay */}
       <div 
-        className="absolute inset-0 pointer-events-none opacity-[0.04]"
+        className="absolute inset-0 opacity-30 pointer-events-none"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath d='M100 20 L100 50 M100 50 C70 50 50 80 50 110 C50 140 70 160 100 180 C130 160 150 140 150 110 C150 80 130 50 100 50' stroke='%23D4AF37' stroke-width='2' fill='none' opacity='0.5'/%3E%3Ccircle cx='100' cy='35' r='8' fill='%23D4AF37' opacity='0.3'/%3E%3Cpath d='M60 90 Q40 70 30 90 Q40 110 60 100' stroke='%23D4AF37' stroke-width='1.5' fill='none' opacity='0.4'/%3E%3Cpath d='M140 90 Q160 70 170 90 Q160 110 140 100' stroke='%23D4AF37' stroke-width='1.5' fill='none' opacity='0.4'/%3E%3C/svg%3E")`,
-          backgroundSize: '300px 300px',
-          backgroundPosition: 'right 10% top 20%',
-          backgroundRepeat: 'no-repeat'
+          backgroundImage: `radial-gradient(circle at 20% 30%, hsl(45, 100%, 50%) 1px, transparent 1px),
+                           radial-gradient(circle at 80% 70%, hsl(45, 100%, 50%) 1px, transparent 1px),
+                           radial-gradient(circle at 40% 80%, hsl(45, 100%, 50%) 0.5px, transparent 0.5px),
+                           radial-gradient(circle at 60% 20%, hsl(45, 100%, 50%) 0.5px, transparent 0.5px)`,
+          backgroundSize: '100px 100px, 150px 150px, 80px 80px, 120px 120px',
         }}
       />
+
+      {/* Confetti animation */}
+      {showConfetti && (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-20">
+          {confettiParticles.map((particle) => (
+            <ConfettiParticle
+              key={particle.id}
+              delay={particle.delay}
+              left={particle.left}
+              color={particle.color}
+            />
+          ))}
+        </div>
+      )}
       
       <div className="container relative z-10 mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-10 items-start">
           {/* Left: Thread Screenshot Carousel */}
           <div className="space-y-4">
             <div className="relative group">
-              {/* Celebratory gold glow behind */}
+              {/* Intense gold glow behind carousel */}
               <div 
-                className="absolute -inset-3 rounded-2xl opacity-50 blur-2xl"
+                className="absolute -inset-4 rounded-2xl opacity-60 blur-3xl"
                 style={{ 
-                  background: 'linear-gradient(135deg, hsl(48, 85%, 45%) 0%, hsl(38, 70%, 35%) 100%)',
+                  background: 'linear-gradient(135deg, hsl(45, 100%, 45%) 0%, hsl(35, 90%, 30%) 100%)',
                 }}
               />
               
@@ -131,7 +209,7 @@ export function ViralThreadSection() {
                           alt={thread.alt}
                           className="w-full h-auto rounded-xl shadow-2xl transition-transform duration-500 group-hover:scale-[1.01]"
                           style={{
-                            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)'
+                            boxShadow: '0 25px 60px -12px rgba(0,0,0,0.7), 0 0 40px -10px hsl(45, 100%, 40%)'
                           }}
                         />
                       </a>
@@ -139,31 +217,31 @@ export function ViralThreadSection() {
                   ))}
                 </div>
 
-                {/* Navigation Arrows */}
+                {/* Navigation Arrows - gold themed */}
                 <button
                   onClick={scrollPrev}
                   className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
                   style={{
-                    background: 'rgba(0,0,0,0.5)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255,255,255,0.2)',
+                    background: 'linear-gradient(135deg, hsl(45, 80%, 25%) 0%, hsl(35, 70%, 20%) 100%)',
+                    border: '1px solid hsl(45, 60%, 40%)',
+                    boxShadow: '0 4px 15px -3px hsl(45, 100%, 30%)'
                   }}
                   aria-label="Previous thread"
                 >
-                  <ChevronLeft className="w-5 h-5" style={{ color: 'hsl(48, 90%, 55%)' }} />
+                  <ChevronLeft className="w-5 h-5" style={{ color: 'hsl(45, 100%, 65%)' }} />
                 </button>
                 
                 <button
                   onClick={scrollNext}
                   className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
                   style={{
-                    background: 'rgba(0,0,0,0.5)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255,255,255,0.2)',
+                    background: 'linear-gradient(135deg, hsl(45, 80%, 25%) 0%, hsl(35, 70%, 20%) 100%)',
+                    border: '1px solid hsl(45, 60%, 40%)',
+                    boxShadow: '0 4px 15px -3px hsl(45, 100%, 30%)'
                   }}
                   aria-label="Next thread"
                 >
-                  <ChevronRight className="w-5 h-5" style={{ color: 'hsl(48, 90%, 55%)' }} />
+                  <ChevronRight className="w-5 h-5" style={{ color: 'hsl(45, 100%, 65%)' }} />
                 </button>
               </div>
             </div>
@@ -181,7 +259,7 @@ export function ViralThreadSection() {
                   }`}
                 >
                   <img 
-                    src={thread.src} 
+                    src={thread.src}
                     alt={`Thread ${index + 1}`}
                     className="w-full h-full object-cover object-top rounded-md"
                   />
@@ -193,11 +271,11 @@ export function ViralThreadSection() {
                   style={{
                     width: '50px',
                     height: '62px',
-                    background: 'rgba(255,255,255,0.1)',
-                    border: '1px solid rgba(255,255,255,0.15)',
+                    background: 'linear-gradient(135deg, hsl(45, 50%, 15%) 0%, hsl(35, 40%, 10%) 100%)',
+                    border: '1px solid hsl(45, 40%, 25%)',
                   }}
                 >
-                  <span style={{ color: 'hsl(45, 50%, 70%)' }} className="text-sm font-medium">
+                  <span style={{ color: 'hsl(45, 100%, 60%)' }} className="text-sm font-bold">
                     +{threads.length - 5}
                   </span>
                 </div>
@@ -216,16 +294,16 @@ export function ViralThreadSection() {
                     }`}
                     style={{
                       background: index === selectedIndex 
-                        ? 'hsl(48, 90%, 50%)' 
-                        : 'rgba(255,255,255,0.3)'
+                        ? 'linear-gradient(90deg, hsl(45, 100%, 50%), hsl(38, 100%, 45%))' 
+                        : 'hsl(45, 20%, 25%)'
                     }}
                     aria-label={`Go to thread ${index + 1}`}
                   />
                 ))}
               </div>
               <span 
-                className="text-xs font-medium"
-                style={{ color: 'hsl(45, 50%, 65%)' }}
+                className="text-xs font-bold tracking-wide"
+                style={{ color: 'hsl(45, 100%, 55%)' }}
               >
                 {selectedIndex + 1}/{threads.length}
               </span>
@@ -234,23 +312,54 @@ export function ViralThreadSection() {
           
           {/* Right: Content */}
           <div className="text-center lg:text-left space-y-6">
+            {/* Trophy badge */}
+            <div 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
+              style={{
+                background: 'linear-gradient(135deg, hsl(45, 70%, 20%) 0%, hsl(35, 60%, 15%) 100%)',
+                border: '1px solid hsl(45, 60%, 35%)',
+                boxShadow: '0 0 20px -5px hsl(45, 100%, 40%)'
+              }}
+            >
+              <Trophy className="w-5 h-5" style={{ color: 'hsl(45, 100%, 55%)' }} />
+              <span className="text-sm font-semibold" style={{ color: 'hsl(45, 100%, 60%)' }}>
+                Viral Milestone
+              </span>
+            </div>
+            
             <h2 
               className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight"
-              style={{ color: 'hsl(48, 85%, 55%)' }}
+              style={{ 
+                background: 'linear-gradient(135deg, hsl(45, 100%, 60%) 0%, hsl(38, 100%, 50%) 50%, hsl(45, 100%, 55%) 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
             >
               The Thread That<br />Started It All
             </h2>
             
             <div className="space-y-1">
               <p 
-                className="text-6xl md:text-7xl lg:text-8xl font-bold"
-                style={{ color: 'hsl(45, 25%, 90%)' }}
+                className="text-6xl md:text-7xl lg:text-8xl font-black tracking-tight"
+                style={{ 
+                  background: 'linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(45, 30%, 85%) 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  textShadow: '0 0 60px hsl(45, 100%, 50%)'
+                }}
               >
                 35,700+
               </p>
               <p 
-                className="text-3xl md:text-4xl font-semibold"
-                style={{ color: 'hsl(45, 80%, 50%)' }}
+                className="text-3xl md:text-4xl font-bold uppercase tracking-widest"
+                style={{ 
+                  background: 'linear-gradient(90deg, hsl(45, 100%, 50%), hsl(38, 100%, 45%))',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
               >
                 Views
               </p>
@@ -259,22 +368,23 @@ export function ViralThreadSection() {
             <div className="pt-4 space-y-4">
               <p 
                 className="text-xl font-medium"
-                style={{ color: 'hsl(45, 40%, 75%)' }}
+                style={{ color: 'hsl(45, 30%, 70%)' }}
               >
                 Built by Mālik Mbaye
               </p>
               
-              {/* Social Icons */}
+              {/* Social Icons - gold themed */}
               <div className="flex items-center justify-center lg:justify-start gap-6">
                 {/* X (Twitter) */}
                 <a 
                   href="https://x.com/malickio" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="transition-all duration-300 hover:scale-110 hover:opacity-80"
+                  className="transition-all duration-300 hover:scale-110"
+                  style={{ color: 'hsl(45, 60%, 50%)' }}
                   aria-label="Follow on X"
                 >
-                  <svg className="w-8 h-8" viewBox="0 0 24 24" fill="hsl(45, 35%, 60%)">
+                  <svg className="w-8 h-8 hover:drop-shadow-[0_0_8px_hsl(45,100%,50%)]" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                   </svg>
                 </a>
@@ -284,10 +394,11 @@ export function ViralThreadSection() {
                   href="https://www.instagram.com/malick.io/" 
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="transition-all duration-300 hover:scale-110 hover:opacity-80"
+                  className="transition-all duration-300 hover:scale-110"
+                  style={{ color: 'hsl(45, 60%, 50%)' }}
                   aria-label="Follow on Instagram"
                 >
-                  <svg className="w-9 h-9" viewBox="0 0 24 24" fill="hsl(45, 35%, 60%)">
+                  <svg className="w-9 h-9 hover:drop-shadow-[0_0_8px_hsl(45,100%,50%)]" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                   </svg>
                 </a>
@@ -297,10 +408,11 @@ export function ViralThreadSection() {
                   href="https://www.linkedin.com/in/letshiremalik/" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="transition-all duration-300 hover:scale-110 hover:opacity-80"
+                  className="transition-all duration-300 hover:scale-110"
+                  style={{ color: 'hsl(45, 60%, 50%)' }}
                   aria-label="Connect on LinkedIn"
                 >
-                  <svg className="w-9 h-9" viewBox="0 0 24 24" fill="hsl(45, 35%, 60%)">
+                  <svg className="w-9 h-9 hover:drop-shadow-[0_0_8px_hsl(45,100%,50%)]" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                   </svg>
                 </a>
@@ -308,10 +420,11 @@ export function ViralThreadSection() {
                 {/* Upwork */}
                 <a 
                   href="#" 
-                  className="transition-all duration-300 hover:scale-110 hover:opacity-80"
+                  className="transition-all duration-300 hover:scale-110"
+                  style={{ color: 'hsl(45, 60%, 50%)' }}
                   aria-label="Hire on Upwork"
                 >
-                  <svg className="w-9 h-9" viewBox="0 0 24 24" fill="hsl(45, 35%, 60%)">
+                  <svg className="w-9 h-9 hover:drop-shadow-[0_0_8px_hsl(45,100%,50%)]" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M18.561 13.158c-1.102 0-2.135-.467-3.074-1.227l.228-1.076.008-.042c.207-1.143.849-3.06 2.839-3.06 1.492 0 2.703 1.212 2.703 2.703-.001 1.489-1.212 2.702-2.704 2.702zm0-8.14c-2.539 0-4.51 1.649-5.31 4.366-1.22-1.834-2.148-4.036-2.687-5.892H7.828v7.112c-.002 1.406-1.141 2.546-2.547 2.548-1.405-.002-2.543-1.143-2.545-2.548V3.492H0v7.112c0 2.914 2.37 5.303 5.281 5.303 2.913 0 5.283-2.389 5.283-5.303v-1.19c.529 1.107 1.182 2.229 1.974 3.221l-1.673 7.873h2.797l1.213-5.71c1.063.679 2.285 1.109 3.686 1.109 3 0 5.439-2.452 5.439-5.45 0-3-2.439-5.439-5.439-5.439z"/>
                   </svg>
                 </a>
@@ -321,11 +434,29 @@ export function ViralThreadSection() {
         </div>
       </div>
       
-      {/* Shimmer keyframes */}
+      {/* Confetti animation keyframes */}
       <style>{`
-        @keyframes shimmer {
-          0% { transform: translateX(-100%) rotate(12deg); }
-          100% { transform: translateX(200%) rotate(12deg); }
+        @keyframes confetti-fall {
+          0% {
+            opacity: 1;
+            transform: translateY(0) rotate(0deg) scale(1);
+          }
+          25% {
+            opacity: 1;
+            transform: translateY(25vh) rotate(180deg) scale(0.9);
+          }
+          50% {
+            opacity: 0.8;
+            transform: translateY(50vh) rotate(360deg) scale(0.8);
+          }
+          75% {
+            opacity: 0.5;
+            transform: translateY(75vh) rotate(540deg) scale(0.6);
+          }
+          100% {
+            opacity: 0;
+            transform: translateY(100vh) rotate(720deg) scale(0.4);
+          }
         }
       `}</style>
     </section>
