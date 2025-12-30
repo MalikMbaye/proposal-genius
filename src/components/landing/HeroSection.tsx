@@ -147,13 +147,18 @@ export function HeroSection() {
       <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-gradient-to-br from-primary/[0.03] to-transparent rounded-full blur-3xl" />
       
       <div className="container relative mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Left Side - Content */}
           <div className="text-left">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm text-primary mb-8 animate-fade-in animate-glow-pulse">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm text-primary mb-6 animate-fade-in animate-glow-pulse">
               <Sparkles className="h-4 w-4" />
               Built on a $1M+ winning methodology
+            </div>
+            
+            {/* Mobile-only Carousel - between badge and headline */}
+            <div className="lg:hidden mb-8 animate-fade-in" style={{ animationDelay: '0.15s' }}>
+              <HeroCarousel />
             </div>
             
             {/* Headline - Staggered animation */}
@@ -200,8 +205,8 @@ export function HeroSection() {
             </div>
           </div>
           
-          {/* Right Side - Carousel - fills available space */}
-          <div className="flex items-center justify-center animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          {/* Right Side - Carousel (desktop only) */}
+          <div className="hidden lg:flex items-center justify-center animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <HeroCarousel />
           </div>
         </div>
