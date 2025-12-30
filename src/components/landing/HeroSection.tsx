@@ -5,9 +5,9 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { loadingVideos } from "@/lib/loadingContent";
 
 const stats = [
-  { value: "$1M+", label: "Contracts Won" },
+  { value: "$1.5M+", label: "Contracts Closed" },
   { value: "50+", label: "Proven Templates" },
-  { value: "30 sec", label: "Average Generation Time" },
+  { value: "5 min", label: "Get Your Proposal" },
 ];
 
 // Proposal comparison cards

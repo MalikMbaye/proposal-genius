@@ -51,7 +51,7 @@ export function FinalCTASection() {
           
           {/* Trust line */}
           <p className="text-sm text-muted-foreground mt-6">
-            No credit card required for free trial · 30-day money-back guarantee
+            3 free proposals · No credit card required · 30-day money-back guarantee
           </p>
         </div>
       </div>

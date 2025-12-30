@@ -120,14 +120,14 @@ export function SolutionSection() {
             {secondaryDeliverables.map((item) => (
               <div 
                 key={item.title}
-                className="group bg-zinc-800/80 border border-zinc-700/50 rounded-xl p-5 hover:border-primary/30 hover:bg-zinc-700/80 transition-all duration-300"
+                className="group bg-white border border-border/50 rounded-xl p-5 hover:border-primary/30 hover:shadow-lg transition-all duration-300"
               >
                 <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <item.icon className="h-5 w-5 text-primary" />
                 </div>
-                <h4 className="font-semibold mb-1 text-sm text-white">{item.title}</h4>
-                <p className="text-xs text-zinc-400 mb-1">{item.description}</p>
-                <p className="text-xs text-primary/70">→ {item.detail}</p>
+                <h4 className="font-semibold mb-1 text-sm text-slate-900">{item.title}</h4>
+                <p className="text-xs text-slate-600 mb-1">{item.description}</p>
+                <p className="text-xs text-primary">→ {item.detail}</p>
               </div>
             ))}
           </div>

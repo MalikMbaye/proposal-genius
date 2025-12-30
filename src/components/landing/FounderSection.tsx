@@ -63,35 +63,14 @@ export function FounderSection() {
               </div>
             </div>
 
-            {/* Social Links - At Bottom */}
-            <div className="flex items-center justify-center gap-3 mt-auto pt-2">
-              <a
-                href="https://www.linkedin.com/in/malikmbaye"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#0A66C2]/20 border border-[#0A66C2]/30 text-[#0A66C2] hover:bg-[#0A66C2]/30 transition-all text-sm font-medium"
-              >
-                <Linkedin className="w-4 h-4" />
-                <span>LinkedIn</span>
-              </a>
-              <a
-                href="https://www.instagram.com/malikmbaye"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-pink-500/20 border border-pink-500/30 text-pink-400 hover:bg-pink-500/30 transition-all text-sm font-medium"
-              >
-                <Instagram className="w-4 h-4" />
-                <span>Instagram</span>
-              </a>
-            </div>
           </div>
 
           {/* Right Column - Content */}
           <div className="lg:col-span-3">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
-              Built by a Proposal Writer Who's Closed{" "}
-              <span className="text-gradient">$10M+ in Deals</span>
-            </h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
+            Built by a Proposal Writer Who's Closed{" "}
+            <span className="text-gradient">$1.5M+ with Fortune 500s & Top Startups</span>
+          </h2>
             
             <p className="text-lg text-slate-300 italic mb-6">
               Not another generic AI tool. This system was built from 8 years of real client work.
@@ -128,21 +107,37 @@ export function FounderSection() {
               ))}
             </div>
 
-            {/* CTA Button */}
-            <Button
-              className="group bg-white text-[#0A66C2] hover:bg-slate-100 border border-slate-200"
-              asChild
-            >
-              <a
-                href="https://www.linkedin.com/in/malikmbaye"
-                target="_blank"
-                rel="noopener noreferrer"
+            {/* CTA Buttons */}
+            <div className="flex flex-wrap gap-3">
+              <Button
+                className="group bg-white text-[#0A66C2] hover:bg-slate-100 border border-slate-200"
+                asChild
               >
-                <Linkedin className="mr-2 h-4 w-4" />
-                Add Me on LinkedIn
-                <ExternalLink className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-              </a>
-            </Button>
+                <a
+                  href="https://www.linkedin.com/in/malikmbaye"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Linkedin className="mr-2 h-4 w-4" />
+                  Add Me on LinkedIn
+                  <ExternalLink className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                </a>
+              </Button>
+              <Button
+                className="group bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600 border-0"
+                asChild
+              >
+                <a
+                  href="https://www.instagram.com/malikmbaye"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Instagram className="mr-2 h-4 w-4" />
+                  Follow Me on Instagram
+                  <ExternalLink className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                </a>
+              </Button>
+            </div>
           </div>
         </div>
 
