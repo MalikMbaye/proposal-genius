@@ -9,6 +9,7 @@ import { PDFViewer } from "@/components/PDFViewer";
 import { DeckGeneratingLoader } from "@/components/DeckGeneratingLoader";
 import { OnboardingTab } from "@/components/OnboardingTab";
 import { ProposalLibraryTab } from "@/components/ProposalLibraryTab";
+import { StyledProposalPreview } from "@/components/StyledProposalPreview";
 import jsPDF from "jspdf";
 import {
   FileText,
@@ -808,14 +809,20 @@ Key requirements:
                 )}
               </div>
             )}
-            {!isDeckTab && !isHomeTab && !isLibraryTab && hasContent && (
+            {!isDeckTab && !isHomeTab && !isLibraryTab && hasContent && activeTab === 'proposal' && lightMode && (
+              <StyledProposalPreview
+                content={currentContent}
+                clientName={clientName}
+              />
+            )}
+            {!isDeckTab && !isHomeTab && !isLibraryTab && hasContent && (activeTab !== 'proposal' || !lightMode) && (
               <div 
                 className={`rounded-xl border shadow-lg transition-colors ${
                   lightMode 
                     ? "bg-white border-gray-200" 
                     : "bg-card border-border"
                 }`}
-                style={lightMode ? { 
+                style={lightMode ? {
                   boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
                   minHeight: '800px'
                 } : undefined}
