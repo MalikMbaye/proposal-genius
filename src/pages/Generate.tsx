@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,7 @@ import { ProgressStepper } from "@/components/ProgressStepper";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { GeneratePageVideo } from "@/components/GeneratePageVideo";
 import { EmailSignupModal } from "@/components/EmailSignupModal";
+import { PaywallModal } from "@/components/PaywallModal";
 import { BusinessTypeSelector, businessTypes } from "@/components/BusinessTypeSelector";
 import { PricingTierInput } from "@/components/PricingTierInput";
 import { FileUploadButton } from "@/components/FileUploadButton";
@@ -19,6 +20,7 @@ import {
 } from "@/lib/proposalStore";
 import { useStreamingProposal } from "@/hooks/useStreamingProposal";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubscription } from "@/hooks/useSubscription";
 import { ArrowLeft, ArrowRight, Lightbulb, Check, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
@@ -27,8 +29,18 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 export default function Generate() {
   const navigate = useNavigate();
   const { user, quickSignUp } = useAuth();
+  const { 
+    subscribed, 
+    has_lifetime,
+    proposals_this_month, 
+    proposals_limit,
+    checkIpUsage,
+    recordUsage,
+    checkSubscription,
+  } = useSubscription();
   const [currentStep, setCurrentStep] = useState(1);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
   const [generatingSteps, setGeneratingSteps] = useState<
     { label: string; status: "pending" | "active" | "completed" }[]
   >([
@@ -90,15 +102,48 @@ export default function Generate() {
     }
   };
 
-  const handleGenerateClick = () => {
+  const handleGenerateClick = async () => {
+    // If not logged in, show email modal first
     if (!user) {
+      // Check IP-based usage for free tier
+      const ipUsage = await checkIpUsage();
+      if (!ipUsage.can_generate) {
+        setShowPaywall(true);
+        return;
+      }
       setShowEmailModal(true);
       return;
     }
+
+    // For logged-in users, check their subscription limits
+    if (!has_lifetime) {
+      if (subscribed) {
+        // Pro user - check monthly limit
+        if (proposals_this_month >= proposals_limit) {
+          setShowPaywall(true);
+          return;
+        }
+      } else {
+        // Free user - check IP-based limit
+        const ipUsage = await checkIpUsage();
+        if (!ipUsage.can_generate) {
+          setShowPaywall(true);
+          return;
+        }
+      }
+    }
+
     startGeneration();
   };
 
   const handleEmailSignup = async (email: string) => {
+    // Check IP limit before signup
+    const ipUsage = await checkIpUsage();
+    if (!ipUsage.can_generate) {
+      setShowPaywall(true);
+      return { error: new Error('Free limit reached') };
+    }
+
     const result = await quickSignUp(email);
     if (!result.error) {
       startGeneration();
@@ -176,7 +221,12 @@ export default function Generate() {
           proposalEmail: '',
         });
 
+        // Record usage and save to database
+        await recordUsage();
         await saveToDatabase();
+        
+        // Refresh subscription status to update proposal count
+        await checkSubscription();
         
         await new Promise((resolve) => setTimeout(resolve, 300));
         navigate("/dashboard", { state: { fromGenerate: true } });
@@ -509,6 +559,14 @@ Budget: Mentioned $15K-40K range.`}
         open={showEmailModal}
         onOpenChange={setShowEmailModal}
         onSubmit={handleEmailSignup}
+      />
+
+      {/* Paywall Modal */}
+      <PaywallModal
+        open={showPaywall}
+        onOpenChange={setShowPaywall}
+        proposalsUsed={proposals_this_month}
+        proposalsLimit={proposals_limit}
       />
     </div>
   );
