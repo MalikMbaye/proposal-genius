@@ -143,7 +143,7 @@ export function ProposalLibraryTab() {
           {/* CTA Row */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
-              onClick={handleUnlock}
+              onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
               className="text-lg px-10 py-6 font-semibold rounded-xl transition-all hover:-translate-y-0.5"
               style={{ 
                 backgroundColor: colors.accent,
@@ -157,7 +157,8 @@ export function ProposalLibraryTab() {
             </Button>
             <Button 
               variant="outline"
-              className="text-lg px-10 py-6 font-semibold rounded-xl transition-all hover:bg-amber-500/10"
+              onClick={() => document.getElementById('solution')?.scrollIntoView({ behavior: 'smooth' })}
+              className="text-lg px-10 py-6 font-semibold rounded-xl transition-all hover:bg-emerald-500/10"
               style={{ 
                 borderColor: colors.accent,
                 color: colors.textPrimary,
@@ -182,32 +183,11 @@ export function ProposalLibraryTab() {
             "How do I know what to charge?"
           </h2>
           
-          <p className="text-lg leading-relaxed mb-12" style={{ color: colors.textSecondary }}>
+          <p className="text-lg leading-relaxed" style={{ color: colors.textSecondary }}>
             I asked myself this question for years. My first proposal was for <strong style={{ color: colors.textPrimary }}>$250</strong>. 
             I thought I was asking for a lot. Then I watched colleagues close deals at <strong style={{ color: colors.textPrimary }}>$5K</strong>... 
             then <strong style={{ color: colors.textPrimary }}>$25K</strong>... then <strong style={{ color: colors.textPrimary }}>$100K+</strong>—for similar work.
           </p>
-          
-          {/* Timeline Visual */}
-          <div className="flex items-center justify-center gap-2 md:gap-4 overflow-x-auto pb-4">
-            {["$250", "$1,800", "$3K", "$50K", "$250K+"].map((amount, index) => (
-              <div key={amount} className="flex items-center">
-                <div 
-                  className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center font-bold text-sm md:text-base"
-                  style={{ 
-                    backgroundColor: `${colors.accent}33`,
-                    border: `2px solid ${colors.accent}`,
-                    color: colors.accent
-                  }}
-                >
-                  {amount}
-                </div>
-                {index < 4 && (
-                  <div className="w-8 md:w-12 h-0.5 mx-1" style={{ backgroundColor: colors.textSecondary }} />
-                )}
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -509,7 +489,7 @@ export function ProposalLibraryTab() {
       </section>
 
       {/* SECTION 8: SOLUTION (MAIN OFFER) */}
-      <section className="py-20 px-6" style={{ backgroundColor: colors.bgSecondary }}>
+      <section id="solution" className="py-20 px-6" style={{ backgroundColor: colors.bgSecondary }}>
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <span className="text-xs font-semibold tracking-widest uppercase mb-4 block" style={{ color: colors.accent }}>
@@ -552,13 +532,20 @@ export function ProposalLibraryTab() {
                 description: "Deep-dive training on positioning and pricing",
                 label: "You'll master:",
                 bullets: ["Psychology of premium pricing", "Authority positioning", "Objection handling", "Follow-up systems"]
+              },
+              {
+                icon: Users,
+                title: "Private Community Access",
+                description: "Get your proposals reviewed by peers and experts",
+                label: "Community benefits:",
+                bullets: ["Async proposal reviews", "Feedback from top consultants", "Share wins and learn from losses", "Network with high-performers"]
               }
             ].map((feature) => {
               const Icon = feature.icon;
               return (
                 <div 
                   key={feature.title}
-                  className="p-8 rounded-xl transition-all hover:-translate-y-1 hover:border-amber-500/40"
+                  className="p-8 rounded-xl transition-all hover:-translate-y-1 hover:border-emerald-500/40"
                   style={{ 
                     backgroundColor: colors.cardBg,
                     border: `1px solid ${colors.border}`
@@ -685,7 +672,7 @@ export function ProposalLibraryTab() {
       </section>
 
       {/* SECTION 11: PRICING */}
-      <section className="py-20 px-6">
+      <section id="pricing" className="py-20 px-6">
         <div className="max-w-xl mx-auto">
           <div 
             className="p-12 rounded-2xl text-center"
@@ -725,7 +712,7 @@ export function ProposalLibraryTab() {
                 "Email follow-up sequences",
                 "Pricing strategy breakdowns",
                 "Lifetime access + updates",
-                "Private community access"
+                "Private community for proposal reviews"
               ].map((item) => (
                 <li key={item} className="flex items-center gap-3" style={{ color: colors.textSecondary }}>
                   <CheckCircle2 className="h-5 w-5 flex-shrink-0" style={{ color: colors.success }} />
