@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AppHeader } from "@/components/AppHeader";
 import { ProposalSelector } from "@/components/ProposalSelector";
@@ -7,6 +7,7 @@ import { useProposalStore, caseStudies } from "@/lib/proposalStore";
 import { supabase } from "@/integrations/supabase/client";
 import { PDFViewer } from "@/components/PDFViewer";
 import { DeckGeneratingLoader } from "@/components/DeckGeneratingLoader";
+import { OnboardingTab } from "@/components/OnboardingTab";
 import jsPDF from "jspdf";
 import {
   FileText,
@@ -27,11 +28,13 @@ import {
   Moon,
   FileDown,
   User,
+  Home,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 // Consolidated tabs - removed deckPrompt, merged into deck
 const tabs = [
+  { id: "home", label: "Home", icon: Home },
   { id: "proposal", label: "Proposal", icon: FileText },
   { id: "deck", label: "Slide Deck", icon: Presentation },
   { id: "contract", label: "Contract", icon: FileCheck },
@@ -43,6 +46,7 @@ const tabs = [
 type TabId = (typeof tabs)[number]["id"];
 
 const tabInstructions: Record<TabId, string> = {
+  home: "Welcome to Proposal AI. Get started by creating a new proposal.",
   proposal: "Copy and paste into Google Docs or Word. Review, save as PDF, send.",
   deck: "Preview your AI-generated slide deck. Download the PDF when ready.",
   contract: "Paste into Square Contracts. Fill in [BRACKETED] fields. Send for signature.",
@@ -52,6 +56,7 @@ const tabInstructions: Record<TabId, string> = {
 };
 
 const tabLabels: Record<TabId, string> = {
+  home: "Home",
   proposal: "Proposal",
   deck: "Slide Deck",
   contract: "Contract",
@@ -62,8 +67,11 @@ const tabLabels: Record<TabId, string> = {
 
 export default function Preview() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<TabId>("proposal");
-  const [showBanner, setShowBanner] = useState(true);
+  const location = useLocation();
+  
+  // Default to "home" unless we came from generate (have a proposal)
+  const [activeTab, setActiveTab] = useState<TabId>("home");
+  const [showBanner, setShowBanner] = useState(false);
   const [copied, setCopied] = useState(false);
   const [generatingAsset, setGeneratingAsset] = useState<TabId | null>(null);
   const [lightMode, setLightMode] = useState(true);
@@ -83,19 +91,22 @@ export default function Preview() {
     setDeckData,
   } = useProposalStore();
 
+  // If we have a proposal, show banner and switch to proposal tab on initial load
   useEffect(() => {
-    if (!deliverables || !deliverables.proposal) {
-      navigate("/generate");
+    if (deliverables?.proposal && activeTab === "home") {
+      // Only auto-switch to proposal if we just generated one (coming from /generate)
+      if (location.state?.fromGenerate) {
+        setActiveTab("proposal");
+        setShowBanner(true);
+      }
     }
-  }, [deliverables, navigate]);
+  }, [deliverables?.proposal, location.state]);
 
-  if (!deliverables || !deliverables.proposal) {
-    return null;
-  }
-
+  const hasProposal = deliverables?.proposal;
+  const isHomeTab = activeTab === 'home';
   const isDeckTab = activeTab === 'deck';
-  const currentContent = isDeckTab ? '' : (deliverables[activeTab as keyof typeof deliverables] || '');
-  const hasContent = isDeckTab ? deckData.status === 'completed' : currentContent.length > 0;
+  const currentContent = isDeckTab || isHomeTab ? '' : (deliverables?.[activeTab as keyof typeof deliverables] || '');
+  const hasContent = isDeckTab ? deckData.status === 'completed' : isHomeTab ? false : currentContent.length > 0;
   const ActiveIcon = tabs.find((t) => t.id === activeTab)?.icon || FileText;
 
   const handleGenerateAsset = async (assetType: TabId) => {
@@ -501,10 +512,14 @@ Key requirements:
             const isGenerating = generatingAsset === tab.id || (tab.id === 'deck' && deckData.status === 'generating');
             
             let hasTabContent = false;
-            if (tab.id === 'deck') {
+            if (tab.id === 'home') {
+              hasTabContent = true; // Home always has content
+            } else if (tab.id === 'deck') {
               hasTabContent = deckData.status === 'completed';
-            } else if (tab.id !== 'proposal') {
-              hasTabContent = (deliverables[tab.id as keyof typeof deliverables] || '').length > 0;
+            } else if (tab.id === 'proposal') {
+              hasTabContent = !!deliverables?.proposal;
+            } else {
+              hasTabContent = (deliverables?.[tab.id as keyof typeof deliverables] || '').length > 0;
             }
             
             return (
@@ -523,10 +538,10 @@ Key requirements:
                   <Icon className="h-4 w-4" />
                 )}
                 <span className="flex-1 text-left">{tab.label}</span>
-                {!hasTabContent && tab.id !== 'proposal' && (
+                {!hasTabContent && tab.id !== 'home' && (
                   <span className="text-xs opacity-60">•</span>
                 )}
-                {hasTabContent && tab.id !== 'proposal' && (
+                {hasTabContent && tab.id !== 'home' && tab.id !== 'proposal' && (
                   <Check className="h-3 w-3 opacity-60" />
                 )}
               </button>
@@ -594,66 +609,68 @@ Key requirements:
           </div>
         )}
 
-        {/* Document Header */}
-        <div className="border-b border-border px-6 py-4 flex items-center justify-between bg-card/30">
-          <div className="flex items-center gap-3">
-            <ActiveIcon className="h-5 w-5 text-primary" />
-            <span className="font-semibold">{tabLabels[activeTab]}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Deck tab actions */}
-            {activeTab === "deck" && hasContent && (
-              <>
-                {deckData.pdfUrl && (
-                  <Button size="sm" asChild>
-                    <a href={deckData.pdfUrl} target="_blank" rel="noopener noreferrer" download>
-                      <FileDown className="mr-2 h-4 w-4" />
-                      Download PDF
-                    </a>
+        {/* Document Header - hide for home tab */}
+        {!isHomeTab && (
+          <div className="border-b border-border px-6 py-4 flex items-center justify-between bg-card/30">
+            <div className="flex items-center gap-3">
+              <ActiveIcon className="h-5 w-5 text-primary" />
+              <span className="font-semibold">{tabLabels[activeTab]}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {/* Deck tab actions */}
+              {activeTab === "deck" && hasContent && (
+                <>
+                  {deckData.pdfUrl && (
+                    <Button size="sm" asChild>
+                      <a href={deckData.pdfUrl} target="_blank" rel="noopener noreferrer" download>
+                        <FileDown className="mr-2 h-4 w-4" />
+                        Download PDF
+                      </a>
+                    </Button>
+                  )}
+                  {deckData.gammaUrl && (
+                    <Button size="sm" variant="outline" asChild>
+                      <a href={deckData.gammaUrl} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        View on Manus
+                      </a>
+                    </Button>
+                  )}
+                </>
+              )}
+              {/* Other tabs actions */}
+              {hasContent && !isDeckTab && (
+                <>
+                  <Button 
+                    onClick={() => setLightMode(!lightMode)} 
+                    variant="outline" 
+                    size="sm"
+                    title={lightMode ? "Switch to dark mode" : "Switch to PDF preview"}
+                  >
+                    {lightMode ? <Moon className="mr-2 h-4 w-4" /> : <Sun className="mr-2 h-4 w-4" />}
+                    {lightMode ? "Dark" : "PDF View"}
                   </Button>
-                )}
-                {deckData.gammaUrl && (
-                  <Button size="sm" variant="outline" asChild>
-                    <a href={deckData.gammaUrl} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="mr-2 h-4 w-4" />
-                      View on Manus
-                    </a>
+                  <Button onClick={handleCopy} variant="outline" size="sm">
+                    {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
+                    Copy
                   </Button>
-                )}
-              </>
-            )}
-            {/* Other tabs actions */}
-            {hasContent && !isDeckTab && (
-              <>
-                <Button 
-                  onClick={() => setLightMode(!lightMode)} 
-                  variant="outline" 
-                  size="sm"
-                  title={lightMode ? "Switch to dark mode" : "Switch to PDF preview"}
-                >
-                  {lightMode ? <Moon className="mr-2 h-4 w-4" /> : <Sun className="mr-2 h-4 w-4" />}
-                  {lightMode ? "Dark" : "PDF View"}
-                </Button>
-                <Button onClick={handleCopy} variant="outline" size="sm">
-                  {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
-                  Copy
-                </Button>
-                <Button onClick={handleDownload} variant="outline" size="sm">
-                  <Download className="mr-2 h-4 w-4" />
-                  TXT
-                </Button>
-                <Button onClick={handleExportPDF} size="sm">
-                  <FileDown className="mr-2 h-4 w-4" />
-                  Export PDF
-                </Button>
-              </>
-            )}
+                  <Button onClick={handleDownload} variant="outline" size="sm">
+                    <Download className="mr-2 h-4 w-4" />
+                    TXT
+                  </Button>
+                  <Button onClick={handleExportPDF} size="sm">
+                    <FileDown className="mr-2 h-4 w-4" />
+                    Export PDF
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Document Content */}
-        <div className="flex-1 overflow-auto p-6">
-          <div className={`mx-auto ${isDeckTab ? 'max-w-6xl' : 'max-w-4xl'}`}>
+        <div className={`flex-1 overflow-auto ${isHomeTab ? '' : 'p-6'}`}>
+          <div className={`mx-auto ${isHomeTab ? 'h-full' : isDeckTab ? 'max-w-6xl' : 'max-w-4xl'}`}>
             {/* Deck Tab - Special handling */}
             {isDeckTab && (
               <>
@@ -718,36 +735,55 @@ Key requirements:
                 )}
               </>
             )}
-            {/* Other tabs */}
-            {!isDeckTab && !hasContent && (
+            {/* Home Tab */}
+            {isHomeTab && (
+              <OnboardingTab onNewProposal={handleNewProposal} />
+            )}
+            {/* Other tabs - no content yet */}
+            {!isDeckTab && !isHomeTab && !hasContent && (
               <div className="rounded-xl border border-border bg-card p-12 text-center">
                 <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
                   <ActiveIcon className="h-8 w-8 text-primary" />
                 </div>
-                <h2 className="text-xl font-semibold mb-2">Generate {tabLabels[activeTab]}</h2>
-                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  This asset hasn't been generated yet. Click below to create it based on your proposal.
-                </p>
-                <Button 
-                  onClick={() => handleGenerateAsset(activeTab)}
-                  disabled={generatingAsset !== null}
-                  size="lg"
-                >
-                  {generatingAsset === activeTab ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    <>
+                {!hasProposal ? (
+                  <>
+                    <h2 className="text-xl font-semibold mb-2">No Proposal Yet</h2>
+                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                      Create a proposal first, then you can generate {tabLabels[activeTab].toLowerCase()}.
+                    </p>
+                    <Button onClick={handleNewProposal} size="lg">
                       <Sparkles className="mr-2 h-5 w-5" />
-                      Generate {tabLabels[activeTab]}
-                    </>
-                  )}
-                </Button>
+                      Create Proposal
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-xl font-semibold mb-2">Generate {tabLabels[activeTab]}</h2>
+                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                      This asset hasn't been generated yet. Click below to create it based on your proposal.
+                    </p>
+                    <Button 
+                      onClick={() => handleGenerateAsset(activeTab)}
+                      disabled={generatingAsset !== null}
+                      size="lg"
+                    >
+                      {generatingAsset === activeTab ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="mr-2 h-5 w-5" />
+                          Generate {tabLabels[activeTab]}
+                        </>
+                      )}
+                    </Button>
+                  </>
+                )}
               </div>
             )}
-            {!isDeckTab && hasContent && (
+            {!isDeckTab && !isHomeTab && hasContent && (
               <div 
                 className={`rounded-xl border shadow-lg transition-colors ${
                   lightMode 
@@ -858,8 +894,8 @@ Key requirements:
           </div>
         </div>
 
-        {/* Instructions Bar */}
-        {hasContent && (
+        {/* Instructions Bar - hide for home tab */}
+        {hasContent && !isHomeTab && (
           <div className="border-t border-border bg-card/50 px-6 py-3">
             <p className="text-sm text-muted-foreground">
               <span className="font-medium text-foreground">Instructions: </span>

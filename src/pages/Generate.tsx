@@ -147,7 +147,7 @@ export default function Generate() {
         await saveToDatabase();
         
         await new Promise((resolve) => setTimeout(resolve, 300));
-        navigate("/preview");
+        navigate("/dashboard", { state: { fromGenerate: true } });
       },
       onError: (error) => {
         toast({
