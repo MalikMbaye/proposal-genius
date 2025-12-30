@@ -1,15 +1,88 @@
 import { ExternalLink, Instagram, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CompanyLogo } from "./CompanyLogo";
 import malikHeadshot from "@/assets/malik-headshot.jpeg";
-
-const companies = ["Meta", "LinkedIn", "Lyft", "Google", "Bain & Company", "Morgan Stanley"];
 
 const stats = [
   { value: "$50M+", label: "Raised" },
   { value: "$10M+", label: "Revenue" },
   { value: "100+", label: "Coached" },
 ];
+
+// Company logos as inline SVG components for crisp rendering
+const MetaLogo = () => (
+  <svg viewBox="0 0 120 24" className="h-6 md:h-7 w-auto" fill="currentColor">
+    <text x="0" y="18" className="text-lg font-bold" style={{ fontFamily: 'system-ui' }}>
+      <tspan fill="#0668E1">∞</tspan>
+      <tspan fill="white" dx="4">Meta</tspan>
+    </text>
+  </svg>
+);
+
+const LinkedInLogo = () => (
+  <svg viewBox="0 0 84 21" className="h-5 md:h-6 w-auto">
+    <text x="0" y="17" fill="white" className="text-lg font-bold" style={{ fontFamily: 'system-ui' }}>
+      Linked
+      <tspan fill="white" style={{ backgroundColor: '#0A66C2' }}>in</tspan>
+    </text>
+  </svg>
+);
+
+// Use text-based logos with proper styling to match the reference
+const companyLogos = [
+  { name: "Meta", icon: "∞", color: "#0668E1" },
+  { name: "LinkedIn", icon: "in", color: "#0A66C2" },
+  { name: "Google", icon: null, color: "#4285F4" },
+  { name: "Lyft", icon: null, color: "#FF00BF" },
+  { name: "Morgan Stanley", icon: null, color: "#FFFFFF" },
+  { name: "Bain", icon: "◉", color: "#CC0000" },
+  { name: "Upwork", icon: null, color: "#14A800" },
+  { name: "Twitter", icon: "𝕏", color: "#FFFFFF" },
+];
+
+function CompanyLogoItem({ company }: { company: typeof companyLogos[0] }) {
+  return (
+    <div className="flex items-center gap-1.5 flex-shrink-0">
+      {company.icon && (
+        <span 
+          className="text-xl md:text-2xl font-bold"
+          style={{ color: company.color }}
+        >
+          {company.icon}
+        </span>
+      )}
+      <span 
+        className="text-lg md:text-xl font-bold tracking-tight whitespace-nowrap"
+        style={{ color: company.color }}
+      >
+        {company.icon === "∞" || company.icon === "in" ? "" : company.name}
+        {company.icon === "∞" && "Meta"}
+        {company.icon === "in" && (
+          <>
+            Linked<span className="bg-[#0A66C2] text-white px-0.5 rounded-sm">in</span>
+          </>
+        )}
+      </span>
+    </div>
+  );
+}
+
+function ExperienceMarquee() {
+  const doubled = [...companyLogos, ...companyLogos];
+  
+  return (
+    <div className="relative overflow-hidden py-6">
+      {/* Edge fades */}
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-20 md:w-32 bg-gradient-to-r from-slate-900 to-transparent z-10" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-20 md:w-32 bg-gradient-to-l from-slate-900 to-transparent z-10" />
+      
+      <div className="flex w-[200%] animate-scroll-left items-center gap-10 md:gap-16 will-change-transform">
+        {doubled.map((company, idx) => (
+          <CompanyLogoItem key={`${company.name}-${idx}`} company={company} />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function FounderSection() {
   return (
@@ -19,46 +92,50 @@ export function FounderSection() {
       <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-primary/5 to-transparent" />
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="grid lg:grid-cols-5 gap-12 lg:gap-16 items-center max-w-6xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-6xl mx-auto">
           {/* Left Column - Image */}
-          <div className="lg:col-span-2 flex flex-col items-center lg:items-start">
-            {/* Headshot Card */}
-            <div className="relative w-full max-w-sm">
-              <div className="aspect-[3/4] w-full rounded-2xl overflow-hidden border border-slate-600/30 shadow-2xl shadow-blue-900/20 bg-gradient-to-br from-slate-700/20 to-slate-800/20 p-1">
+          <div className="flex justify-center lg:justify-start">
+            <div className="relative w-full max-w-md">
+              {/* Outer glow frame */}
+              <div className="absolute -inset-2 bg-gradient-to-br from-blue-500/30 via-slate-600/20 to-slate-800/30 rounded-3xl blur-xl" />
+              
+              {/* Image container with glass border */}
+              <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden border-2 border-slate-500/30 shadow-2xl shadow-blue-900/30 bg-gradient-to-br from-slate-700/30 to-slate-900/50 p-1.5">
                 <img
                   src={malikHeadshot}
                   alt="Malik Mbaye - Founder"
                   className="w-full h-full object-cover rounded-xl"
                 />
               </div>
-              <div className="absolute -inset-4 bg-gradient-to-br from-blue-500/20 to-slate-700/20 rounded-3xl blur-2xl -z-10" />
             </div>
           </div>
 
           {/* Right Column - Content */}
-          <div className="lg:col-span-3">
-            {/* Name and Title */}
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight">
+          <div>
+            {/* Name */}
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-3 tracking-tight">
               MĀLIK MBAYE
             </h2>
-            <p className="text-lg md:text-xl text-slate-400 mb-6">
+            
+            {/* Tagline */}
+            <p className="text-lg md:text-xl text-slate-400 mb-8">
               Ex-Meta | AI Growth Operator | Startup Advisor
             </p>
 
             {/* Stat Cards */}
-            <div className="flex flex-wrap gap-3 mb-8">
+            <div className="flex flex-wrap gap-4 mb-10">
               {stats.map((stat, index) => (
                 <div
                   key={index}
-                  className="flex-1 min-w-[100px] max-w-[140px] px-5 py-4 rounded-xl border border-slate-600/40 bg-slate-800/40 backdrop-blur-sm text-center"
+                  className="flex-1 min-w-[110px] max-w-[150px] px-6 py-5 rounded-xl border border-slate-600/50 bg-slate-800/50 backdrop-blur-sm text-center shadow-lg shadow-slate-900/50"
                 >
-                  <div className="text-2xl md:text-3xl font-bold text-white">{stat.value}</div>
-                  <div className="text-xs text-slate-400 mt-1 uppercase tracking-wider">{stat.label}</div>
+                  <div className="text-3xl md:text-4xl font-black text-white">{stat.value}</div>
+                  <div className="text-xs text-slate-400 mt-1.5 uppercase tracking-widest font-medium">{stat.label}</div>
                 </div>
               ))}
             </div>
 
-            {/* Main copy */}
+            {/* Main paragraph copy */}
             <div className="space-y-4 text-slate-300 mb-8">
               <p>
                 I'm <strong className="text-white">Malik Mbaye</strong>. I started my first business at 16 and scaled it to 23 countries. Since then, I've spent nearly a decade writing proposals that actually close—for startups, agencies, and consultants.
@@ -69,7 +146,7 @@ export function FounderSection() {
               </p>
               
               <p>
-                Through my consultancy <strong className="text-white">Black Lotus</strong>, I've personally written 50+ proposals generating over $10M in client revenue. The RipRight proposal? That client scaled from $15K/month to $350K/month. The MOGL proposal? They won SXSW and raised $2.6M.
+                Through my consultancy <strong className="text-white">Black Lotus</strong>, I've personally written 50+ proposals generating over $10M in client revenue.
               </p>
               
               <p className="text-white font-medium border-l-2 border-primary pl-4 bg-slate-800/50 py-3 pr-4 rounded-r-lg">
@@ -78,7 +155,7 @@ export function FounderSection() {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-wrap gap-3 mb-10">
+            <div className="flex flex-wrap gap-3">
               <Button
                 className="group bg-white text-[#0A66C2] hover:bg-slate-100 border border-slate-200"
                 asChild
@@ -111,16 +188,12 @@ export function FounderSection() {
           </div>
         </div>
 
-        {/* Full-width Company Logos Row */}
-        <div className="mt-12 pt-10 border-t border-slate-700/50">
-          <p className="text-[10px] text-slate-500 mb-5 font-medium tracking-[0.2em] uppercase text-center">
+        {/* Full-width Marquee Company Logos */}
+        <div className="mt-16">
+          <p className="text-xs text-slate-500 font-medium tracking-[0.25em] uppercase text-center mb-2">
             Experience At
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-x-10 gap-y-4">
-            {companies.map((name) => (
-              <CompanyLogo key={name} name={name} />
-            ))}
-          </div>
+          <ExperienceMarquee />
         </div>
       </div>
     </section>
