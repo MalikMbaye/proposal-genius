@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, Building2, Mail, Briefcase, FileText, Trophy } from "lucide-react";
+import { FileUploadButton } from "@/components/FileUploadButton";
 
 export default function Profile() {
   const { user, signOut } = useAuth();
@@ -152,10 +153,17 @@ export default function Profile() {
                   </p>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="businessContext" className="flex items-center gap-2">
-                      <Briefcase className="h-4 w-4 text-muted-foreground" />
-                      Business Context
-                    </Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="businessContext" className="flex items-center gap-2">
+                        <Briefcase className="h-4 w-4 text-muted-foreground" />
+                        Business Context
+                      </Label>
+                      <FileUploadButton
+                        onTextExtracted={(content) => {
+                          setBusinessContext(prev => prev ? `${prev}\n\n${content}` : content);
+                        }}
+                      />
+                    </div>
                     <Textarea
                       id="businessContext"
                       placeholder="Describe your business, services, and what makes you unique. E.g., 'We are a growth marketing agency specializing in B2B SaaS. We offer paid acquisition, content strategy, and AI-powered lead generation.'"
@@ -169,10 +177,17 @@ export default function Profile() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="background" className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                      Your Background
-                    </Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="background" className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-muted-foreground" />
+                        Your Background
+                      </Label>
+                      <FileUploadButton
+                        onTextExtracted={(content) => {
+                          setBackground(prev => prev ? `${prev}\n\n${content}` : content);
+                        }}
+                      />
+                    </div>
                     <Textarea
                       id="background"
                       placeholder="• 8 years in growth marketing & B2B SaaS&#10;• Scaled 3 companies to 7-figures&#10;• Built AI-powered lead generation systems&#10;• Ex-LinkedIn, worked on Jobs product"
@@ -186,10 +201,17 @@ export default function Profile() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="proofPoints" className="flex items-center gap-2">
-                      <Trophy className="h-4 w-4 text-muted-foreground" />
-                      Key Accomplishments & Proof Points
-                    </Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="proofPoints" className="flex items-center gap-2">
+                        <Trophy className="h-4 w-4 text-muted-foreground" />
+                        Key Accomplishments & Proof Points
+                      </Label>
+                      <FileUploadButton
+                        onTextExtracted={(content) => {
+                          setProofPoints(prev => prev ? `${prev}\n\n${content}` : content);
+                        }}
+                      />
+                    </div>
                     <Textarea
                       id="proofPoints"
                       placeholder="• Scaled RipRight from $15K/mo to $350K/mo in 8 months&#10;• Generated 100M+ views and managed $1.7M ad spend&#10;• Built AI lead gen system generating 15+ meetings/week&#10;• Worked with Google-backed startups and Fortune 500 clients"
