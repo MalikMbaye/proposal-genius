@@ -37,17 +37,11 @@ export function AppHeader({ center, onNewProposal }: AppHeaderProps) {
         <Logo />
       </Link>
 
-      <nav className="hidden md:flex items-center gap-2">
+      <nav className="hidden md:flex items-center">
         <Button asChild variant="ghost" size="sm" className="justify-start">
           <Link to="/preview" className="flex items-center">
             <LayoutDashboard className="mr-2 h-4 w-4" />
             Dashboard
-          </Link>
-        </Button>
-        <Button asChild variant="ghost" size="sm" className="justify-start">
-          <Link to="/proposals" className="flex items-center">
-            <FolderOpen className="mr-2 h-4 w-4" />
-            Saved Proposals
           </Link>
         </Button>
       </nav>
