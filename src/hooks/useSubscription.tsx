@@ -11,6 +11,8 @@ export interface SubscriptionStatus {
   proposals_this_month: number;
   proposals_limit: number;
   extra_proposals_purchased: number;
+  lifetime_available: boolean;
+  lifetime_spots_remaining: number;
   loading: boolean;
   error: string | null;
 }
@@ -18,6 +20,7 @@ export interface SubscriptionStatus {
 interface SubscriptionContextType extends SubscriptionStatus {
   checkSubscription: () => Promise<void>;
   checkIpUsage: () => Promise<{ can_generate: boolean; remaining: number; proposals_used: number }>;
+  checkLifetimeAvailability: () => Promise<{ available: boolean; spots_remaining: number }>;
   recordUsage: () => Promise<void>;
   openCheckout: (productType: 'pro_monthly' | 'lifetime' | 'extra_proposals' | 'pro_library') => Promise<void>;
   openCustomerPortal: () => Promise<void>;
@@ -32,6 +35,8 @@ const defaultStatus: SubscriptionStatus = {
   proposals_this_month: 0,
   proposals_limit: 3,
   extra_proposals_purchased: 0,
+  lifetime_available: true,
+  lifetime_spots_remaining: 27,
   loading: true,
   error: null,
 };
@@ -59,7 +64,8 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
 
       if (error) throw error;
 
-      setStatus({
+      setStatus(prev => ({
+        ...prev,
         subscribed: data.subscribed,
         subscription_type: data.subscription_type,
         has_lifetime: data.has_lifetime,
@@ -70,7 +76,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
         extra_proposals_purchased: data.extra_proposals_purchased || 0,
         loading: false,
         error: null,
-      });
+      }));
     } catch (error) {
       console.error('Error checking subscription:', error);
       setStatus(prev => ({
@@ -93,6 +99,27 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Error checking IP usage:', error);
       return { can_generate: false, remaining: 0, proposals_used: 0 };
+    }
+  }, []);
+
+  const checkLifetimeAvailability = useCallback(async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('check-lifetime-availability');
+      if (error) throw error;
+      
+      setStatus(prev => ({
+        ...prev,
+        lifetime_available: data.available,
+        lifetime_spots_remaining: data.spots_remaining,
+      }));
+      
+      return {
+        available: data.available,
+        spots_remaining: data.spots_remaining,
+      };
+    } catch (error) {
+      console.error('Error checking lifetime availability:', error);
+      return { available: true, spots_remaining: 27 };
     }
   }, []);
 
@@ -169,6 +196,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
         ...status,
         checkSubscription,
         checkIpUsage,
+        checkLifetimeAvailability,
         recordUsage,
         openCheckout,
         openCustomerPortal,

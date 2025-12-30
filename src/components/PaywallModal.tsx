@@ -82,7 +82,7 @@ export function PaywallModal({
                       <Sparkles className="h-4 w-4 text-primary" />
                       Pro Access
                     </h3>
-                    <p className="text-sm text-muted-foreground">Most popular choice</p>
+                    <p className="text-sm text-muted-foreground">Unlock unlimited potential</p>
                   </div>
                   <div className="text-right">
                     <span className="text-2xl font-bold">$27</span>
@@ -117,44 +117,6 @@ export function PaywallModal({
                   Upgrade to Pro
                 </Button>
               </div>
-
-              {/* Lifetime */}
-              <div className="rounded-xl border border-border bg-card p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h3 className="font-semibold flex items-center gap-2">
-                      <Crown className="h-4 w-4 text-amber-500" />
-                      Lifetime Access
-                    </h3>
-                    <p className="text-sm text-muted-foreground">Best value</p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-2xl font-bold">$297</span>
-                    <span className="text-muted-foreground"> one-time</span>
-                  </div>
-                </div>
-                <ul className="space-y-2 mb-4 text-sm">
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-success" />
-                    Unlimited proposals forever
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-success" />
-                    All future updates included
-                  </li>
-                </ul>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => handleUpgrade('lifetime')}
-                  disabled={isLoading !== null}
-                >
-                  {isLoading === 'lifetime' && (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  )}
-                  Get Lifetime Access
-                </Button>
-              </div>
             </>
           )}
 
@@ -183,6 +145,10 @@ export function PaywallModal({
                   <Check className="h-4 w-4 text-success" />
                   Never expires
                 </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-success" />
+                  Buy as many as you need
+                </li>
               </ul>
               <Button 
                 variant="hero" 
@@ -197,17 +163,6 @@ export function PaywallModal({
                 )}
                 Get 20 More Proposals
               </Button>
-
-              <div className="mt-4 pt-4 border-t border-border">
-                <Button 
-                  variant="ghost" 
-                  className="w-full text-muted-foreground"
-                  onClick={() => handleUpgrade('lifetime')}
-                  disabled={isLoading !== null}
-                >
-                  Or upgrade to Lifetime for unlimited
-                </Button>
-              </div>
             </div>
           )}
         </div>

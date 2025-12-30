@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.record-usage]
 verify_jwt = false
+
+[functions.check-lifetime-availability]
+verify_jwt = false
