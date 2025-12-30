@@ -23,13 +23,13 @@ export function FounderSection() {
         <div className="grid lg:grid-cols-5 gap-12 lg:gap-16 items-center max-w-6xl mx-auto">
           {/* Left Column - Image & Logos */}
           <div className="lg:col-span-2 flex flex-col items-center">
-            {/* Headshot */}
-            <div className="relative mb-8">
-              <div className="w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden border-2 border-slate-600/50 shadow-2xl shadow-blue-900/20">
+            {/* Headshot - Full size */}
+            <div className="relative mb-8 w-full max-w-sm">
+              <div className="aspect-[3/4] w-full rounded-2xl overflow-hidden border-2 border-slate-600/50 shadow-2xl shadow-blue-900/20">
                 <img
                   src={malikHeadshot}
                   alt="Malik Mbaye - Founder"
-                  className="w-full h-full object-cover object-top"
+                  className="w-full h-full object-cover"
                 />
               </div>
               {/* Decorative glow that matches the blue jacket */}
