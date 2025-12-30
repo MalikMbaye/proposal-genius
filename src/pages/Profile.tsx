@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Navbar } from "@/components/Navbar";
+import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -81,18 +81,19 @@ export default function Profile() {
     <div className="min-h-screen bg-background">
       <div className="absolute inset-0 bg-radial-gradient" />
       <div className="absolute inset-0 bg-grid-pattern opacity-20" />
-      
-      <Navbar />
 
-      <main className="relative pt-24 pb-16 px-4">
-        <div className="container mx-auto max-w-2xl">
-          <Link
-            to="/proposals"
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Proposals
-          </Link>
+      <div className="relative">
+        <AppHeader />
+
+        <main className="pt-10 pb-16 px-4">
+          <div className="container mx-auto max-w-2xl">
+            <Link
+              to="/preview"
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Dashboard
+            </Link>
 
           <div className="glass-card rounded-2xl p-8">
             <h1 className="text-2xl font-bold mb-2">Account Settings</h1>
@@ -235,7 +236,8 @@ export default function Profile() {
             )}
           </div>
         </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
