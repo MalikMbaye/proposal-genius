@@ -4,6 +4,7 @@ import { ProblemSection } from "@/components/landing/ProblemSection";
 import { InsightSection } from "@/components/landing/InsightSection";
 import { SolutionSection } from "@/components/landing/SolutionSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
+import { FounderSection } from "@/components/landing/FounderSection";
 import { DifferentiationSection } from "@/components/landing/DifferentiationSection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { PricingSection } from "@/components/landing/PricingSection";
@@ -20,6 +21,7 @@ export default function Index() {
       <InsightSection />
       <SolutionSection />
       <HowItWorksSection />
+      <FounderSection />
       <DifferentiationSection />
       <TestimonialsSection />
       <PricingSection />
