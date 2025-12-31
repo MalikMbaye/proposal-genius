@@ -133,7 +133,7 @@ function HeroCarousel() {
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen pt-24 pb-32 overflow-hidden flex items-center section-light">
+    <section className="relative min-h-screen pt-24 pb-20 overflow-hidden flex items-center section-light">
       {/* Subtle grid pattern */}
       <div className="absolute inset-0 opacity-[0.03]" style={{
         backgroundImage: `linear-gradient(to right, hsl(220 20% 20%) 1px, transparent 1px), linear-gradient(to bottom, hsl(220 20% 20%) 1px, transparent 1px)`,
@@ -208,12 +208,9 @@ export function HeroSection() {
           </div>
         </div>
         
-      </div>
-      
-      {/* Stats Row - Positioned at bottom as bridge */}
-      <div className="absolute bottom-0 left-0 right-0 translate-y-1/2 z-10">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 max-w-4xl mx-auto">
+        {/* Stats Row */}
+        <div className="mt-16 pt-10 border-t border-light-border">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {stats.map((stat, index) => (
               <StatBubble key={stat.label} {...stat} delay={index * 0.1} />
             ))}

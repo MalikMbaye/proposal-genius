@@ -18,9 +18,9 @@ const proposalShowcase = [
 
 function ProposalMiniCard({ company, category, color }: { company: string; category: string; color: string }) {
   return (
-    <div className="bg-card/80 backdrop-blur-sm rounded-xl shadow-lg border border-border/50 p-4 min-w-[220px] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex-shrink-0">
+    <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/50 p-4 min-w-[220px] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex-shrink-0">
       {/* Header bar */}
-      <div className="flex items-center gap-3 mb-3 pb-3 border-b border-border/30">
+      <div className="flex items-center gap-3 mb-3 pb-3 border-b border-slate-200/50">
         <div 
           className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm"
           style={{ backgroundColor: color }}
@@ -28,22 +28,22 @@ function ProposalMiniCard({ company, category, color }: { company: string; categ
           {company.charAt(0)}
         </div>
         <div>
-          <div className="font-bold text-foreground text-sm">{company}</div>
-          <div className="text-xs text-muted-foreground">{category}</div>
+          <div className="font-bold text-slate-900 text-sm">{company}</div>
+          <div className="text-xs text-slate-500">{category}</div>
         </div>
       </div>
       
       {/* Fake document lines */}
       <div className="space-y-2">
-        <div className="h-2 w-full bg-border/50 rounded" />
-        <div className="h-2 w-4/5 bg-border/50 rounded" />
-        <div className="h-2 w-3/4 bg-border/50 rounded" />
-        <div className="h-2 w-5/6 bg-border/50 rounded" />
+        <div className="h-2 w-full bg-slate-200 rounded" />
+        <div className="h-2 w-4/5 bg-slate-200 rounded" />
+        <div className="h-2 w-3/4 bg-slate-200 rounded" />
+        <div className="h-2 w-5/6 bg-slate-200 rounded" />
       </div>
       
       {/* Price tag */}
-      <div className="mt-4 pt-3 border-t border-border/30 flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">Project Value</span>
+      <div className="mt-4 pt-3 border-t border-slate-200/50 flex items-center justify-between">
+        <span className="text-xs text-slate-500">Project Value</span>
         <span className="text-sm font-bold text-primary">${(Math.floor(Math.random() * 150) + 50)}K</span>
       </div>
     </div>
@@ -112,9 +112,9 @@ export function ProposalComparisonSection() {
   const secondRow = proposalShowcase.slice(6, 12);
   
   return (
-    <section className="pt-28 pb-20 section-dark overflow-hidden relative">
+    <section className="py-20 overflow-hidden relative bg-gradient-to-b from-slate-100 via-slate-200 to-slate-800">
       {/* Subtle gradient accent */}
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-primary/10 pointer-events-none" />
       
       <div className="container mx-auto px-4 relative">
         <div className="text-center mb-12">
@@ -122,10 +122,10 @@ export function ProposalComparisonSection() {
             <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
             Premium Templates
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
             Proposals That Land <span className="text-primary">Fortune 500</span> Clients
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
             Access the same proposal frameworks used to close deals with the world's biggest brands.
           </p>
         </div>
@@ -139,22 +139,22 @@ export function ProposalComparisonSection() {
       
       {/* Stats bar */}
       <div className="container mx-auto px-4 relative">
-        <div className="flex flex-wrap justify-center gap-8 md:gap-16 pt-8 border-t border-border/30">
+        <div className="flex flex-wrap justify-center gap-8 md:gap-16 pt-8 border-t border-slate-300/30">
           <div className="text-center">
-            <div className="text-3xl font-bold text-foreground">500+</div>
-            <div className="text-sm text-muted-foreground">Enterprise Clients</div>
+            <div className="text-3xl font-bold text-white">500+</div>
+            <div className="text-sm text-slate-300">Enterprise Clients</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-foreground">$50M+</div>
-            <div className="text-sm text-muted-foreground">Deals Closed</div>
+            <div className="text-3xl font-bold text-white">$50M+</div>
+            <div className="text-sm text-slate-300">Deals Closed</div>
           </div>
           <div className="text-center">
-            <div className="text-3xl font-bold text-foreground">12</div>
-            <div className="text-sm text-muted-foreground">Industries Covered</div>
+            <div className="text-3xl font-bold text-white">12</div>
+            <div className="text-sm text-slate-300">Industries Covered</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-primary font-mono">10x</div>
-            <div className="text-sm text-muted-foreground">Average ROI</div>
+            <div className="text-sm text-slate-300">Average ROI</div>
           </div>
         </div>
       </div>
