@@ -9,9 +9,9 @@ const corsHeaders = {
 
 // Stripe product/price IDs
 const PRODUCTS = {
-  pro_monthly: {
-    price_id: "price_1SkRPJAIOyHZaZ4iIDDVoQp3",
-    product_id: "prod_Thr7zNfpSc4ezH",
+  pro_annual: {
+    price_id: "price_1SkVrSAIOyHZaZ4iEvcZIZh8",
+    product_id: "prod_ThvieDFmk5JxOn",
     mode: "subscription" as const,
   },
   lifetime: {

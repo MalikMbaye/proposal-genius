@@ -1,16 +1,27 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Check, X, ArrowRight, Shield, Zap, CreditCard, Clock } from "lucide-react";
+import { Check, X, ArrowRight, Shield, Zap, CreditCard, Clock, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
+
+// Launch promo configuration
+const LAUNCH_PROMO = {
+  enabled: true,
+  totalSpots: 10,
+  spotsRemaining: 7, // Track this in your backend if you want it dynamic
+  discountPercent: 50,
+  promoPrice: "$97",
+};
 
 const pricingPlans = [
   {
     name: "Try It Free",
     price: "$0",
+    originalPrice: null,
     period: "2 proposals",
+    billingNote: null,
     description: "See the quality before you buy",
     features: [
       { text: "Generate 2 complete proposal packages", included: true },
@@ -24,11 +35,14 @@ const pricingPlans = [
     variant: "outline" as const,
     popular: false,
     isLifetime: false,
+    isAnnual: false,
   },
   {
-    name: "Pro Access",
-    price: "$47",
+    name: "Pro Annual",
+    price: "$27",
+    originalPrice: "$40",
     period: "/month",
+    billingNote: "Billed annually at $197 (save 18%)",
     description: "Everything you need to close bigger deals",
     features: [
       { text: "Unlimited proposals per month", included: true },
@@ -38,16 +52,19 @@ const pricingPlans = [
       { text: "Monthly updates & new features", included: true },
       { text: "Priority support", included: true },
     ],
-    cta: "Start Generating",
-    productType: "pro_monthly" as const,
+    cta: "Get Pro Access",
+    productType: "pro_annual" as const,
     variant: "hero" as const,
     popular: true,
     isLifetime: false,
+    isAnnual: true,
   },
   {
     name: "Lifetime Access",
     price: "$497",
+    originalPrice: null,
     period: "one-time",
+    billingNote: null,
     description: "Pay once, use forever",
     features: [
       { text: "Everything in Pro", included: true },
@@ -61,8 +78,9 @@ const pricingPlans = [
     variant: "outline" as const,
     popular: false,
     badge: "Best Value 💎",
-    savings: "Save $47/month forever",
+    savings: "Save $27/month forever",
     isLifetime: true,
+    isAnnual: false,
   },
 ];
 
@@ -122,7 +140,7 @@ export function PricingSection() {
     <section id="pricing" className="py-24 border-t border-border/50">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-8">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Simple, Transparent Pricing
           </h2>
@@ -130,6 +148,36 @@ export function PricingSection() {
             Start free, upgrade when you're ready
           </p>
         </div>
+        
+        {/* Launch Promo Banner */}
+        {LAUNCH_PROMO.enabled && (
+          <div className="max-w-3xl mx-auto mb-12">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border border-amber-500/30 p-6 text-center">
+              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgZmlsbD0iI2ZmYmYwMCIgZmlsbC1vcGFjaXR5PSIuMSIgY3g9IjIwIiBjeT0iMjAiIHI9IjIiLz48L2c+PC9zdmc+')] opacity-50" />
+              <div className="relative">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Sparkles className="h-5 w-5 text-amber-500" />
+                  <span className="text-sm font-bold uppercase tracking-wider text-amber-500">
+                    Launch Special
+                  </span>
+                  <Sparkles className="h-5 w-5 text-amber-500" />
+                </div>
+                <h3 className="text-2xl font-bold mb-2">
+                  First {LAUNCH_PROMO.totalSpots} customers get{" "}
+                  <span className="text-amber-500">{LAUNCH_PROMO.discountPercent}% OFF</span>
+                </h3>
+                <p className="text-muted-foreground mb-3">
+                  Lock in Pro Annual for just <span className="font-bold text-foreground">{LAUNCH_PROMO.promoPrice}</span>{" "}
+                  <span className="line-through text-muted-foreground/60">$197</span> — one year of unlimited proposals
+                </p>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/20 rounded-full text-amber-600 dark:text-amber-400 font-semibold">
+                  <Clock className="h-4 w-4" />
+                  Only {LAUNCH_PROMO.spotsRemaining} spots remaining!
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -190,12 +238,24 @@ export function PricingSection() {
                 </div>
                 
                 {/* Price */}
-                <div className="mb-2">
+                <div className="mb-1">
+                  {plan.originalPrice && (
+                    <span className="text-xl text-muted-foreground line-through mr-2">
+                      {plan.originalPrice}
+                    </span>
+                  )}
                   <span className={`text-4xl font-bold ${isLifetimeSoldOut ? 'line-through text-muted-foreground' : ''}`}>
                     {plan.price}
                   </span>
                   <span className="text-muted-foreground ml-1">{plan.period}</span>
                 </div>
+                
+                {/* Billing note for annual */}
+                {plan.billingNote && (
+                  <p className="text-xs text-primary font-medium mb-2">
+                    {plan.billingNote}
+                  </p>
+                )}
                 
                 <p className="text-sm text-muted-foreground mb-8">
                   {isLifetimeSoldOut 
