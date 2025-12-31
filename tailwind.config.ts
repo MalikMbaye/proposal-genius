@@ -66,6 +66,15 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        /* Light section colors */
+        light: {
+          DEFAULT: "hsl(var(--light-bg))",
+          subtle: "hsl(var(--light-bg-subtle))",
+          foreground: "hsl(var(--light-foreground))",
+          muted: "hsl(var(--light-muted))",
+          border: "hsl(var(--light-border))",
+          card: "hsl(var(--light-card))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
