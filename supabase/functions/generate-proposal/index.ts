@@ -328,6 +328,35 @@ Generate ONLY the proposal document with these sections:
 - Why Us/Qualifications
 - Next Steps`;
 
+// Input validation constants
+const MAX_TEXT_LENGTH = 15000; // Max chars for text fields
+const MAX_PRICING_LENGTH = 500; // Max chars for pricing tier descriptions
+const VALID_PROPOSAL_LENGTHS = ['short', 'medium', 'long', 'detailed'];
+
+// Validation helper functions
+function sanitizeString(value: unknown, maxLength: number): string {
+  if (typeof value !== 'string') return '';
+  return value.slice(0, maxLength).trim();
+}
+
+function validatePricing(pricing: unknown): { strategy: string; ai: string; managed: string } {
+  const defaultPricing = { strategy: '', ai: '', managed: '' };
+  if (!pricing || typeof pricing !== 'object') return defaultPricing;
+  
+  const p = pricing as Record<string, unknown>;
+  return {
+    strategy: sanitizeString(p.strategy, MAX_PRICING_LENGTH),
+    ai: sanitizeString(p.ai, MAX_PRICING_LENGTH),
+    managed: sanitizeString(p.managed, MAX_PRICING_LENGTH),
+  };
+}
+
+function validateProposalLength(length: unknown): string {
+  if (typeof length !== 'string') return 'medium';
+  const normalized = length.toLowerCase();
+  return VALID_PROPOSAL_LENGTHS.includes(normalized) ? normalized : 'medium';
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -336,16 +365,29 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const clientContext = body.clientContext || '';
-    const background = body.background || '';
-    const caseStudies = body.caseStudies || '';
-    const proposalLength = body.length || 'medium';
-    const pricing = body.pricing || { strategy: '', ai: '', managed: '' };
-    const proposalOnly = body.proposalOnly || false;
-    const stream = body.stream || false;
-    const userId = body.userId || null;
+    
+    // Validate and sanitize all inputs
+    const clientContext = sanitizeString(body.clientContext, MAX_TEXT_LENGTH);
+    const background = sanitizeString(body.background, MAX_TEXT_LENGTH);
+    const caseStudies = sanitizeString(body.caseStudies, MAX_TEXT_LENGTH);
+    const proposalLength = validateProposalLength(body.length);
+    const pricing = validatePricing(body.pricing);
+    const proposalOnly = body.proposalOnly === true;
+    const stream = body.stream === true;
+    const userId = typeof body.userId === 'string' ? body.userId : null;
 
-    console.log('Generating proposal with Claude API:', { proposalLength, proposalOnly, stream, userId });
+    // Log sanitized lengths (not content) to avoid log injection
+    console.log('Generating proposal with Claude API:', { 
+      proposalLength, 
+      proposalOnly, 
+      stream, 
+      userId,
+      inputLengths: {
+        clientContext: clientContext.length,
+        background: background.length,
+        caseStudies: caseStudies.length,
+      }
+    });
 
     if (!ANTHROPIC_API_KEY) {
       throw new Error('ANTHROPIC_API_KEY is not configured');
