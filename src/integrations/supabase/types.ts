@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_usage_tracking: {
+        Row: {
+          created_at: string
+          estimated_cost_cents: number
+          function_name: string
+          id: string
+          input_tokens: number
+          output_tokens: number
+          total_tokens: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          estimated_cost_cents?: number
+          function_name: string
+          id?: string
+          input_tokens?: number
+          output_tokens?: number
+          total_tokens?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          estimated_cost_cents?: number
+          function_name?: string
+          id?: string
+          input_tokens?: number
+          output_tokens?: number
+          total_tokens?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       deck_generation_jobs: {
         Row: {
           client_name: string | null
@@ -26,6 +59,7 @@ export type Database = {
           num_slides: number | null
           progress: number | null
           proposal_id: string | null
+          queue_position: number | null
           result_url: string | null
           status: string
           updated_at: string
@@ -42,6 +76,7 @@ export type Database = {
           num_slides?: number | null
           progress?: number | null
           proposal_id?: string | null
+          queue_position?: number | null
           result_url?: string | null
           status?: string
           updated_at?: string
@@ -58,6 +93,7 @@ export type Database = {
           num_slides?: number | null
           progress?: number | null
           proposal_id?: string | null
+          queue_position?: number | null
           result_url?: string | null
           status?: string
           updated_at?: string
@@ -103,6 +139,51 @@ export type Database = {
           id?: string
           proof_points?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      proposal_drafts: {
+        Row: {
+          background: string | null
+          business_type: string | null
+          client_context: string | null
+          client_name: string | null
+          created_at: string
+          custom_business_type: string | null
+          id: string
+          last_saved_at: string
+          pricing_tiers: Json | null
+          proposal_length: string | null
+          selected_case_studies: string[] | null
+          user_id: string
+        }
+        Insert: {
+          background?: string | null
+          business_type?: string | null
+          client_context?: string | null
+          client_name?: string | null
+          created_at?: string
+          custom_business_type?: string | null
+          id?: string
+          last_saved_at?: string
+          pricing_tiers?: Json | null
+          proposal_length?: string | null
+          selected_case_studies?: string[] | null
+          user_id: string
+        }
+        Update: {
+          background?: string | null
+          business_type?: string | null
+          client_context?: string | null
+          client_name?: string | null
+          created_at?: string
+          custom_business_type?: string | null
+          id?: string
+          last_saved_at?: string
+          pricing_tiers?: Json | null
+          proposal_length?: string | null
+          selected_case_studies?: string[] | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -231,7 +312,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_deck_queue_position: { Args: { job_id: string }; Returns: number }
     }
     Enums: {
       [_ in never]: never
