@@ -27,11 +27,11 @@ const pricingPlans = [
   },
   {
     name: "Pro Access",
-    price: "$27",
+    price: "$47",
     period: "/month",
     description: "Everything you need to close bigger deals",
     features: [
-      { text: "Up to 20 proposals per month", included: true },
+      { text: "Up to 40 proposals per month", included: true },
       { text: "All 6 deliverables every time", included: true },
       { text: "Access to 50+ proposal library", included: true },
       { text: "Case studies and examples", included: true },
