@@ -29,11 +29,14 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section className="py-24 border-t border-border/50 bg-card/30">
-      <div className="container mx-auto px-4">
+    <section className="py-24 section-light relative overflow-hidden">
+      {/* Subtle accent */}
+      <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-primary/5 to-transparent" />
+      
+      <div className="container relative mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-light-foreground">
             Consultants Using This Are <span className="text-gradient">Closing Bigger Deals</span>
           </h2>
         </div>
@@ -43,7 +46,7 @@ export function TestimonialsSection() {
           {testimonials.map((testimonial) => (
             <div 
               key={testimonial.name}
-              className="bg-card border border-border/50 rounded-2xl p-8 hover:border-primary/30 transition-all duration-300 group"
+              className="bg-light-card border border-light-border rounded-2xl p-8 hover:border-primary/30 hover:shadow-lg transition-all duration-300 group"
             >
               {/* Stars */}
               <div className="flex gap-1 mb-6">
@@ -53,7 +56,7 @@ export function TestimonialsSection() {
               </div>
               
               {/* Quote */}
-              <p className="text-foreground mb-8 leading-relaxed">
+              <p className="text-light-foreground mb-8 leading-relaxed">
                 "{testimonial.quote}"
               </p>
               
@@ -63,18 +66,18 @@ export function TestimonialsSection() {
                   {testimonial.avatar}
                 </div>
                 <div>
-                  <div className="font-semibold">{testimonial.name}</div>
-                  <div className="text-sm text-muted-foreground">{testimonial.role}</div>
+                  <div className="font-semibold text-light-foreground">{testimonial.name}</div>
+                  <div className="text-sm text-light-muted">{testimonial.role}</div>
                 </div>
               </div>
               
               {/* Before/After stats */}
-              <div className="pt-6 border-t border-border/30">
+              <div className="pt-6 border-t border-light-border">
                 {testimonial.before ? (
                   <div className="flex items-center gap-4">
                     <div>
-                      <div className="text-xs text-muted-foreground uppercase tracking-wider">Before</div>
-                      <div className="text-sm text-muted-foreground">{testimonial.before}</div>
+                      <div className="text-xs text-light-muted uppercase tracking-wider">Before</div>
+                      <div className="text-sm text-light-muted">{testimonial.before}</div>
                     </div>
                     <div className="text-primary">→</div>
                     <div>

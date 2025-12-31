@@ -133,18 +133,15 @@ function HeroCarousel() {
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-screen pt-24 pb-20 overflow-hidden flex items-center bg-white">
-      {/* Background effects - clean light theme */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-50/50 to-white" />
-      
+    <section className="relative min-h-screen pt-24 pb-20 overflow-hidden flex items-center section-light">
       {/* Subtle grid pattern */}
-      <div className="absolute inset-0 opacity-[0.02]" style={{
-        backgroundImage: `linear-gradient(to right, #64748b 1px, transparent 1px), linear-gradient(to bottom, #64748b 1px, transparent 1px)`,
+      <div className="absolute inset-0 opacity-[0.03]" style={{
+        backgroundImage: `linear-gradient(to right, hsl(220 20% 20%) 1px, transparent 1px), linear-gradient(to bottom, hsl(220 20% 20%) 1px, transparent 1px)`,
         backgroundSize: '80px 80px'
       }} />
       
       {/* Very subtle accent orb - just one, positioned top-right */}
-      <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-gradient-to-br from-primary/[0.03] to-transparent rounded-full blur-3xl" />
+      <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-gradient-to-br from-primary/[0.06] to-transparent rounded-full blur-3xl" />
       
       <div className="container relative mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
@@ -162,7 +159,7 @@ export function HeroSection() {
             </div>
             
             {/* Headline - Staggered animation */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6 text-slate-900">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6 text-light-foreground">
               <span className="block animate-slide-up" style={{ animationDelay: '0.1s' }}>
                 Stop Underpricing.
               </span>
@@ -172,13 +169,13 @@ export function HeroSection() {
             </h1>
             
             {/* Sub-headline */}
-            <p className="text-lg md:text-xl text-slate-600 mb-6 max-w-xl animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <p className="text-lg md:text-xl text-light-muted mb-6 max-w-xl animate-fade-in" style={{ animationDelay: '0.3s' }}>
               AI-powered proposal packages that position you as the obvious choice.
               Get a complete proposal, contract, deck, emails, and invoice—in seconds.
             </p>
             
             {/* Problem hook */}
-            <p className="text-sm text-slate-500 mb-8 max-w-lg animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <p className="text-sm text-light-muted/80 mb-8 max-w-lg animate-fade-in" style={{ animationDelay: '0.4s' }}>
               You're charging $5K for work that should cost $50K.
               Not because you're underqualified—because you don't know
               what six-figure proposals actually look like.
@@ -195,7 +192,7 @@ export function HeroSection() {
             </div>
             
             {/* Trust line - context for marquee */}
-            <p className="text-sm text-slate-700 mt-6 mb-2 animate-fade-in font-semibold" style={{ animationDelay: '0.6s' }}>
+            <p className="text-sm text-light-foreground mt-6 mb-2 animate-fade-in font-semibold" style={{ animationDelay: '0.6s' }}>
               <span className="text-primary">Pitch Genius</span> proposals have closed deals with:
             </p>
 
@@ -212,7 +209,7 @@ export function HeroSection() {
         </div>
         
         {/* Stats Row - Full Width Distribution */}
-        <div className="mt-16 pt-10 border-t border-slate-100">
+        <div className="mt-16 pt-10 border-t border-light-border">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto lg:max-w-none">
             {stats.map((stat, index) => (
               <StatBubble key={stat.label} {...stat} delay={index * 0.1} />

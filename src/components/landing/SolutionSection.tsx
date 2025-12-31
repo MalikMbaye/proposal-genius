@@ -62,14 +62,17 @@ const secondaryDeliverables = [
 
 export function SolutionSection() {
   return (
-    <section id="solution" className="py-24 border-t border-border/50">
-      <div className="container mx-auto px-4">
+    <section id="solution" className="py-24 section-light relative overflow-hidden">
+      {/* Subtle accent */}
+      <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-primary/5 to-transparent" />
+      
+      <div className="container relative mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-light-foreground">
             One Input. <span className="text-gradient">Six Professional Deliverables.</span>
           </h2>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-xl text-light-muted">
             Everything you need to close the deal.
           </p>
         </div>
@@ -79,15 +82,15 @@ export function SolutionSection() {
           {/* Large Featured Card - Full Proposal */}
           <div className="relative group lg:row-span-2">
             <div className="absolute -inset-px bg-gradient-to-br from-primary/50 to-accent-secondary/30 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity" />
-            <div className="relative h-full bg-card border border-primary/30 rounded-2xl p-8 flex flex-col">
+            <div className="relative h-full bg-light-card border border-primary/30 rounded-2xl p-8 flex flex-col shadow-lg">
               {/* Icon and title */}
               <div className="flex items-start gap-4 mb-6">
                 <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center">
                   <FileText className="h-7 w-7 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-1">Full Proposal</h3>
-                  <p className="text-muted-foreground">15-20 page comprehensive document</p>
+                  <h3 className="text-2xl font-bold mb-1 text-light-foreground">Full Proposal</h3>
+                  <p className="text-light-muted">15-20 page comprehensive document</p>
                 </div>
               </div>
               
@@ -97,14 +100,14 @@ export function SolutionSection() {
                   {mainFeatures.map((feature) => (
                     <div key={feature} className="flex items-center gap-3">
                       <Check className="h-4 w-4 text-primary flex-shrink-0" />
-                      <span className="text-sm text-foreground">{feature}</span>
+                      <span className="text-sm text-light-foreground">{feature}</span>
                     </div>
                   ))}
                 </div>
               </div>
               
               {/* Sample link */}
-              <div className="mt-8 pt-6 border-t border-border/30">
+              <div className="mt-8 pt-6 border-t border-light-border">
                 <a 
                   href="#" 
                   className="inline-flex items-center text-sm text-primary hover:text-primary/80 transition-colors font-medium"
@@ -120,13 +123,13 @@ export function SolutionSection() {
             {secondaryDeliverables.map((item) => (
               <div 
                 key={item.title}
-                className="group bg-white border border-border/50 rounded-xl p-5 hover:border-primary/30 hover:shadow-lg transition-all duration-300"
+                className="group bg-light-card border border-light-border rounded-xl p-5 hover:border-primary/30 hover:shadow-lg transition-all duration-300"
               >
                 <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                   <item.icon className="h-5 w-5 text-primary" />
                 </div>
-                <h4 className="font-semibold mb-1 text-sm text-slate-900">{item.title}</h4>
-                <p className="text-xs text-slate-600 mb-1">{item.description}</p>
+                <h4 className="font-semibold mb-1 text-sm text-light-foreground">{item.title}</h4>
+                <p className="text-xs text-light-muted mb-1">{item.description}</p>
                 <p className="text-xs text-primary">→ {item.detail}</p>
               </div>
             ))}

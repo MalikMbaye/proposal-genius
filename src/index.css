@@ -63,6 +63,14 @@
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 4% 16%;
     --sidebar-ring: 152 76% 42%;
+
+    /* Light section tokens */
+    --light-bg: 210 20% 98%;
+    --light-bg-subtle: 210 15% 96%;
+    --light-foreground: 220 20% 10%;
+    --light-muted: 220 10% 40%;
+    --light-border: 220 10% 88%;
+    --light-card: 0 0% 100%;
   }
 
   .dark {
@@ -114,6 +122,43 @@
 
   .progress-line-inactive {
     @apply bg-border;
+  }
+
+  /* Light section component */
+  .section-light {
+    background: linear-gradient(180deg, hsl(var(--light-bg)) 0%, hsl(var(--light-bg-subtle)) 100%);
+    color: hsl(var(--light-foreground));
+  }
+
+  .section-light .text-muted-foreground,
+  .section-light .text-slate-500,
+  .section-light .text-slate-600 {
+    color: hsl(var(--light-muted));
+  }
+
+  /* Dark section component */
+  .section-dark {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  /* Elevated dark section - subtle distinction */
+  .section-dark-elevated {
+    background: linear-gradient(180deg, hsl(var(--bg-secondary)) 0%, hsl(var(--background)) 100%);
+    color: hsl(var(--foreground));
+  }
+
+  /* Section transition dividers */
+  .section-divider-to-dark {
+    background: linear-gradient(180deg, hsl(var(--light-bg-subtle)) 0%, hsl(var(--background)) 100%);
+    height: 120px;
+    margin-top: -1px;
+  }
+
+  .section-divider-to-light {
+    background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--light-bg)) 100%);
+    height: 120px;
+    margin-bottom: -1px;
   }
 }
 
