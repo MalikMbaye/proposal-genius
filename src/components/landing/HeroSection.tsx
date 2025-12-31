@@ -103,7 +103,7 @@ function HeroCarousel() {
         
         {/* Floating badge */}
         <div className="absolute -top-3 -right-3 bg-white border border-primary/30 rounded-xl px-3 py-2 shadow-lg animate-pulse-slow">
-          <span className="text-xs font-medium text-primary">AI at Work ⚡</span>
+          <span className="text-xs font-medium text-primary">Your 7-Figure AI Sales Assistant</span>
         </div>
       </div>
 
@@ -148,17 +148,12 @@ export function HeroSection() {
           {/* Left Side - Content */}
           <div className="text-left">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm text-primary mb-3 animate-fade-in animate-glow-pulse">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm text-primary mb-6 animate-fade-in animate-glow-pulse">
               <Sparkles className="h-4 w-4" />
               Built on a $1M+ winning methodology
             </div>
             
-            {/* Tagline */}
-            <p className="text-lg md:text-xl font-medium text-light-muted mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              Your Seven-Figure AI Sales Assistant
-            </p>
-            
-            {/* Mobile-only Carousel - between tagline and headline */}
+            {/* Mobile-only Carousel - between badge and headline */}
             <div className="lg:hidden mb-8 animate-fade-in" style={{ animationDelay: '0.15s' }}>
               <HeroCarousel />
             </div>
