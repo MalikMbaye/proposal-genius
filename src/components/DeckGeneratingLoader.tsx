@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Check, Circle, Loader2, Clock, Sparkles, Palette, Layout, FileCheck, Wand2, Terminal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { loadingVideos, getContextSubtitle } from '@/lib/loadingContent';
@@ -48,6 +48,7 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [terminalOutput, setTerminalOutput] = useState<string[]>([]);
   const [currentTerminalLine, setCurrentTerminalLine] = useState(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   // Get subtitle once
   const [subtitle] = useState(() => getContextSubtitle('slides'));
@@ -55,6 +56,35 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
   // Current video and headline
   const currentVideo = loadingVideos[currentVideoIndex];
   const currentHeadline = currentVideo.headlines[0];
+
+  // Force play video on mobile
+  const forcePlayVideo = useCallback(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch((err) => {
+        console.log("Video autoplay blocked, will retry on interaction:", err);
+      });
+    }
+  }, []);
+
+  // Play video when it loads or changes
+  useEffect(() => {
+    forcePlayVideo();
+  }, [currentVideoIndex, forcePlayVideo]);
+
+  // Also try to play on any touch/click (for mobile browsers that block initial autoplay)
+  useEffect(() => {
+    const handleInteraction = () => {
+      forcePlayVideo();
+    };
+    
+    document.addEventListener("touchstart", handleInteraction, { once: true });
+    document.addEventListener("click", handleInteraction, { once: true });
+    
+    return () => {
+      document.removeEventListener("touchstart", handleInteraction);
+      document.removeEventListener("click", handleInteraction);
+    };
+  }, [forcePlayVideo]);
 
   // Rotate videos every 8 seconds for deck generation (longer process)
   useEffect(() => {
@@ -183,12 +213,14 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
         {/* Video Container */}
         <div className="relative w-full max-w-lg aspect-video rounded-2xl overflow-hidden shadow-2xl border border-border/50">
           <video
+            ref={videoRef}
             key={currentVideo.videoUrl}
             autoPlay
             loop
             muted
             playsInline
-            preload="metadata"
+            preload="auto"
+            onCanPlay={forcePlayVideo}
             className={cn(
               "w-full h-full object-cover transition-opacity duration-300",
               isTransitioning ? "opacity-0" : "opacity-100"
