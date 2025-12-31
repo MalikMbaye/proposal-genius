@@ -261,7 +261,7 @@ export function ViralThreadSection() {
               </a>
               
               <a 
-                href="https://www.linkedin.com/in/malickmbaye/" 
+                href="https://www.linkedin.com/in/letshiremalik/" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="transition-all duration-300 hover:scale-110"
@@ -395,12 +395,12 @@ export function ViralThreadSection() {
             }}
           >
             <a 
-              href="https://www.threads.com/@malick.io/post/DEwQ0atOqQO?xmt=AQGzXlX8yUYcbOJixlBXYuoC7XOxHNASHjsQkmXIAKNYog"
+              href="https://www.threads.com/@malick.io/post/DEwQ0atOqQO?xmt=AQF0LqK3RbasrYMcGWadZVP8beQBTP4y44FkxpUAfAtNJg"
               target="_blank"
               rel="noopener noreferrer"
             >
               <ExternalLink className="w-4 h-4 mr-2" />
-              Click here to read the original thread
+              View on Threads
             </a>
           </Button>
         </div>

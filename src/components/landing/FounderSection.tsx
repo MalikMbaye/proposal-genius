@@ -157,7 +157,7 @@ export function FounderSection() {
                 asChild
               >
                 <a
-                  href="https://www.linkedin.com/in/malikmbaye"
+                  href="https://www.linkedin.com/in/letshiremalik/"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -171,7 +171,7 @@ export function FounderSection() {
                 asChild
               >
                 <a
-                  href="https://www.instagram.com/malikmbaye"
+                  href="https://www.instagram.com/malick.io/"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
