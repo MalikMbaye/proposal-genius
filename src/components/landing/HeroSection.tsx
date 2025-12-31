@@ -208,14 +208,14 @@ export function HeroSection() {
           </div>
         </div>
         
-        {/* Stats Row */}
-        <div className="mt-16 pt-10 border-t border-light-border">
+        {/* Stats Row - temporarily hidden */}
+        {/* <div className="mt-16 pt-10 border-t border-light-border">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {stats.map((stat, index) => (
               <StatBubble key={stat.label} {...stat} delay={index * 0.1} />
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );
