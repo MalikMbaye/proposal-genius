@@ -1,105 +1,158 @@
-// Proposal comparison cards section - side by side display
-const proposalCards = [
-  {
-    type: 'generic',
-    label: '❌ Generic Proposal',
-    quote: '"We will provide marketing strategy and execution services to help grow your business."',
-    value: '$5,000',
-  },
-  {
-    type: 'strategic',
-    label: '✓ Strategic Proposal',
-    quote: '"Your brand is stuck at $15K/month not because your product isn\'t good enough, but because you\'re missing three critical components..."',
-    value: '$50,000',
-  },
-  {
-    type: 'generic',
-    label: '❌ Generic Proposal',
-    quote: '"Our team will help optimize your sales funnel and improve conversions."',
-    value: '$3,500',
-  },
-  {
-    type: 'strategic',
-    label: '✓ Strategic Proposal',
-    quote: '"You\'re leaving $2M on the table annually because your checkout flow has 3 friction points killing conversions..."',
-    value: '$75,000',
-  },
-  {
-    type: 'generic',
-    label: '❌ Generic Proposal',
-    quote: '"We offer comprehensive consulting services tailored to your needs."',
-    value: '$8,000',
-  },
-  {
-    type: 'strategic',
-    label: '✓ Strategic Proposal',
-    quote: '"Your competitor just raised $10M and is outspending you 4:1 on acquisition. Here\'s the 90-day plan to win anyway..."',
-    value: '$120,000',
-  },
+import { useEffect, useRef } from "react";
+
+// Premium proposal showcase data
+const proposalShowcase = [
+  { company: "NASA", category: "Technology Proposal", color: "#0B3D91" },
+  { company: "Google", category: "Marketing Strategy", color: "#4285F4" },
+  { company: "Nike", category: "Influencer Campaign", color: "#111111" },
+  { company: "Tesla", category: "Content Creation", color: "#CC0000" },
+  { company: "Apple", category: "App Development", color: "#555555" },
+  { company: "Netflix", category: "Video Production", color: "#E50914" },
+  { company: "Spotify", category: "Brand Partnership", color: "#1DB954" },
+  { company: "Amazon", category: "E-commerce Strategy", color: "#FF9900" },
+  { company: "Meta", category: "Social Media", color: "#0081FB" },
+  { company: "Adidas", category: "Athlete Sponsorship", color: "#000000" },
+  { company: "Twitter", category: "Platform Integration", color: "#1DA1F2" },
+  { company: "Adobe", category: "Creative Suite", color: "#FF0000" },
 ];
 
-function ProposalCard({ card }: { card: typeof proposalCards[0] }) {
-  const isStrategic = card.type === 'strategic';
-  
+function ProposalMiniCard({ company, category, color }: { company: string; category: string; color: string }) {
   return (
-    <div className={`bg-white rounded-2xl p-6 shadow-lg border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-      isStrategic ? 'border-primary/20' : 'border-slate-200'
-    }`}>
-      {/* Window controls */}
-      <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
-        <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
-        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-        <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
-        <span className="ml-2 text-xs text-slate-400 font-mono">proposal.md</span>
+    <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-4 min-w-[220px] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex-shrink-0">
+      {/* Header bar */}
+      <div className="flex items-center gap-3 mb-3 pb-3 border-b border-slate-100">
+        <div 
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm"
+          style={{ backgroundColor: color }}
+        >
+          {company.charAt(0)}
+        </div>
+        <div>
+          <div className="font-bold text-slate-900 text-sm">{company}</div>
+          <div className="text-xs text-slate-500">{category}</div>
+        </div>
       </div>
       
-      {/* Content */}
-      <div className="flex-1 flex flex-col min-h-[180px]">
-        <div className={`text-xs uppercase tracking-wider mb-3 font-semibold ${
-          isStrategic ? 'text-green-600' : 'text-red-500'
-        }`}>
-          {card.label}
-        </div>
-        <p className="text-sm leading-relaxed text-slate-700 flex-1">
-          {card.quote}
-        </p>
-        <div className="pt-4 mt-4 border-t border-slate-100 flex items-end justify-between">
-          <div>
-            <div className={`text-2xl font-bold ${
-              isStrategic ? 'text-primary' : 'text-slate-400'
-            }`}>
-              {card.value}
-            </div>
-            <div className="text-xs text-slate-400">Project Value</div>
-          </div>
-          {isStrategic && (
-            <div className="bg-green-50 border border-green-200 rounded px-2 py-1">
-              <span className="text-green-600 font-semibold text-xs">+900% ROI</span>
-            </div>
-          )}
-        </div>
+      {/* Fake document lines */}
+      <div className="space-y-2">
+        <div className="h-2 w-full bg-slate-100 rounded" />
+        <div className="h-2 w-4/5 bg-slate-100 rounded" />
+        <div className="h-2 w-3/4 bg-slate-100 rounded" />
+        <div className="h-2 w-5/6 bg-slate-100 rounded" />
+      </div>
+      
+      {/* Price tag */}
+      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+        <span className="text-xs text-slate-400">Project Value</span>
+        <span className="text-sm font-bold text-primary">${(Math.floor(Math.random() * 150) + 50)}K</span>
       </div>
     </div>
   );
 }
 
-export function ProposalComparisonSection() {
+function FloatingCarousel({ items, direction = 'left', speed = 30 }: { 
+  items: typeof proposalShowcase; 
+  direction?: 'left' | 'right';
+  speed?: number;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+    
+    let animationId: number;
+    let scrollPos = direction === 'left' ? 0 : scrollContainer.scrollWidth / 2;
+    
+    const animate = () => {
+      if (!scrollContainer) return;
+      
+      const maxScroll = scrollContainer.scrollWidth / 2;
+      
+      if (direction === 'left') {
+        scrollPos += 0.5;
+        if (scrollPos >= maxScroll) scrollPos = 0;
+      } else {
+        scrollPos -= 0.5;
+        if (scrollPos <= 0) scrollPos = maxScroll;
+      }
+      
+      scrollContainer.scrollLeft = scrollPos;
+      animationId = requestAnimationFrame(animate);
+    };
+    
+    animationId = requestAnimationFrame(animate);
+    
+    return () => cancelAnimationFrame(animationId);
+  }, [direction, speed]);
+  
+  // Duplicate items for seamless loop
+  const duplicatedItems = [...items, ...items];
+  
   return (
-    <section className="py-20 bg-slate-50">
+    <div 
+      ref={scrollRef}
+      className="flex gap-4 overflow-hidden py-2"
+      style={{ scrollBehavior: 'auto' }}
+    >
+      {duplicatedItems.map((item, index) => (
+        <ProposalMiniCard 
+          key={`${item.company}-${index}`}
+          company={item.company}
+          category={item.category}
+          color={item.color}
+        />
+      ))}
+    </div>
+  );
+}
+
+export function ProposalComparisonSection() {
+  const firstRow = proposalShowcase.slice(0, 6);
+  const secondRow = proposalShowcase.slice(6, 12);
+  
+  return (
+    <section className="py-20 bg-slate-50 overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-4">
+            <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+            Premium Templates
+          </div>
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-            See the <span className="text-primary">10x Difference</span>
+            Proposals That Land <span className="text-primary">Fortune 500</span> Clients
           </h2>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Generic proposals get ignored. Strategic proposals close deals. Here's what separates the two.
+            Access the same proposal frameworks used to close deals with the world's biggest brands.
           </p>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {proposalCards.map((card, index) => (
-            <ProposalCard key={index} card={card} />
-          ))}
+      </div>
+      
+      {/* Full-width floating carousels */}
+      <div className="space-y-6 mb-12">
+        <FloatingCarousel items={firstRow} direction="left" />
+        <FloatingCarousel items={secondRow} direction="right" />
+      </div>
+      
+      {/* Stats bar */}
+      <div className="container mx-auto px-4">
+        <div className="flex flex-wrap justify-center gap-8 md:gap-16 pt-8 border-t border-slate-200">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-slate-900">500+</div>
+            <div className="text-sm text-slate-500">Enterprise Clients</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-slate-900">$50M+</div>
+            <div className="text-sm text-slate-500">Deals Closed</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-slate-900">12</div>
+            <div className="text-sm text-slate-500">Industries Covered</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-primary font-mono">10x</div>
+            <div className="text-sm text-slate-500">Average ROI</div>
+          </div>
         </div>
       </div>
     </section>
