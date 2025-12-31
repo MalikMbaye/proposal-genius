@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.check-lifetime-availability]
 verify_jwt = false
+
+[functions.poll-deck-jobs]
+verify_jwt = false
