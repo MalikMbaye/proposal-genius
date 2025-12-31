@@ -65,14 +65,14 @@ const steps = [
 
 export function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="py-24 border-t border-border/50 bg-card/30">
+    <section id="how-it-works" className="py-24 border-t border-border/20 bg-slate-50 dark:bg-slate-900/50">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-slate-900 dark:text-foreground">
             From Meeting Notes to Signed Contract
           </h2>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-xl text-slate-600 dark:text-muted-foreground">
             in Under <span className="text-primary font-semibold">5 Minutes</span>
           </p>
         </div>
@@ -86,7 +86,7 @@ export function HowItWorksSection() {
             {steps.map((step, index) => (
               <div key={step.title} className="relative">
                 {/* Step card */}
-                <div className="bg-card border border-border/50 rounded-2xl p-6 hover:border-primary/30 transition-colors h-full">
+                <div className="bg-white dark:bg-card border border-slate-200 dark:border-border/50 rounded-2xl p-6 hover:border-primary/30 transition-colors h-full shadow-sm">
                   {/* Number badge */}
                   <div className="absolute -top-4 left-6 px-3 py-1 bg-primary text-primary-foreground text-sm font-bold rounded-full">
                     {step.number}
@@ -98,8 +98,8 @@ export function HowItWorksSection() {
                   </div>
                   
                   {/* Content */}
-                  <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-                  <p className="text-muted-foreground text-sm">{step.description}</p>
+                  <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-foreground">{step.title}</h3>
+                  <p className="text-slate-600 dark:text-muted-foreground text-sm">{step.description}</p>
                   
                   {/* Visual representation */}
                   {step.visual}
