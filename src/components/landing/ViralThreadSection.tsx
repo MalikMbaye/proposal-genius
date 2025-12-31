@@ -21,22 +21,21 @@ import thread15 from "@/assets/threads/thread-15.png";
 import thread16 from "@/assets/threads/thread-16.png";
 
 const threads = [
-  { src: thread1, alt: "Thread 1/16 - Intro" },
-  { src: thread2, alt: "Thread 2/16" },
-  { src: thread3, alt: "Thread 3/16" },
-  { src: thread4, alt: "Thread 4/16" },
-  { src: thread5, alt: "Thread 5/16" },
-  { src: thread6, alt: "Thread 6/16" },
-  { src: thread7, alt: "Thread 7/16" },
-  { src: thread8, alt: "Thread 8/16" },
-  { src: thread9, alt: "Thread 9/16" },
-  { src: thread10, alt: "Thread 10/16" },
-  { src: thread11, alt: "Thread 11/16" },
-  { src: thread12, alt: "Thread 12/16" },
-  { src: thread13, alt: "Thread 13/16" },
-  { src: thread14, alt: "Thread 14/16" },
-  { src: thread15, alt: "Thread 15/16" },
-  { src: thread16, alt: "Thread 16/16" },
+  { src: thread1, alt: "Thread 1/15 - Intro" },
+  { src: thread2, alt: "Thread 2/15" },
+  { src: thread3, alt: "Thread 3/15" },
+  { src: thread4, alt: "Thread 4/15" },
+  { src: thread5, alt: "Thread 5/15" },
+  { src: thread6, alt: "Thread 6/15" },
+  { src: thread7, alt: "Thread 7/15" },
+  { src: thread8, alt: "Thread 8/15" },
+  { src: thread9, alt: "Thread 9/15" },
+  { src: thread11, alt: "Thread 10/15" },
+  { src: thread12, alt: "Thread 11/15" },
+  { src: thread13, alt: "Thread 12/15" },
+  { src: thread14, alt: "Thread 13/15" },
+  { src: thread15, alt: "Thread 14/15" },
+  { src: thread16, alt: "Thread 15/15" },
 ];
 
 // Confetti particle component
