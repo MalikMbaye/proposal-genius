@@ -6,8 +6,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const LIFETIME_LIMIT = 27;
-const LIFETIME_PRODUCT_ID = "prod_ThUa3NfcWYtQPp";
+const LIFETIME_LIMIT = 9;
+const LIFETIME_PRODUCT_ID = "prod_Thr7zNfpSc4ezH";
 
 const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';

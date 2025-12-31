@@ -36,7 +36,7 @@ const defaultStatus: SubscriptionStatus = {
   proposals_limit: 2, // Free tier - 2 proposals
   extra_proposals_purchased: 0,
   lifetime_available: true,
-  lifetime_spots_remaining: 27,
+  lifetime_spots_remaining: 9,
   loading: true,
   error: null,
 };

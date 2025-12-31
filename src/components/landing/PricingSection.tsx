@@ -33,7 +33,7 @@ const pricingPlans = [
     features: [
       { text: "Unlimited proposals per month", included: true },
       { text: "All 6 deliverables every time", included: true },
-      { text: "Access to 50+ proposal library", included: true },
+      { text: "Access to 50+ proposal library*", included: true },
       { text: "Case studies and examples", included: true },
       { text: "Monthly updates & new features", included: true },
       { text: "Priority support", included: true },
@@ -46,7 +46,7 @@ const pricingPlans = [
   },
   {
     name: "Lifetime Access",
-    price: "$297",
+    price: "$497",
     period: "one-time",
     description: "Pay once, use forever",
     features: [
@@ -61,7 +61,7 @@ const pricingPlans = [
     variant: "outline" as const,
     popular: false,
     badge: "Best Value 💎",
-    savings: "Save $27/month forever",
+    savings: "Save $47/month forever",
     isLifetime: true,
   },
 ];
@@ -269,6 +269,11 @@ export function PricingSection() {
             30-day money-back guarantee
           </div>
         </div>
+        
+        {/* Footnote */}
+        <p className="text-center text-xs text-muted-foreground mt-8 max-w-2xl mx-auto">
+          *Proposal library access available as a separate add-on ($497 one-time). Includes 50+ proven proposal templates, case studies, and examples.
+        </p>
       </div>
     </section>
   );
