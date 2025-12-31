@@ -279,60 +279,62 @@ export function ViralThreadSection() {
 
       {/* Horizontal Scrolling Thread Gallery with Connecting Line */}
       <div className="relative">
-        {/* Navigation Arrow - Left */}
-        <button
-          onClick={scrollLeft}
-          className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 p-2 md:p-3 rounded-full transition-all duration-300 hover:scale-110"
-          style={{
-            background: 'linear-gradient(135deg, hsl(45, 70%, 25%) 0%, hsl(35, 60%, 18%) 100%)',
-            border: '1px solid hsl(45, 60%, 40%)',
-            boxShadow: '0 4px 20px -5px hsl(45, 100%, 30%)'
-          }}
-          aria-label="Scroll left"
-        >
-          <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" style={{ color: 'hsl(45, 100%, 60%)' }} />
-        </button>
-
-        {/* Navigation Arrow - Right */}
-        <button
-          onClick={scrollRight}
-          className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 p-2 md:p-3 rounded-full transition-all duration-300 hover:scale-110"
-          style={{
-            background: 'linear-gradient(135deg, hsl(45, 70%, 25%) 0%, hsl(35, 60%, 18%) 100%)',
-            border: '1px solid hsl(45, 60%, 40%)',
-            boxShadow: '0 4px 20px -5px hsl(45, 100%, 30%)'
-          }}
-          aria-label="Scroll right"
-        >
-          <ChevronRight className="w-5 h-5 md:w-6 md:h-6" style={{ color: 'hsl(45, 100%, 60%)' }} />
-        </button>
-
-        {/* Gradient fade on left edge */}
-        <div 
-          className="absolute left-0 top-0 bottom-0 w-12 md:w-24 z-10 pointer-events-none"
-          style={{
-            background: 'linear-gradient(to right, hsl(0, 0%, 3%) 0%, transparent 100%)'
-          }}
-        />
-        
-        {/* Gradient fade on right edge */}
-        <div 
-          className="absolute right-0 top-0 bottom-0 w-12 md:w-24 z-10 pointer-events-none"
-          style={{
-            background: 'linear-gradient(to left, hsl(0, 0%, 3%) 0%, transparent 100%)'
-          }}
-        />
-        
         {/* Scrollable container */}
-        <div 
-          ref={scrollContainerRef}
-          className="flex items-center gap-0 overflow-x-auto pb-4 px-16 md:px-24 scrollbar-hide"
-          style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            scrollSnapType: 'x mandatory',
-          }}
-        >
+        <div className="relative">
+          {/* Navigation Arrow - Left */}
+          <button
+            onClick={scrollLeft}
+            className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 p-2 md:p-3 rounded-full transition-all duration-300 hover:scale-110"
+            style={{
+              background: 'linear-gradient(135deg, hsl(45, 70%, 25%) 0%, hsl(35, 60%, 18%) 100%)',
+              border: '1px solid hsl(45, 60%, 40%)',
+              boxShadow: '0 4px 20px -5px hsl(45, 100%, 30%)'
+            }}
+            aria-label="Scroll left"
+          >
+            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" style={{ color: 'hsl(45, 100%, 60%)' }} />
+          </button>
+
+          {/* Navigation Arrow - Right */}
+          <button
+            onClick={scrollRight}
+            className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 p-2 md:p-3 rounded-full transition-all duration-300 hover:scale-110"
+            style={{
+              background: 'linear-gradient(135deg, hsl(45, 70%, 25%) 0%, hsl(35, 60%, 18%) 100%)',
+              border: '1px solid hsl(45, 60%, 40%)',
+              boxShadow: '0 4px 20px -5px hsl(45, 100%, 30%)'
+            }}
+            aria-label="Scroll right"
+          >
+            <ChevronRight className="w-5 h-5 md:w-6 md:h-6" style={{ color: 'hsl(45, 100%, 60%)' }} />
+          </button>
+
+          {/* Gradient fade on left edge */}
+          <div 
+            className="absolute left-0 top-0 bottom-0 w-12 md:w-24 z-10 pointer-events-none"
+            style={{
+              background: 'linear-gradient(to right, hsl(0, 0%, 3%) 0%, transparent 100%)'
+            }}
+          />
+          
+          {/* Gradient fade on right edge */}
+          <div 
+            className="absolute right-0 top-0 bottom-0 w-12 md:w-24 z-10 pointer-events-none"
+            style={{
+              background: 'linear-gradient(to left, hsl(0, 0%, 3%) 0%, transparent 100%)'
+            }}
+          />
+          
+          {/* Scrollable container */}
+          <div 
+            ref={scrollContainerRef}
+            className="flex items-center gap-0 overflow-x-auto px-16 md:px-24 scrollbar-hide"
+            style={{
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              scrollSnapType: 'x mandatory',
+            }}
+          >
           {threads.map((thread, index) => (
             <div 
               key={index}
@@ -381,6 +383,7 @@ export function ViralThreadSection() {
               )}
             </div>
           ))}
+          </div>
         </div>
         
         {/* CTA Button */}
