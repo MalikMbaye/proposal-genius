@@ -197,7 +197,7 @@ function GalleryItem({
 }) {
   return (
     <div
-      className={`w-full h-full rounded-xl overflow-hidden border transition-all duration-300 ${
+      className={`w-full h-full rounded-xl overflow-hidden border bg-black/20 transition-all duration-300 flex items-center justify-center ${
         isActive
           ? "border-primary/30 shadow-lg shadow-primary/10"
           : "border-border/30"
@@ -206,7 +206,7 @@ function GalleryItem({
       {item.type === "video" ? (
         <video
           src={item.src}
-          className="w-full h-full object-cover"
+          className="max-w-full max-h-full object-contain"
           autoPlay={isActive}
           muted
           loop
@@ -216,7 +216,7 @@ function GalleryItem({
         <img
           src={item.src}
           alt={item.alt}
-          className="w-full h-full object-cover"
+          className="max-w-full max-h-full object-contain"
           loading="lazy"
         />
       )}
