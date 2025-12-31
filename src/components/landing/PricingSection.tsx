@@ -149,36 +149,6 @@ export function PricingSection() {
           </p>
         </div>
         
-        {/* Launch Promo Banner */}
-        {LAUNCH_PROMO.enabled && (
-          <div className="max-w-3xl mx-auto mb-12">
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border border-amber-500/30 p-6 text-center">
-              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgZmlsbD0iI2ZmYmYwMCIgZmlsbC1vcGFjaXR5PSIuMSIgY3g9IjIwIiBjeT0iMjAiIHI9IjIiLz48L2c+PC9zdmc+')] opacity-50" />
-              <div className="relative">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Sparkles className="h-5 w-5 text-amber-500" />
-                  <span className="text-sm font-bold uppercase tracking-wider text-amber-500">
-                    Launch Special
-                  </span>
-                  <Sparkles className="h-5 w-5 text-amber-500" />
-                </div>
-                <h3 className="text-2xl font-bold mb-2">
-                  First {LAUNCH_PROMO.totalSpots} customers get{" "}
-                  <span className="text-amber-500">{LAUNCH_PROMO.discountPercent}% OFF</span>
-                </h3>
-                <p className="text-muted-foreground mb-3">
-                  Lock in Pro Annual for just <span className="font-bold text-foreground">{LAUNCH_PROMO.promoPrice}</span>{" "}
-                  <span className="line-through text-muted-foreground/60">$197</span> — one year of unlimited proposals
-                </p>
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/20 rounded-full text-amber-600 dark:text-amber-400 font-semibold">
-                  <Clock className="h-4 w-4" />
-                  Only {LAUNCH_PROMO.spotsRemaining} spots remaining!
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-        
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {pricingPlans.map((plan) => {
@@ -329,6 +299,36 @@ export function PricingSection() {
             30-day money-back guarantee
           </div>
         </div>
+        
+        {/* Launch Promo Banner */}
+        {LAUNCH_PROMO.enabled && (
+          <div className="max-w-3xl mx-auto mt-12">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border border-amber-500/30 p-6 text-center">
+              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgZmlsbD0iI2ZmYmYwMCIgZmlsbC1vcGFjaXR5PSIuMSIgY3g9IjIwIiBjeT0iMjAiIHI9IjIiLz48L2c+PC9zdmc+')] opacity-50" />
+              <div className="relative">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Sparkles className="h-5 w-5 text-amber-500" />
+                  <span className="text-sm font-bold uppercase tracking-wider text-amber-500">
+                    Launch Special
+                  </span>
+                  <Sparkles className="h-5 w-5 text-amber-500" />
+                </div>
+                <h3 className="text-2xl font-bold mb-2">
+                  First {LAUNCH_PROMO.totalSpots} customers get{" "}
+                  <span className="text-amber-500">{LAUNCH_PROMO.discountPercent}% OFF</span>
+                </h3>
+                <p className="text-muted-foreground mb-3">
+                  Lock in Pro Annual for just <span className="font-bold text-foreground">{LAUNCH_PROMO.promoPrice}</span>{" "}
+                  <span className="line-through text-muted-foreground/60">$197</span> — one year of unlimited proposals
+                </p>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/20 rounded-full text-amber-600 dark:text-amber-400 font-semibold">
+                  <Clock className="h-4 w-4" />
+                  Only {LAUNCH_PROMO.spotsRemaining} spots remaining!
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* Footnote */}
         <p className="text-center text-xs text-muted-foreground mt-8 max-w-2xl mx-auto">
