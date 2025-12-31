@@ -23,8 +23,8 @@ export default function Index() {
       <HeroSection />
       <ProposalComparisonSection />
       <ViralThreadSection />
-      <FounderSection />
       <HowItWorksSection />
+      <FounderSection />
       <ProblemSection />
       <InsightSection />
       <SolutionSection />
