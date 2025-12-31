@@ -190,28 +190,28 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
   }, [baseProgress, nextProgress]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background overflow-hidden">
-      <div className="flex flex-col items-center gap-5 animate-fade-in w-full max-w-3xl px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background overflow-y-auto overflow-x-hidden">
+      <div className="flex flex-col items-center gap-3 md:gap-5 animate-fade-in w-full max-w-3xl px-3 md:px-4 py-4 md:py-0 min-h-screen md:min-h-0 justify-center">
         {/* Headline - rotates with video */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-1 md:space-y-2">
           <h2 
             className={cn(
-              "text-2xl md:text-3xl font-bold text-foreground leading-tight transition-opacity duration-300",
+              "text-xl md:text-3xl font-bold text-foreground leading-tight transition-opacity duration-300",
               isTransitioning ? "opacity-0" : "opacity-100"
             )}
           >
             {currentHeadline}
           </h2>
-          <p className="text-muted-foreground text-sm md:text-base">
+          <p className="text-muted-foreground text-xs md:text-base px-2">
             {clientName ? `Building a stunning deck for ${clientName}` : subtitle}
           </p>
-          <p className="text-muted-foreground/70 text-xs mt-1">
+          <p className="text-muted-foreground/70 text-[10px] md:text-xs mt-1 px-4">
             Feel free to switch tabs — this takes 5-7 minutes. We'll keep working in the background.
           </p>
         </div>
 
-        {/* Video Container */}
-        <div className="relative w-full max-w-lg aspect-video rounded-2xl overflow-hidden shadow-2xl border border-border/50">
+        {/* Video Container - Responsive */}
+        <div className="relative w-full max-w-sm md:max-w-lg aspect-video rounded-xl md:rounded-2xl overflow-hidden shadow-xl md:shadow-2xl border border-border/50">
           <video
             ref={videoRef}
             key={currentVideo.videoUrl}
@@ -231,27 +231,27 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
         </div>
 
         {/* Video indicator dots */}
-        <div className="flex justify-center gap-1.5">
+        <div className="flex justify-center gap-1 md:gap-1.5">
           {loadingVideos.map((_, index) => (
             <div
               key={index}
               className={cn(
-                "h-1.5 rounded-full transition-all duration-300",
+                "h-1 md:h-1.5 rounded-full transition-all duration-300",
                 index === currentVideoIndex 
-                  ? "w-6 bg-primary"
-                  : "w-1.5 bg-muted-foreground/30"
+                  ? "w-4 md:w-6 bg-primary"
+                  : "w-1 md:w-1.5 bg-muted-foreground/30"
               )}
             />
           ))}
         </div>
 
         {/* Progress Bar with Percentage */}
-        <div className="w-full max-w-lg space-y-2">
-          <div className="flex justify-between items-center text-xs text-muted-foreground">
+        <div className="w-full max-w-sm md:max-w-lg space-y-1.5 md:space-y-2">
+          <div className="flex justify-between items-center text-[10px] md:text-xs text-muted-foreground">
             <span>Progress</span>
             <span className="font-mono font-semibold text-primary">{Math.round(smoothProgress)}%</span>
           </div>
-          <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+          <div className="relative h-1.5 md:h-2 bg-muted rounded-full overflow-hidden">
             <div 
               className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-300 ease-out"
               style={{ width: `${smoothProgress}%` }}
@@ -263,13 +263,13 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
           </div>
         </div>
 
-        {/* Sequential Steps Progress */}
-        <div className="w-full max-w-lg">
+        {/* Sequential Steps Progress - Mobile optimized */}
+        <div className="w-full max-w-sm md:max-w-lg">
           <div className="relative flex justify-between">
             {/* Progress line behind steps */}
-            <div className="absolute top-4 left-0 right-0 h-0.5 bg-muted" />
+            <div className="absolute top-3 md:top-4 left-0 right-0 h-0.5 bg-muted" />
             <div 
-              className="absolute top-4 left-0 h-0.5 bg-primary transition-all duration-500 ease-out"
+              className="absolute top-3 md:top-4 left-0 h-0.5 bg-primary transition-all duration-500 ease-out"
               style={{ width: `${(currentStage / (stages.length - 1)) * 100}%` }}
             />
             
@@ -279,23 +279,23 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
                 <div key={step.label} className="relative flex flex-col items-center z-10">
                   <div
                     className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 border-2",
+                      "w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center transition-all duration-300 border-2",
                       step.status === "completed" && "bg-success border-success text-success-foreground",
                       step.status === "active" && "bg-primary border-primary text-primary-foreground",
                       step.status === "pending" && "bg-background border-muted text-muted-foreground"
                     )}
                   >
                     {step.status === "completed" ? (
-                      <Check className="h-4 w-4" />
+                      <Check className="h-3 w-3 md:h-4 md:w-4" />
                     ) : step.status === "active" ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-3 w-3 md:h-4 md:w-4 animate-spin" />
                     ) : (
-                      <StageIcon className="h-4 w-4" />
+                      <StageIcon className="h-3 w-3 md:h-4 md:w-4" />
                     )}
                   </div>
                   <span 
                     className={cn(
-                      "text-xs mt-2 text-center max-w-16 leading-tight hidden md:block",
+                      "text-[9px] md:text-xs mt-1.5 md:mt-2 text-center max-w-12 md:max-w-16 leading-tight hidden md:block",
                       step.status === "completed" && "text-success",
                       step.status === "active" && "text-primary font-medium",
                       step.status === "pending" && "text-muted-foreground"
@@ -308,34 +308,34 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
             })}
           </div>
           {/* Mobile: show current step label */}
-          <p className="text-center text-sm text-primary font-medium mt-4 md:hidden">
+          <p className="text-center text-xs md:text-sm text-primary font-medium mt-3 md:mt-4 md:hidden">
             {stages[currentStage].label}...
           </p>
         </div>
 
-        {/* Terminal visualization */}
-        <div className="w-full max-w-lg bg-slate-900 rounded-lg border border-slate-700 overflow-hidden shadow-lg">
-          <div className="flex items-center gap-2 px-3 py-2 bg-slate-800 border-b border-slate-700">
-            <Terminal className="h-3.5 w-3.5 text-green-400" />
-            <span className="text-xs text-slate-400 font-mono">Deck Generator</span>
-            <div className="ml-auto flex gap-1">
-              <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
-              <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
-              <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
+        {/* Terminal visualization - Hidden on very small screens */}
+        <div className="w-full max-w-sm md:max-w-lg bg-slate-900 rounded-lg border border-slate-700 overflow-hidden shadow-lg hidden xs:block">
+          <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 bg-slate-800 border-b border-slate-700">
+            <Terminal className="h-3 w-3 md:h-3.5 md:w-3.5 text-green-400" />
+            <span className="text-[10px] md:text-xs text-slate-400 font-mono">Deck Generator</span>
+            <div className="ml-auto flex gap-0.5 md:gap-1">
+              <div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-red-500/60" />
+              <div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-yellow-500/60" />
+              <div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-green-500/60" />
             </div>
           </div>
-          <div className="p-3 font-mono text-xs space-y-1 h-24 overflow-hidden">
+          <div className="p-2 md:p-3 font-mono text-[10px] md:text-xs space-y-0.5 md:space-y-1 h-16 md:h-24 overflow-hidden">
             {terminalOutput.map((line, idx) => (
               <div 
                 key={idx} 
                 className={cn(
-                  "text-green-400 transition-opacity duration-300",
+                  "text-green-400 transition-opacity duration-300 truncate",
                   idx === terminalOutput.length - 1 ? "opacity-100" : "opacity-50"
                 )}
               >
                 <span className="text-slate-500">$</span> {line}
                 {idx === terminalOutput.length - 1 && (
-                  <span className="inline-block w-2 h-3.5 bg-green-400 ml-1 animate-pulse" />
+                  <span className="inline-block w-1.5 md:w-2 h-2.5 md:h-3.5 bg-green-400 ml-1 animate-pulse" />
                 )}
               </div>
             ))}
@@ -343,9 +343,9 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
         </div>
 
         {/* Metrics */}
-        <div className="flex items-center gap-4 text-xs md:text-sm text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <Clock className="h-3.5 w-3.5" />
+        <div className="flex items-center gap-3 md:gap-4 text-[10px] md:text-sm text-muted-foreground">
+          <div className="flex items-center gap-1 md:gap-1.5">
+            <Clock className="h-3 w-3 md:h-3.5 md:w-3.5" />
             <span className="font-mono">{formatTime(elapsedTime)}</span>
           </div>
           <span className="text-muted-foreground/50">•</span>
@@ -353,8 +353,8 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
         </div>
 
         {/* Tips Carousel */}
-        <div className="w-full max-w-md bg-muted/30 rounded-lg p-4 text-center">
-          <p className="text-sm text-muted-foreground transition-opacity duration-500">
+        <div className="w-full max-w-sm md:max-w-md bg-muted/30 rounded-lg p-3 md:p-4 text-center">
+          <p className="text-xs md:text-sm text-muted-foreground transition-opacity duration-500">
             💡 {tips[tipIndex]}
           </p>
         </div>

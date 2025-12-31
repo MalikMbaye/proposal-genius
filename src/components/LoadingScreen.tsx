@@ -151,23 +151,23 @@ export function LoadingScreen({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background overflow-hidden">
-      <div className="flex flex-col items-center gap-5 animate-fade-in w-full max-w-3xl px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background overflow-y-auto overflow-x-hidden">
+      <div className="flex flex-col items-center gap-3 md:gap-5 animate-fade-in w-full max-w-3xl px-3 md:px-4 py-4 md:py-0 min-h-screen md:min-h-0 justify-center">
         {/* Headline - rotates with video */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-1 md:space-y-2">
           <h2 
             className={cn(
-              "text-2xl md:text-3xl font-bold text-foreground leading-tight transition-opacity duration-300",
+              "text-xl md:text-3xl font-bold text-foreground leading-tight transition-opacity duration-300",
               isTransitioning ? "opacity-0" : "opacity-100"
             )}
           >
             {currentHeadline}
           </h2>
-          <p className="text-muted-foreground text-sm md:text-base">{subtitle}</p>
+          <p className="text-muted-foreground text-xs md:text-base">{subtitle}</p>
         </div>
 
-        {/* Video Container */}
-        <div className="relative w-full max-w-lg aspect-video rounded-2xl overflow-hidden shadow-2xl border border-border/50">
+        {/* Video Container - Responsive */}
+        <div className="relative w-full max-w-sm md:max-w-lg aspect-video rounded-xl md:rounded-2xl overflow-hidden shadow-xl md:shadow-2xl border border-border/50">
           <video
             ref={videoRef}
             key={currentVideo.videoUrl}
@@ -187,7 +187,7 @@ export function LoadingScreen({
           
           {/* Progress overlay */}
           {progress > 0 && (
-            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-muted/50">
+            <div className="absolute bottom-0 left-0 right-0 h-1 md:h-1.5 bg-muted/50">
               <div 
                 className="h-full bg-primary transition-all duration-300 ease-out"
                 style={{ width: `${displayProgress}%` }}
@@ -197,70 +197,70 @@ export function LoadingScreen({
         </div>
 
         {/* Video indicator dots */}
-        <div className="flex justify-center gap-1.5">
+        <div className="flex justify-center gap-1 md:gap-1.5">
           {loadingVideos.map((_, index) => (
             <div
               key={index}
               className={cn(
-                "h-1.5 rounded-full transition-all duration-300",
+                "h-1 md:h-1.5 rounded-full transition-all duration-300",
                 index === currentVideoIndex 
-                  ? "w-6 bg-primary"
-                  : "w-1.5 bg-muted-foreground/30"
+                  ? "w-4 md:w-6 bg-primary"
+                  : "w-1 md:w-1.5 bg-muted-foreground/30"
               )}
             />
           ))}
         </div>
 
-        {/* Steps */}
+        {/* Steps - Scrollable on mobile */}
         {steps.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-2 md:gap-3">
+          <div className="flex flex-wrap justify-center gap-1.5 md:gap-3 px-2">
             {steps.map((step) => (
               <div
                 key={step.label}
                 className={cn(
-                  "flex items-center gap-2 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium transition-all duration-300",
+                  "flex items-center gap-1.5 md:gap-2 rounded-full px-2.5 py-1 md:px-4 md:py-2 text-[10px] md:text-sm font-medium transition-all duration-300",
                   step.status === "completed" && "bg-success/20 text-success",
                   step.status === "active" && "bg-primary/20 text-primary",
                   step.status === "pending" && "bg-muted text-muted-foreground"
                 )}
               >
                 {step.status === "completed" ? (
-                  <Check className="h-3.5 w-3.5" />
+                  <Check className="h-3 w-3 md:h-3.5 md:w-3.5" />
                 ) : step.status === "active" ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <Loader2 className="h-3 w-3 md:h-3.5 md:w-3.5 animate-spin" />
                 ) : (
-                  <Circle className="h-3.5 w-3.5" />
+                  <Circle className="h-3 w-3 md:h-3.5 md:w-3.5" />
                 )}
-                <span>{step.label}</span>
+                <span className="whitespace-nowrap">{step.label}</span>
               </div>
             ))}
           </div>
         )}
 
-        {/* Terminal visualization */}
+        {/* Terminal visualization - Hidden on very small screens */}
         {showTerminal && (
-          <div className="w-full max-w-lg bg-slate-900 rounded-lg border border-slate-700 overflow-hidden shadow-lg">
-            <div className="flex items-center gap-2 px-3 py-2 bg-slate-800 border-b border-slate-700">
-              <Terminal className="h-3.5 w-3.5 text-green-400" />
-              <span className="text-xs text-slate-400 font-mono">AI Agent</span>
-              <div className="ml-auto flex gap-1">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
-                <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
-                <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
+          <div className="w-full max-w-sm md:max-w-lg bg-slate-900 rounded-lg border border-slate-700 overflow-hidden shadow-lg hidden xs:block">
+            <div className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1.5 md:py-2 bg-slate-800 border-b border-slate-700">
+              <Terminal className="h-3 w-3 md:h-3.5 md:w-3.5 text-green-400" />
+              <span className="text-[10px] md:text-xs text-slate-400 font-mono">AI Agent</span>
+              <div className="ml-auto flex gap-0.5 md:gap-1">
+                <div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-red-500/60" />
+                <div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-yellow-500/60" />
+                <div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-green-500/60" />
               </div>
             </div>
-            <div className="p-3 font-mono text-xs space-y-1 h-24 overflow-hidden">
+            <div className="p-2 md:p-3 font-mono text-[10px] md:text-xs space-y-0.5 md:space-y-1 h-16 md:h-24 overflow-hidden">
               {terminalOutput.map((line, idx) => (
                 <div 
                   key={idx} 
                   className={cn(
-                    "text-green-400 transition-opacity duration-300",
+                    "text-green-400 transition-opacity duration-300 truncate",
                     idx === terminalOutput.length - 1 ? "opacity-100" : "opacity-50"
                   )}
                 >
                   <span className="text-slate-500">$</span> {line}
                   {idx === terminalOutput.length - 1 && (
-                    <span className="inline-block w-2 h-3.5 bg-green-400 ml-1 animate-pulse" />
+                    <span className="inline-block w-1.5 md:w-2 h-2.5 md:h-3.5 bg-green-400 ml-1 animate-pulse" />
                   )}
                 </div>
               ))}
@@ -270,9 +270,9 @@ export function LoadingScreen({
 
         {/* Metrics */}
         {showMetrics && (
-          <div className="flex items-center gap-4 text-xs md:text-sm text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5" />
+          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 text-[10px] md:text-sm text-muted-foreground">
+            <div className="flex items-center gap-1 md:gap-1.5">
+              <Clock className="h-3 w-3 md:h-3.5 md:w-3.5" />
               <span className="font-mono">{formatTime(elapsedTime)}</span>
             </div>
             {charCount !== undefined && charCount > 0 && (
