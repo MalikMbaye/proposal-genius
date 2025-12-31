@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Trophy } from "lucide-react";
+import { Trophy, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import trophy3D from "@/assets/trophy-3d.png";
 
 import thread1 from "@/assets/threads/thread-1.png";
@@ -56,6 +57,19 @@ function ConfettiParticle({ delay, left, color }: { delay: number; left: number;
 export function ViralThreadSection() {
   const [showConfetti, setShowConfetti] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -320, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 320, behavior: 'smooth' });
+    }
+  };
 
   // Trigger confetti on scroll into view
   useEffect(() => {
@@ -265,6 +279,34 @@ export function ViralThreadSection() {
 
       {/* Horizontal Scrolling Thread Gallery with Connecting Line */}
       <div className="relative">
+        {/* Navigation Arrow - Left */}
+        <button
+          onClick={scrollLeft}
+          className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 p-2 md:p-3 rounded-full transition-all duration-300 hover:scale-110"
+          style={{
+            background: 'linear-gradient(135deg, hsl(45, 70%, 25%) 0%, hsl(35, 60%, 18%) 100%)',
+            border: '1px solid hsl(45, 60%, 40%)',
+            boxShadow: '0 4px 20px -5px hsl(45, 100%, 30%)'
+          }}
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" style={{ color: 'hsl(45, 100%, 60%)' }} />
+        </button>
+
+        {/* Navigation Arrow - Right */}
+        <button
+          onClick={scrollRight}
+          className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 p-2 md:p-3 rounded-full transition-all duration-300 hover:scale-110"
+          style={{
+            background: 'linear-gradient(135deg, hsl(45, 70%, 25%) 0%, hsl(35, 60%, 18%) 100%)',
+            border: '1px solid hsl(45, 60%, 40%)',
+            boxShadow: '0 4px 20px -5px hsl(45, 100%, 30%)'
+          }}
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="w-5 h-5 md:w-6 md:h-6" style={{ color: 'hsl(45, 100%, 60%)' }} />
+        </button>
+
         {/* Gradient fade on left edge */}
         <div 
           className="absolute left-0 top-0 bottom-0 w-12 md:w-24 z-10 pointer-events-none"
@@ -283,7 +325,8 @@ export function ViralThreadSection() {
         
         {/* Scrollable container */}
         <div 
-          className="flex items-center gap-0 overflow-x-auto pb-4 px-6 md:px-12 scrollbar-hide"
+          ref={scrollContainerRef}
+          className="flex items-center gap-0 overflow-x-auto pb-4 px-16 md:px-24 scrollbar-hide"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
@@ -296,13 +339,8 @@ export function ViralThreadSection() {
               className="flex items-center flex-shrink-0"
               style={{ scrollSnapAlign: 'center' }}
             >
-              {/* Thread image */}
-              <a 
-                href="https://www.threads.com/@malick.io/post/DEwQ0atOqQO?xmt=AQGzXlX8yUYcbOJixlBXYuoC7XOxHNASHjsQkmXIAKNYog"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex-shrink-0"
-              >
+              {/* Thread image - no hyperlink */}
+              <div className="group flex-shrink-0">
                 <div className="relative">
                   {/* Gold glow behind image on hover */}
                   <div 
@@ -322,7 +360,7 @@ export function ViralThreadSection() {
                     draggable={false}
                   />
                 </div>
-              </a>
+              </div>
               
               {/* Connecting arrow between images (not after last) */}
               {index < threads.length - 1 && (
@@ -345,13 +383,27 @@ export function ViralThreadSection() {
           ))}
         </div>
         
-        {/* Scroll hint */}
-        <p 
-          className="text-center text-xs mt-3"
-          style={{ color: 'hsl(45, 30%, 45%)' }}
-        >
-          ← Swipe to read the full thread →
-        </p>
+        {/* CTA Button */}
+        <div className="flex justify-center mt-6">
+          <Button
+            asChild
+            className="group px-6 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105"
+            style={{
+              background: 'linear-gradient(135deg, hsl(45, 100%, 50%) 0%, hsl(38, 90%, 45%) 100%)',
+              color: 'hsl(0, 0%, 5%)',
+              boxShadow: '0 8px 30px -5px hsl(45, 100%, 40%)'
+            }}
+          >
+            <a 
+              href="https://www.threads.com/@malick.io/post/DEwQ0atOqQO?xmt=AQGzXlX8yUYcbOJixlBXYuoC7XOxHNASHjsQkmXIAKNYog"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Click here to read the original thread
+            </a>
+          </Button>
+        </div>
       </div>
 
       {/* Confetti keyframes */}
