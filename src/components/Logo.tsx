@@ -22,12 +22,20 @@ export function Logo({ className, showIcon = true, variant = "default" }: LogoPr
           </div>
         </div>
       )}
-      <span className={cn(
-        "text-xl font-bold tracking-tight",
-        isLight ? "text-white" : "text-foreground"
-      )}>
-        Pitch<span className="text-primary font-normal">Genius</span>
-      </span>
+      <div className="flex flex-col">
+        <span className={cn(
+          "text-xl font-bold tracking-tight leading-tight",
+          isLight ? "text-white" : "text-foreground"
+        )}>
+          Pitch<span className="text-primary font-normal">Genius</span>
+        </span>
+        <span className={cn(
+          "text-[9px] tracking-wide leading-none",
+          isLight ? "text-white/60" : "text-muted-foreground/70"
+        )}>
+          by Black Lotus Ventures
+        </span>
+      </div>
     </div>
   );
 }
