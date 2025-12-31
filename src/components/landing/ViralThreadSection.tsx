@@ -55,7 +55,9 @@ function ConfettiParticle({ delay, left, color }: { delay: number; left: number;
 
 export function ViralThreadSection() {
   const [showConfetti, setShowConfetti] = useState(false);
+  const [centeredIndex, setCenteredIndex] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Trigger confetti on scroll into view
   useEffect(() => {
@@ -76,6 +78,39 @@ export function ViralThreadSection() {
 
     return () => observer.disconnect();
   }, [showConfetti]);
+
+  // Track which image is centered
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const containerRect = container.getBoundingClientRect();
+      const containerCenter = containerRect.left + containerRect.width / 2;
+      
+      const items = container.querySelectorAll('.thread-item');
+      let closestIndex = 0;
+      let closestDistance = Infinity;
+      
+      items.forEach((item, index) => {
+        const itemRect = item.getBoundingClientRect();
+        const itemCenter = itemRect.left + itemRect.width / 2;
+        const distance = Math.abs(containerCenter - itemCenter);
+        
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = index;
+        }
+      });
+      
+      setCenteredIndex(closestIndex);
+    };
+
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial check
+    
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Generate confetti particles
   const confettiColors = [
@@ -263,11 +298,11 @@ export function ViralThreadSection() {
         </div>
       </div>
 
-      {/* Horizontal Scrolling Thread Gallery with Connecting Line */}
+      {/* Horizontal Scrolling Thread Gallery with Scaling Effect */}
       <div className="relative">
         {/* Gradient fade on left edge */}
         <div 
-          className="absolute left-0 top-0 bottom-0 w-12 md:w-24 z-10 pointer-events-none"
+          className="absolute left-0 top-0 bottom-0 w-16 md:w-32 z-10 pointer-events-none"
           style={{
             background: 'linear-gradient(to right, hsl(0, 0%, 3%) 0%, transparent 100%)'
           }}
@@ -275,15 +310,16 @@ export function ViralThreadSection() {
         
         {/* Gradient fade on right edge */}
         <div 
-          className="absolute right-0 top-0 bottom-0 w-12 md:w-24 z-10 pointer-events-none"
+          className="absolute right-0 top-0 bottom-0 w-16 md:w-32 z-10 pointer-events-none"
           style={{
             background: 'linear-gradient(to left, hsl(0, 0%, 3%) 0%, transparent 100%)'
           }}
         />
         
-        {/* Scrollable container */}
+        {/* Scrollable container with scroll-snap for centered focus */}
         <div 
-          className="flex items-center gap-0 overflow-x-auto pb-4 px-6 md:px-12 scrollbar-hide"
+          ref={scrollContainerRef}
+          className="thread-scroll-container flex items-center gap-4 overflow-x-auto py-8 px-[calc(50vw-140px)] md:px-[calc(50vw-180px)] lg:px-[calc(50vw-220px)]"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
@@ -293,7 +329,7 @@ export function ViralThreadSection() {
           {threads.map((thread, index) => (
             <div 
               key={index}
-              className="flex items-center flex-shrink-0"
+              className={`thread-item flex-shrink-0 transition-all duration-300 ease-out ${index === centeredIndex ? 'is-centered' : ''}`}
               style={{ scrollSnapAlign: 'center' }}
             >
               {/* Thread image */}
@@ -301,12 +337,12 @@ export function ViralThreadSection() {
                 href="https://www.threads.com/@malick.io/post/DEwQ0atOqQO?xmt=AQGzXlX8yUYcbOJixlBXYuoC7XOxHNASHjsQkmXIAKNYog"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex-shrink-0"
+                className="group block"
               >
                 <div className="relative">
                   {/* Gold glow behind image on hover */}
                   <div 
-                    className="absolute -inset-2 rounded-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300 blur-xl"
+                    className="absolute -inset-3 rounded-xl opacity-0 group-hover:opacity-60 transition-opacity duration-300 blur-xl"
                     style={{ 
                       background: 'linear-gradient(135deg, hsl(45, 100%, 45%) 0%, hsl(35, 90%, 30%) 100%)',
                     }}
@@ -315,7 +351,7 @@ export function ViralThreadSection() {
                   <img 
                     src={thread.src} 
                     alt={thread.alt}
-                    className="relative w-64 md:w-80 lg:w-96 h-auto rounded-xl shadow-xl transition-all duration-300 group-hover:scale-[1.02]"
+                    className="thread-image relative w-56 md:w-72 lg:w-80 h-auto rounded-xl shadow-xl transition-all duration-300"
                     style={{
                       boxShadow: '0 15px 40px -10px rgba(0,0,0,0.6), 0 0 20px -5px hsl(45, 100%, 30%)'
                     }}
@@ -323,38 +359,20 @@ export function ViralThreadSection() {
                   />
                 </div>
               </a>
-              
-              {/* Connecting arrow between images (not after last) */}
-              {index < threads.length - 1 && (
-                <div className="flex items-center px-2 md:px-3 flex-shrink-0">
-                  <div 
-                    className="w-8 md:w-12 h-0.5 rounded-full"
-                    style={{
-                      background: 'linear-gradient(90deg, hsl(45, 100%, 50%), hsl(45, 80%, 40%))'
-                    }}
-                  />
-                  <div 
-                    className="w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-l-[6px]"
-                    style={{
-                      borderLeftColor: 'hsl(45, 80%, 40%)'
-                    }}
-                  />
-                </div>
-              )}
             </div>
           ))}
         </div>
         
         {/* Scroll hint */}
         <p 
-          className="text-center text-xs mt-3"
+          className="text-center text-xs mt-2"
           style={{ color: 'hsl(45, 30%, 45%)' }}
         >
           ← Swipe to read the full thread →
         </p>
       </div>
 
-      {/* Confetti keyframes */}
+      {/* Confetti keyframes and scroll scaling styles */}
       <style>{`
         @keyframes confetti-fall {
           0% {
@@ -367,8 +385,50 @@ export function ViralThreadSection() {
           }
         }
         
-        .scrollbar-hide::-webkit-scrollbar {
+        .thread-scroll-container::-webkit-scrollbar {
           display: none;
+        }
+        
+        /* Use CSS scroll-driven animations for scaling effect */
+        .thread-item {
+          transform: scale(0.85);
+          opacity: 0.5;
+          filter: brightness(0.7);
+        }
+        
+        .thread-item:hover {
+          transform: scale(0.9);
+          opacity: 0.7;
+          filter: brightness(0.85);
+        }
+        
+        /* The centered/snapped item gets full size */
+        .thread-scroll-container {
+          scroll-padding: 0 calc(50vw - 140px);
+        }
+        
+        @media (min-width: 768px) {
+          .thread-scroll-container {
+            scroll-padding: 0 calc(50vw - 180px);
+          }
+        }
+        
+        @media (min-width: 1024px) {
+          .thread-scroll-container {
+            scroll-padding: 0 calc(50vw - 220px);
+          }
+        }
+        
+        /* JavaScript will add this class to the centered item */
+        .thread-item.is-centered {
+          transform: scale(1.1);
+          opacity: 1;
+          filter: brightness(1);
+          z-index: 5;
+        }
+        
+        .thread-item.is-centered .thread-image {
+          box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8), 0 0 40px -5px hsl(45, 100%, 40%);
         }
       `}</style>
     </section>
