@@ -10,13 +10,13 @@ const corsHeaders = {
 // Stripe product/price IDs
 const PRODUCTS = {
   pro_monthly: {
-    price_id: "price_1Sk5YcAIOyHZaZ4io4gmqYfh",
-    product_id: "prod_ThUXIPr5J8gFxB",
+    price_id: "price_1SkRPJAIOyHZaZ4iIDDVoQp3",
+    product_id: "prod_Thr7zNfpSc4ezH",
     mode: "subscription" as const,
   },
   lifetime: {
-    price_id: "price_1Sk5bdAIOyHZaZ4ieGeRtCU6",
-    product_id: "prod_ThUa3NfcWYtQPp",
+    price_id: "price_1SkRPYAIOyHZaZ4idY4X7rFK",
+    product_id: "prod_Thr7zNfpSc4ezH",
     mode: "payment" as const,
   },
   extra_proposals: {
