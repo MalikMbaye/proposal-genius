@@ -16,7 +16,7 @@ export interface LoadingScreenProps {
   charCount?: number;
   timeElapsed?: number;
   progress?: number;
-  manusVisualization?: React.ReactNode;
+  extraVisualization?: React.ReactNode;
   showTerminal?: boolean;
 }
 
@@ -45,7 +45,7 @@ export function LoadingScreen({
   charCount,
   timeElapsed = 0,
   progress = 0,
-  manusVisualization,
+  extraVisualization,
   showTerminal = true,
 }: LoadingScreenProps) {
   const [displayProgress, setDisplayProgress] = useState(0);
@@ -296,10 +296,10 @@ export function LoadingScreen({
           </div>
         )}
 
-        {/* Manus Visualization (if provided) */}
-        {manusVisualization && (
+        {/* Extra Visualization (if provided) */}
+        {extraVisualization && (
           <div className="w-full mt-2">
-            {manusVisualization}
+            {extraVisualization}
           </div>
         )}
       </div>
