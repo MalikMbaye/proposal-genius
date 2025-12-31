@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
 
@@ -7,6 +8,89 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Cost per 1K tokens (in cents) - Claude Sonnet pricing
+const COST_PER_1K_INPUT_TOKENS = 0.3; // $0.003 per 1K input tokens
+const COST_PER_1K_OUTPUT_TOKENS = 1.5; // $0.015 per 1K output tokens
+
+// Track API usage
+async function trackUsage(userId: string, inputTokens: number, outputTokens: number) {
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+
+  const totalTokens = inputTokens + outputTokens;
+  const estimatedCostCents = Math.round(
+    (inputTokens / 1000) * COST_PER_1K_INPUT_TOKENS +
+    (outputTokens / 1000) * COST_PER_1K_OUTPUT_TOKENS
+  );
+
+  const { error } = await supabase
+    .from('api_usage_tracking')
+    .insert({
+      user_id: userId,
+      function_name: 'generate-proposal',
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
+      total_tokens: totalTokens,
+      estimated_cost_cents: estimatedCostCents,
+    });
+
+  if (error) {
+    console.error('Error tracking usage:', error);
+  } else {
+    console.log(`[USAGE] Tracked ${totalTokens} tokens (${estimatedCostCents} cents) for user ${userId}`);
+  }
+}
+
+// Check if user is over their usage limit
+async function checkUsageLimit(userId: string): Promise<{ allowed: boolean; message?: string }> {
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+
+  // Get start of current month
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  // Get current month usage
+  const { data: usageData } = await supabase
+    .from('api_usage_tracking')
+    .select('total_tokens')
+    .eq('user_id', userId)
+    .gte('created_at', startOfMonth.toISOString());
+
+  const currentUsage = (usageData || []).reduce((sum, r) => sum + (r.total_tokens || 0), 0);
+
+  // Get user subscription
+  const { data: subscription } = await supabase
+    .from('user_subscriptions')
+    .select('subscription_type, status')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .single();
+
+  const limits: Record<string, number> = {
+    free: 50000,
+    pro_monthly: 1000000,
+    lifetime: 2000000,
+  };
+
+  const subscriptionType = subscription?.subscription_type || 'free';
+  const limit = limits[subscriptionType] || limits.free;
+
+  if (currentUsage >= limit) {
+    return {
+      allowed: false,
+      message: `You've reached your monthly token limit (${currentUsage.toLocaleString()}/${limit.toLocaleString()}). Please upgrade your plan for more usage.`,
+    };
+  }
+
+  return { allowed: true };
+}
 
 const PROPOSAL_SYSTEM_PROMPT = `You are an expert business proposal writer. Your proposals follow a narrative-driven, detailed style that prioritizes depth over conciseness.
 
@@ -259,11 +343,23 @@ serve(async (req) => {
     const pricing = body.pricing || { strategy: '', ai: '', managed: '' };
     const proposalOnly = body.proposalOnly || false;
     const stream = body.stream || false;
+    const userId = body.userId || null;
 
-    console.log('Generating proposal with Claude API:', { proposalLength, proposalOnly, stream, caseStudiesCount: caseStudies?.length });
+    console.log('Generating proposal with Claude API:', { proposalLength, proposalOnly, stream, userId });
 
     if (!ANTHROPIC_API_KEY) {
       throw new Error('ANTHROPIC_API_KEY is not configured');
+    }
+
+    // Check usage limits if user is authenticated
+    if (userId) {
+      const limitCheck = await checkUsageLimit(userId);
+      if (!limitCheck.allowed) {
+        return new Response(JSON.stringify({ error: limitCheck.message, usage_exceeded: true }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     const systemPrompt = proposalOnly ? PROPOSAL_ONLY_PROMPT : PROPOSAL_SYSTEM_PROMPT;
@@ -420,8 +516,15 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
 
     const data = await response.json();
     const fullText = data.content?.[0]?.text || '';
+    const inputTokens = data.usage?.input_tokens || 0;
+    const outputTokens = data.usage?.output_tokens || 0;
 
-    console.log('Received Claude response, length:', fullText.length);
+    console.log('Received Claude response, length:', fullText.length, 'tokens:', inputTokens + outputTokens);
+
+    // Track usage if user is authenticated
+    if (userId && (inputTokens > 0 || outputTokens > 0)) {
+      await trackUsage(userId, inputTokens, outputTokens);
+    }
 
     // Parse sections using the --- separator
     const extractSection = (text: string, marker: string): string => {

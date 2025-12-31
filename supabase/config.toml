@@ -35,3 +35,12 @@ verify_jwt = false
 
 [functions.send-deck-notification]
 verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.check-deck-concurrency]
+verify_jwt = false
+
+[functions.get-usage-stats]
+verify_jwt = false
