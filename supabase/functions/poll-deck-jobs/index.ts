@@ -29,10 +29,13 @@ interface ManusTaskStatus {
 
 interface DeckJob {
   id: string;
+  user_id: string;
   manus_task_id: string;
   status: string;
   progress: number;
   created_at: string;
+  client_name: string | null;
+  proposal_id: string | null;
 }
 
 function extractPdfUrl(taskOutput: ManusTaskStatus['output']): string | null {
@@ -93,6 +96,35 @@ async function checkManusTask(taskId: string, apiKey: string): Promise<ManusTask
   }
 }
 
+async function sendCompletionEmail(job: DeckJob, pdfUrl: string | null, supabase: ReturnType<typeof getSupabaseClient>) {
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    // Call the send-deck-notification function
+    const response = await fetch(`${supabaseUrl}/functions/v1/send-deck-notification`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseAnonKey}`,
+      },
+      body: JSON.stringify({
+        jobId: job.id,
+        userId: job.user_id,
+        clientName: job.client_name,
+        resultUrl: pdfUrl,
+        proposalId: job.proposal_id,
+      }),
+    });
+
+    const result = await response.json();
+    console.log(`Email notification result for job ${job.id}:`, result);
+  } catch (error) {
+    console.error(`Failed to send email for job ${job.id}:`, error);
+    // Don't throw - email failure shouldn't break the job completion
+  }
+}
+
 async function processJob(job: DeckJob, apiKey: string, supabase: ReturnType<typeof getSupabaseClient>) {
   console.log(`Processing job ${job.id} with Manus task ${job.manus_task_id}`);
   
@@ -123,6 +155,9 @@ async function processJob(job: DeckJob, apiKey: string, supabase: ReturnType<typ
       console.error(`Error updating completed job ${job.id}:`, error);
     } else {
       console.log(`Successfully marked job ${job.id} as completed`);
+      
+      // Send email notification
+      await sendCompletionEmail(job, pdfUrl, supabase);
     }
   } else if (taskStatus.status === 'failed') {
     const errorMsg = taskStatus.error || 'Manus task failed';
@@ -181,7 +216,7 @@ serve(async (req) => {
     // Fetch all pending/running jobs that have a manus_task_id
     const { data: jobs, error: fetchError } = await supabase
       .from('deck_generation_jobs')
-      .select('id, manus_task_id, status, progress, created_at')
+      .select('id, user_id, manus_task_id, status, progress, created_at, client_name, proposal_id')
       .in('status', ['pending', 'running'])
       .not('manus_task_id', 'is', null)
       .order('created_at', { ascending: true })
