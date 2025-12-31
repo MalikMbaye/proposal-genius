@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface SubscriptionStatus {
   subscribed: boolean;
-  subscription_type: 'pro_monthly' | 'lifetime' | null;
+  subscription_type: 'pro_monthly' | 'pro_annual' | 'lifetime' | null;
   has_lifetime: boolean;
   has_pro_library: boolean;
   subscription_end: string | null;
@@ -22,7 +22,7 @@ interface SubscriptionContextType extends SubscriptionStatus {
   checkIpUsage: () => Promise<{ can_generate: boolean; remaining: number; proposals_used: number }>;
   checkLifetimeAvailability: () => Promise<{ available: boolean; spots_remaining: number }>;
   recordUsage: () => Promise<void>;
-  openCheckout: (productType: 'pro_monthly' | 'lifetime' | 'extra_proposals' | 'pro_library') => Promise<void>;
+  openCheckout: (productType: 'pro_monthly' | 'pro_annual' | 'lifetime' | 'extra_proposals' | 'pro_library') => Promise<void>;
   openCustomerPortal: () => Promise<void>;
 }
 
@@ -135,7 +135,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     }
   }, [session]);
 
-  const openCheckout = useCallback(async (productType: 'pro_monthly' | 'lifetime' | 'extra_proposals' | 'pro_library') => {
+  const openCheckout = useCallback(async (productType: 'pro_monthly' | 'pro_annual' | 'lifetime' | 'extra_proposals' | 'pro_library') => {
     if (!session) {
       throw new Error('Must be logged in to checkout');
     }
