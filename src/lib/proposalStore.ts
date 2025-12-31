@@ -18,7 +18,7 @@ interface Deliverables {
 
 interface DeckData {
   generationId: string | null;
-  gammaUrl: string | null;
+  externalUrl: string | null;
   pdfUrl: string | null;
   pptxUrl: string | null;
   thumbnailUrl: string | null;
@@ -49,7 +49,7 @@ interface ProposalState {
   // Generated deliverables (can be partial)
   deliverables: Partial<Deliverables> | null;
   
-  // Deck data from Gamma
+  // Generated deck data
   deckData: DeckData;
   
   // Database proposal ID
@@ -84,7 +84,7 @@ const defaultBackground = `• 8 years in growth marketing & B2B SaaS
 
 const defaultDeckData: DeckData = {
   generationId: null,
-  gammaUrl: null,
+  externalUrl: null,
   pdfUrl: null,
   pptxUrl: null,
   thumbnailUrl: null,
@@ -157,7 +157,7 @@ export const useProposalStore = create<ProposalState>((set, get) => ({
       project_context: state.clientContext,
       proposal: state.deliverables?.proposal || null,
       deck_prompt: state.deliverables?.deckPrompt || null,
-      deck_url: state.deckData.pdfUrl || state.deckData.gammaUrl || null,
+      deck_url: state.deckData.pdfUrl || state.deckData.externalUrl || null,
       contract: state.deliverables?.contract || null,
       proposal_email: state.deliverables?.proposalEmail || null,
       contract_email: state.deliverables?.contractEmail || null,
