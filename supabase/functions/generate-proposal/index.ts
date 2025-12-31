@@ -30,7 +30,7 @@ Generate ALL of these with clear section headers:
 Full proposal with: Executive Summary, Problem Assessment/Reality Check, Solution/Strategic Approach, Execution Plan, Investment & Pricing (with risk mitigation), Why Us/Qualifications, Next Steps.
 
 ### 2. PRESENTATION DECK PROMPT
-Generate a Gamma-optimized presentation prompt with VISUAL-FIRST formatting. This is critical for professional output.
+Generate a presentation-optimized prompt with VISUAL-FIRST formatting. This is critical for professional output.
 
 **VISUAL FORMATTING RULES (MANDATORY):**
 

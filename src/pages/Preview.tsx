@@ -162,7 +162,7 @@ export default function Preview() {
     setDeckData({
       status: 'completed',
       generationId: job.id,
-      gammaUrl: null,
+      externalUrl: null,
       pdfUrl: job.result_url,
       pptxUrl: null,
       thumbnailUrl: null,
@@ -202,7 +202,7 @@ export default function Preview() {
         setDeckData({
           status: 'completed',
           generationId: deckJob.id,
-          gammaUrl: null,
+          externalUrl: null,
           pdfUrl: deckJob.result_url,
           pptxUrl: null,
           thumbnailUrl: null,
@@ -867,9 +867,9 @@ Key requirements:
                       </a>
                     </Button>
                   )}
-                  {deckData.gammaUrl && (
+                  {deckData.externalUrl && (
                     <Button size="sm" variant="outline" asChild>
-                      <a href={deckData.gammaUrl} target="_blank" rel="noopener noreferrer">
+                      <a href={deckData.externalUrl} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="mr-2 h-4 w-4" />
                         View Deck
                       </a>
@@ -957,7 +957,7 @@ Key requirements:
                     className="min-h-[50vh] md:min-h-[70vh]"
                   />
                 )}
-                {deckData.status === 'completed' && !deckData.pdfUrl && deckData.gammaUrl && (
+                {deckData.status === 'completed' && !deckData.pdfUrl && deckData.externalUrl && (
                   <div className="rounded-xl border border-slate-600 bg-slate-800 p-12 text-center">
                     <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
                       <Check className="h-8 w-8 text-primary" />
@@ -967,7 +967,7 @@ Key requirements:
                       Your presentation has been created. Click below to view it.
                     </p>
                     <Button size="lg" asChild>
-                      <a href={deckData.gammaUrl} target="_blank" rel="noopener noreferrer">
+                      <a href={deckData.externalUrl} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="mr-2 h-5 w-5" />
                         View Presentation
                       </a>
