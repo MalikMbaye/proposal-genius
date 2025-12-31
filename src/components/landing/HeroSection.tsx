@@ -158,19 +158,24 @@ export function HeroSection() {
               <HeroCarousel />
             </div>
             
+            {/* Stop Underpricing Label */}
+            <div className="inline-flex items-center rounded-full bg-primary/15 border border-primary/30 px-3 py-1 text-sm font-semibold text-primary mb-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+              Stop Underpricing
+            </div>
+            
             {/* Headline - Staggered animation */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6 text-light-foreground">
-              <span className="block animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                Stop Underpricing.
+              <span className="block animate-slide-up" style={{ animationDelay: '0.15s' }}>
+                Increase Your Perceived Value.
               </span>
-              <span className="block animate-slide-up text-gradient" style={{ animationDelay: '0.2s' }}>
-                Start Closing 7-Figure Deals.
+              <span className="block animate-slide-up text-gradient" style={{ animationDelay: '0.25s' }}>
+                Charge What You're Worth.
               </span>
             </h1>
             
             {/* Sub-headline */}
-            <p className="text-lg md:text-xl text-light-muted mb-6 max-w-xl animate-fade-in" style={{ animationDelay: '0.3s' }}>
-              AI-powered proposal packages that position you as the obvious choice.
+            <p className="text-lg md:text-xl text-light-muted mb-6 max-w-xl animate-fade-in" style={{ animationDelay: '0.35s' }}>
+              Close seven-figure deals with a proven AI proposal system.
               Get a complete proposal, contract, deck, emails, and invoice—in seconds.
             </p>
             
