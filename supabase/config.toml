@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.poll-deck-jobs]
 verify_jwt = false
+
+[functions.send-deck-notification]
+verify_jwt = false
