@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AppHeader } from "@/components/AppHeader";
@@ -40,6 +40,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EditProposalModal } from "@/components/EditProposalModal";
 import { useStreamingProposal } from "@/hooks/useStreamingProposal";
+import { useDeckGenerationJob, DeckJob } from "@/hooks/useDeckGenerationJob";
 import { businessTypes } from "@/components/BusinessTypeSelector";
 import { toast } from "@/hooks/use-toast";
 
@@ -155,6 +156,65 @@ export default function Preview() {
     charCount, 
     startStreaming 
   } = useStreamingProposal();
+
+  // Persistent deck generation job hook
+  const handleDeckComplete = useCallback((job: DeckJob) => {
+    setDeckData({
+      status: 'completed',
+      generationId: job.id,
+      gammaUrl: null,
+      pdfUrl: job.result_url,
+      pptxUrl: null,
+      thumbnailUrl: null,
+    });
+    saveToDatabase();
+    toast({
+      title: "Slide deck generated!",
+      description: "Your presentation is ready to preview and download.",
+    });
+  }, [setDeckData, saveToDatabase]);
+
+  const handleDeckError = useCallback((error: string) => {
+    setDeckData({
+      status: 'error',
+      error,
+    });
+  }, [setDeckData]);
+
+  const {
+    currentJob: deckJob,
+    isGenerating: isDeckGenerating,
+    startGeneration: startDeckGeneration,
+  } = useDeckGenerationJob({
+    proposalId,
+    onComplete: handleDeckComplete,
+    onError: handleDeckError,
+  });
+
+  // Sync deck job status to deckData for UI
+  useEffect(() => {
+    if (deckJob) {
+      if (deckJob.status === 'pending' || deckJob.status === 'running') {
+        if (deckData.status !== 'generating') {
+          setDeckData({ status: 'generating', error: null });
+        }
+      } else if (deckJob.status === 'completed' && deckJob.result_url) {
+        setDeckData({
+          status: 'completed',
+          generationId: deckJob.id,
+          gammaUrl: null,
+          pdfUrl: deckJob.result_url,
+          pptxUrl: null,
+          thumbnailUrl: null,
+        });
+      } else if (deckJob.status === 'failed') {
+        setDeckData({
+          status: 'error',
+          error: deckJob.error_message || 'Generation failed',
+        });
+      }
+    }
+  }, [deckJob, deckData.status, setDeckData]);
 
   // If we have a proposal, show banner and switch to proposal tab on initial load
   useEffect(() => {
@@ -315,69 +375,19 @@ export default function Preview() {
     }
   };
 
-  // Poll for task completion
-  const pollTaskStatus = async (taskId: string, taskUrl: string, shareUrl?: string) => {
-    const maxAttempts = 120; // 10 minutes at 5 second intervals
-    let attempts = 0;
+  // Create a deck prompt from the proposal if no deckPrompt exists
+  const createDeckPromptFromProposal = () => {
+    if (!deliverables?.proposal) return null;
+    
+    return `Create a professional presentation based on this proposal content:
 
-    const poll = async (): Promise<void> => {
-      attempts++;
-      console.log(`Polling attempt ${attempts} for task ${taskId}`);
+${deliverables.proposal.substring(0, 3000)}
 
-      try {
-        const { data, error } = await supabase.functions.invoke('generate-deck', {
-          body: { action: 'check', taskId },
-        });
-
-        if (error) throw error;
-        if (data.error) throw new Error(data.error);
-
-        if (data.status === 'completed') {
-          setDeckData({
-            status: 'completed',
-            generationId: taskId,
-            gammaUrl: taskUrl,
-            pdfUrl: data.pdfUrl,
-            pptxUrl: null,
-            thumbnailUrl: null,
-          });
-          
-          // Save deck data to database
-          await saveToDatabase();
-          
-          toast({
-            title: "Slide deck generated!",
-            description: "Your presentation is ready to preview and download.",
-          });
-          return;
-        }
-
-        if (data.status === 'failed') {
-          throw new Error(data.error || 'Task failed');
-        }
-
-        // Still pending or running - continue polling
-        if (attempts < maxAttempts) {
-          setTimeout(poll, 5000);
-        } else {
-          throw new Error('Generation timed out. Please try again.');
-        }
-      } catch (err) {
-        console.error("Poll error:", err);
-        setDeckData({ 
-          status: 'error', 
-          error: err instanceof Error ? err.message : "Something went wrong." 
-        });
-        toast({
-          title: "Deck generation failed",
-          description: err instanceof Error ? err.message : "Something went wrong.",
-          variant: "destructive",
-        });
-      }
-    };
-
-    // Start polling after a short delay
-    setTimeout(poll, 5000);
+Key requirements:
+- Make it visually compelling with modern design
+- Include clear sections: Problem, Solution, Approach, Timeline, Investment
+- Use data visualizations where appropriate
+- Keep text minimal, focus on visual impact`;
   };
 
   const handleGenerateDeck = async () => {
@@ -393,54 +403,13 @@ export default function Preview() {
       return;
     }
 
-    setDeckData({ status: 'generating', error: null });
-
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-deck', {
-        body: {
-          deckPrompt: promptToUse,
-          clientName: clientName || 'Client',
-          numSlides: 10,
-        },
-      });
-
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
-
-      // Task started - begin polling for completion
-      toast({
-        title: "Generating slide deck...",
-        description: "This typically takes 2-5 minutes. We'll notify you when it's ready.",
-      });
-
-      pollTaskStatus(data.taskId, data.taskUrl, data.shareUrl);
-    } catch (error) {
-      console.error("Deck generation error:", error);
-      setDeckData({ 
-        status: 'error', 
-        error: error instanceof Error ? error.message : "Something went wrong." 
-      });
-      toast({
-        title: "Deck generation failed",
-        description: error instanceof Error ? error.message : "Something went wrong.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Create a deck prompt from the proposal if no deckPrompt exists
-  const createDeckPromptFromProposal = () => {
-    if (!deliverables?.proposal) return null;
-    
-    return `Create a professional presentation based on this proposal content:
-
-${deliverables.proposal.substring(0, 3000)}
-
-Key requirements:
-- Make it visually compelling with modern design
-- Include clear sections: Problem, Solution, Approach, Timeline, Investment
-- Use data visualizations where appropriate
-- Keep text minimal, focus on visual impact`;
+    // Use the persistent job system
+    await startDeckGeneration({
+      deckPrompt: promptToUse,
+      clientName: clientName || 'Client',
+      numSlides: 10,
+      proposalId: proposalId || undefined,
+    });
   };
 
   const handleCopy = async () => {

@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -63,6 +64,69 @@ function extractPdfUrl(taskOutput: ManusTaskStatus['output']): string | null {
   return null;
 }
 
+// Create Supabase client for updating job status
+function getSupabaseClient() {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  return createClient(supabaseUrl, supabaseServiceKey);
+}
+
+// Update job progress in database
+async function updateJobProgress(jobId: string, progress: number, status?: string) {
+  if (!jobId) return;
+  
+  const supabase = getSupabaseClient();
+  const updates: Record<string, unknown> = { progress };
+  if (status) updates.status = status;
+  
+  const { error } = await supabase
+    .from('deck_generation_jobs')
+    .update(updates)
+    .eq('id', jobId);
+    
+  if (error) {
+    console.error('Error updating job progress:', error);
+  }
+}
+
+// Mark job as completed
+async function completeJob(jobId: string, resultUrl: string | null) {
+  if (!jobId) return;
+  
+  const supabase = getSupabaseClient();
+  const { error } = await supabase
+    .from('deck_generation_jobs')
+    .update({
+      status: 'completed',
+      progress: 100,
+      result_url: resultUrl,
+      completed_at: new Date().toISOString(),
+    })
+    .eq('id', jobId);
+    
+  if (error) {
+    console.error('Error completing job:', error);
+  }
+}
+
+// Mark job as failed
+async function failJob(jobId: string, errorMessage: string) {
+  if (!jobId) return;
+  
+  const supabase = getSupabaseClient();
+  const { error } = await supabase
+    .from('deck_generation_jobs')
+    .update({
+      status: 'failed',
+      error_message: errorMessage,
+    })
+    .eq('id', jobId);
+    
+  if (error) {
+    console.error('Error failing job:', error);
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -75,11 +139,11 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const { action, taskId, deckPrompt, clientName, numSlides = 10 } = body;
+    const { action, taskId, jobId, deckPrompt, clientName, numSlides = 10 } = body;
 
     // Action: check - Poll for task status
     if (action === 'check' && taskId) {
-      console.log(`Checking status for task ${taskId}`);
+      console.log(`Checking status for task ${taskId}, job ${jobId}`);
       
       const response = await fetch(`${MANUS_API_URL}/tasks/${taskId}`, {
         method: 'GET',
@@ -103,9 +167,9 @@ serve(async (req) => {
         const pdfUrl = extractPdfUrl(data.output);
         console.log('Extracted PDF URL:', pdfUrl);
         
-        // If no PDF found, check if there's a share URL we can use instead
-        if (!pdfUrl) {
-          console.log('No PDF URL found in output, checking for alternative URLs...');
+        // Update job in database
+        if (jobId) {
+          await completeJob(jobId, pdfUrl);
         }
         
         return new Response(JSON.stringify({
@@ -120,16 +184,26 @@ serve(async (req) => {
       }
 
       if (data.status === 'failed') {
+        const errorMsg = data.error || 'Task failed';
+        if (jobId) {
+          await failJob(jobId, errorMsg);
+        }
+        
         return new Response(JSON.stringify({
           success: false,
           status: 'failed',
-          error: data.error || 'Task failed',
+          error: errorMsg,
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      // Still running or pending
+      // Still running or pending - update progress estimate
+      if (jobId && data.status === 'running') {
+        // Estimate progress based on typical 5-7 minute generation time
+        await updateJobProgress(jobId, 15, 'running');
+      }
+
       return new Response(JSON.stringify({
         success: true,
         status: data.status,
@@ -138,12 +212,17 @@ serve(async (req) => {
       });
     }
 
-    // Action: create (default) - Start a new deck generation task
+    // Action: create - Start a new deck generation task
     if (!deckPrompt) {
       throw new Error('deckPrompt is required');
     }
 
-    console.log('Starting Manus deck generation for:', clientName);
+    console.log('Starting Manus deck generation for:', clientName, 'Job ID:', jobId);
+
+    // Update job status to running if we have a job ID
+    if (jobId) {
+      await updateJobProgress(jobId, 5, 'running');
+    }
 
     // Create the presentation prompt for Manus
     const fullPrompt = `Create a professional presentation slide deck (${numSlides} slides) for a client proposal.
@@ -182,6 +261,11 @@ Please create this presentation and provide the PDF download.`;
     if (!createResponse.ok) {
       const errorText = await createResponse.text();
       console.error('Manus create error:', createResponse.status, errorText);
+      
+      if (jobId) {
+        await failJob(jobId, `Failed to start deck generation: ${errorText}`);
+      }
+      
       throw new Error(`Failed to start deck generation: ${errorText}`);
     }
 
@@ -190,10 +274,26 @@ Please create this presentation and provide the PDF download.`;
 
     const generatedTaskId = createData.task_id;
     if (!generatedTaskId) {
-      throw new Error(`Manus did not return task_id. Response: ${JSON.stringify(createData)}`);
+      const errorMsg = `Manus did not return task_id. Response: ${JSON.stringify(createData)}`;
+      if (jobId) {
+        await failJob(jobId, errorMsg);
+      }
+      throw new Error(errorMsg);
     }
 
     console.log('Task started with ID:', generatedTaskId);
+
+    // Update job with the Manus task ID
+    if (jobId) {
+      const supabase = getSupabaseClient();
+      await supabase
+        .from('deck_generation_jobs')
+        .update({
+          manus_task_id: generatedTaskId,
+          progress: 10,
+        })
+        .eq('id', jobId);
+    }
 
     // Return immediately with task info - client will poll for completion
     return new Response(JSON.stringify({
@@ -202,6 +302,7 @@ Please create this presentation and provide the PDF download.`;
       taskId: generatedTaskId,
       taskUrl: createData.task_url,
       shareUrl: createData.share_url,
+      jobId,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

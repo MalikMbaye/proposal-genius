@@ -14,6 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
+      deck_generation_jobs: {
+        Row: {
+          client_name: string | null
+          completed_at: string | null
+          created_at: string
+          deck_prompt: string | null
+          error_message: string | null
+          id: string
+          manus_task_id: string | null
+          num_slides: number | null
+          progress: number | null
+          proposal_id: string | null
+          result_url: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_name?: string | null
+          completed_at?: string | null
+          created_at?: string
+          deck_prompt?: string | null
+          error_message?: string | null
+          id?: string
+          manus_task_id?: string | null
+          num_slides?: number | null
+          progress?: number | null
+          proposal_id?: string | null
+          result_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_name?: string | null
+          completed_at?: string | null
+          created_at?: string
+          deck_prompt?: string | null
+          error_message?: string | null
+          id?: string
+          manus_task_id?: string | null
+          num_slides?: number | null
+          progress?: number | null
+          proposal_id?: string | null
+          result_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deck_generation_jobs_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           background: string | null
