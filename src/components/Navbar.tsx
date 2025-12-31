@@ -84,9 +84,14 @@ export function Navbar() {
               </DropdownMenu>
             </>
           ) : (
-            <>
+          <>
               <Button variant="ghost" size="sm" asChild className="hidden md:inline-flex text-slate-300 hover:text-white hover:bg-slate-800">
                 <Link to="/auth">Log in</Link>
+              </Button>
+              <Button variant="ghost" size="icon" asChild className="md:hidden rounded-full text-slate-300 hover:text-white hover:bg-slate-800">
+                <Link to="/auth">
+                  <User className="h-4 w-4" />
+                </Link>
               </Button>
               <Button size="sm" variant="hero" asChild>
                 <Link to="/generate">New Proposal</Link>
