@@ -329,11 +329,6 @@ export function PricingSection() {
             </div>
           </div>
         )}
-        
-        {/* Footnote */}
-        <p className="text-center text-xs text-muted-foreground mt-8 max-w-2xl mx-auto">
-          *Proposal library access available as a separate add-on ($497 one-time). Includes 50+ proven proposal templates, case studies, and examples.
-        </p>
       </div>
     </section>
   );
