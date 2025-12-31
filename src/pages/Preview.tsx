@@ -43,6 +43,7 @@ import { useStreamingProposal } from "@/hooks/useStreamingProposal";
 import { useDeckGenerationJob, DeckJob } from "@/hooks/useDeckGenerationJob";
 import { businessTypes } from "@/components/BusinessTypeSelector";
 import { toast } from "@/hooks/use-toast";
+import { generatePptxFromPrompt } from "@/lib/generatePptx";
 
 // Asset generation loading steps by type
 const assetLoadingSteps: Record<string, { label: string }[]> = {
@@ -622,6 +623,47 @@ Key requirements:
     });
   };
 
+  const handleDownloadPptx = async () => {
+    const promptToUse = deliverables?.deckPrompt;
+    
+    if (!promptToUse) {
+      toast({
+        title: "No deck content",
+        description: "Generate a proposal first to create an editable PPTX.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      const blob = await generatePptxFromPrompt(
+        promptToUse,
+        clientName || 'Client'
+      );
+      
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${clientName || 'proposal'}-deck.pptx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "PPTX Downloaded",
+        description: "Open in PowerPoint or Google Slides to edit.",
+      });
+    } catch (error) {
+      console.error('PPTX generation error:', error);
+      toast({
+        title: "Download failed",
+        description: "Could not generate PPTX file.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleNewProposal = () => {
     reset();
     navigate("/generate");
@@ -865,6 +907,12 @@ Key requirements:
                         <FileDown className="mr-2 h-4 w-4" />
                         Download PDF
                       </a>
+                    </Button>
+                  )}
+                  {deliverables?.deckPrompt && (
+                    <Button size="sm" variant="outline" onClick={handleDownloadPptx} className="border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white">
+                      <FileDown className="mr-2 h-4 w-4" />
+                      PPTX (Editable)
                     </Button>
                   )}
                   {deckData.externalUrl && (
