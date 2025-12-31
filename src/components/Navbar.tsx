@@ -85,13 +85,13 @@ export function Navbar() {
             </>
           ) : (
           <>
-              <Button variant="ghost" size="icon" asChild className="rounded-full text-slate-300 hover:text-white hover:bg-slate-800">
+              <Button size="sm" variant="hero" asChild>
+                <Link to="/generate">New Proposal</Link>
+              </Button>
+              <Button variant="ghost" size="icon" asChild className="rounded-full text-slate-300 hover:text-white hover:bg-slate-800 md:text-emerald-400 md:hover:text-emerald-300">
                 <Link to="/auth">
                   <User className="h-4 w-4" />
                 </Link>
-              </Button>
-              <Button size="sm" variant="hero" asChild>
-                <Link to="/generate">New Proposal</Link>
               </Button>
             </>
           )}
