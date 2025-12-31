@@ -256,19 +256,21 @@ export default function Generate() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link to="/">
+      <header className="border-b border-border/50 bg-background/80 backdrop-blur-xl sticky top-0 z-10">
+        <div className="container mx-auto flex h-14 md:h-16 items-center justify-between px-3 md:px-4">
+          <Link to="/" className="flex-shrink-0">
             <Logo />
           </Link>
-          <ProgressStepper steps={steps} />
-          <div className="w-32" />
+          <div className="flex-1 flex justify-center px-2">
+            <ProgressStepper steps={steps} />
+          </div>
+          <div className="w-12 md:w-32 flex-shrink-0" />
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-12">
-        <div className="grid lg:grid-cols-[1fr,320px] gap-8 max-w-5xl mx-auto">
+      <main className="container mx-auto px-3 md:px-4 py-6 md:py-12">
+        <div className="grid lg:grid-cols-[1fr,320px] gap-6 md:gap-8 max-w-5xl mx-auto">
           <div className="max-w-3xl">
           {/* Step 1: Your Business */}
           {currentStep === 1 && (

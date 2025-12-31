@@ -909,18 +909,18 @@ Key requirements:
         )}
 
         {/* Document Content */}
-        <div className={`flex-1 overflow-auto ${isHomeTab || isLibraryTab ? '' : 'p-6'}`}>
+        <div className={`flex-1 overflow-auto ${isHomeTab || isLibraryTab ? '' : 'p-3 md:p-6'}`}>
           <div className={`mx-auto ${isHomeTab || isLibraryTab ? 'h-full' : isDeckTab ? 'max-w-6xl' : 'max-w-4xl'}`}>
             {/* Deck Tab - Special handling */}
             {isDeckTab && (
               <>
                 {deckData.status === 'idle' && (
-                  <div className="rounded-xl border border-slate-600 bg-slate-800 p-12 text-center">
-                    <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-                      <Presentation className="h-8 w-8 text-primary" />
+                  <div className="rounded-xl border border-slate-600 bg-slate-800 p-6 md:p-12 text-center">
+                    <div className="mx-auto w-12 h-12 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 md:mb-6">
+                      <Presentation className="h-6 w-6 md:h-8 md:w-8 text-primary" />
                     </div>
-                    <h2 className="text-xl font-semibold mb-2 text-slate-100">Generate Slide Deck</h2>
-                    <p className="text-slate-400 mb-6 max-w-md mx-auto">
+                    <h2 className="text-lg md:text-xl font-semibold mb-2 text-slate-100">Generate Slide Deck</h2>
+                    <p className="text-slate-400 mb-4 md:mb-6 max-w-md mx-auto text-sm md:text-base">
                       Create a stunning presentation from your proposal using AI. 
                       This typically takes 5-7 minutes.
                     </p>
@@ -928,8 +928,9 @@ Key requirements:
                       onClick={handleGenerateDeck}
                       disabled={!deliverables?.proposal}
                       size="lg"
+                      className="w-full md:w-auto"
                     >
-                      <Sparkles className="mr-2 h-5 w-5" />
+                      <Sparkles className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                       Generate Slide Deck
                     </Button>
                   </div>
@@ -938,14 +939,14 @@ Key requirements:
                   <DeckGeneratingLoader clientName={clientName} />
                 )}
                 {deckData.status === 'error' && (
-                  <div className="rounded-xl border border-destructive/50 bg-slate-800 p-12 text-center">
-                    <div className="mx-auto w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center mb-6">
-                      <X className="h-8 w-8 text-destructive" />
+                  <div className="rounded-xl border border-destructive/50 bg-slate-800 p-6 md:p-12 text-center">
+                    <div className="mx-auto w-12 h-12 md:w-16 md:h-16 rounded-full bg-destructive/20 flex items-center justify-center mb-4 md:mb-6">
+                      <X className="h-6 w-6 md:h-8 md:w-8 text-destructive" />
                     </div>
-                    <h2 className="text-xl font-semibold mb-2 text-slate-100">Generation Failed</h2>
-                    <p className="text-slate-400 mb-6">{deckData.error}</p>
-                    <Button onClick={handleGenerateDeck} size="lg">
-                      <Sparkles className="mr-2 h-5 w-5" />
+                    <h2 className="text-lg md:text-xl font-semibold mb-2 text-slate-100">Generation Failed</h2>
+                    <p className="text-slate-400 mb-4 md:mb-6 text-sm md:text-base">{deckData.error}</p>
+                    <Button onClick={handleGenerateDeck} size="lg" className="w-full md:w-auto">
+                      <Sparkles className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                       Try Again
                     </Button>
                   </div>
@@ -953,7 +954,7 @@ Key requirements:
                 {deckData.status === 'completed' && deckData.pdfUrl && (
                   <PDFViewer 
                     url={deckData.pdfUrl} 
-                    className="min-h-[70vh]"
+                    className="min-h-[50vh] md:min-h-[70vh]"
                   />
                 )}
                 {deckData.status === 'completed' && !deckData.pdfUrl && deckData.gammaUrl && (
@@ -985,40 +986,41 @@ Key requirements:
             )}
             {/* Other tabs - no content yet */}
             {!isDeckTab && !isHomeTab && !isLibraryTab && !hasContent && (
-              <div className="rounded-xl border border-slate-600 bg-slate-800 p-12 text-center">
-                <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-                  <ActiveIcon className="h-8 w-8 text-primary" />
+              <div className="rounded-xl border border-slate-600 bg-slate-800 p-6 md:p-12 text-center">
+                <div className="mx-auto w-12 h-12 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 md:mb-6">
+                  <ActiveIcon className="h-6 w-6 md:h-8 md:w-8 text-primary" />
                 </div>
                 {!hasProposal ? (
                   <>
-                    <h2 className="text-xl font-semibold mb-2 text-slate-100">No Proposal Yet</h2>
-                    <p className="text-slate-400 mb-6 max-w-md mx-auto">
+                    <h2 className="text-lg md:text-xl font-semibold mb-2 text-slate-100">No Proposal Yet</h2>
+                    <p className="text-slate-400 mb-4 md:mb-6 max-w-md mx-auto text-sm md:text-base">
                       Create a proposal first, then you can generate {tabLabels[activeTab].toLowerCase()}.
                     </p>
-                    <Button onClick={handleNewProposal} size="lg">
-                      <Sparkles className="mr-2 h-5 w-5" />
+                    <Button onClick={handleNewProposal} size="lg" className="w-full md:w-auto">
+                      <Sparkles className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                       Create Proposal
                     </Button>
                   </>
                 ) : (
                   <>
-                    <h2 className="text-xl font-semibold mb-2 text-slate-100">Generate {tabLabels[activeTab]}</h2>
-                    <p className="text-slate-400 mb-6 max-w-md mx-auto">
+                    <h2 className="text-lg md:text-xl font-semibold mb-2 text-slate-100">Generate {tabLabels[activeTab]}</h2>
+                    <p className="text-slate-400 mb-4 md:mb-6 max-w-md mx-auto text-sm md:text-base">
                       This asset hasn't been generated yet. Click below to create it based on your proposal.
                     </p>
                     <Button 
                       onClick={() => handleGenerateAsset(activeTab)}
                       disabled={generatingAsset !== null}
                       size="lg"
+                      className="w-full md:w-auto"
                     >
                       {generatingAsset === activeTab ? (
                         <>
-                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          <Loader2 className="mr-2 h-4 w-4 md:h-5 md:w-5 animate-spin" />
                           Generating...
                         </>
                       ) : (
                         <>
-                          <Sparkles className="mr-2 h-5 w-5" />
+                          <Sparkles className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                           Generate {tabLabels[activeTab]}
                         </>
                       )}
