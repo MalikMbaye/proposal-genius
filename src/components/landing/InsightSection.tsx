@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { MetaGallery } from "./MetaGallery";
 
 const journeyPoints = [
   { value: "$250", label: "First freelance project" },
@@ -74,8 +74,11 @@ export function InsightSection() {
           </div>
         </div>
         
+        {/* Meta Gallery */}
+        <MetaGallery />
+        
         {/* Journey timeline */}
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto mt-16">
           <div className="relative">
             {/* Timeline line */}
             <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-muted via-primary to-primary rounded-full transform -translate-y-1/2" />
