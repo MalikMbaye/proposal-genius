@@ -33,7 +33,7 @@ const defaultStatus: SubscriptionStatus = {
   has_pro_library: false,
   subscription_end: null,
   proposals_this_month: 0,
-  proposals_limit: 3,
+  proposals_limit: 2, // Free tier - 2 proposals
   extra_proposals_purchased: 0,
   lifetime_available: true,
   lifetime_spots_remaining: 27,

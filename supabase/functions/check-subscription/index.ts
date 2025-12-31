@@ -59,7 +59,7 @@ serve(async (req) => {
         has_pro_library: false,
         subscription_end: null,
         proposals_this_month: 0,
-        proposals_limit: 3, // Free tier
+        proposals_limit: 2, // Free tier - 2 proposals
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -142,11 +142,11 @@ serve(async (req) => {
       .gte("created_at", startOfMonth.toISOString());
 
     // Calculate proposal limit
-    let proposalsLimit = 3; // Free tier
+    let proposalsLimit = 2; // Free tier - 2 proposals
     if (hasLifetime) {
       proposalsLimit = 999999; // Unlimited
     } else if (hasProMonthly) {
-      proposalsLimit = 20 + extraProposalsPurchased;
+      proposalsLimit = 999999; // Unlimited for Pro Access
     }
 
     return new Response(JSON.stringify({

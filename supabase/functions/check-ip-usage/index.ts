@@ -40,7 +40,7 @@ serve(async (req) => {
       .eq("ip_address", clientIp);
 
     const usageCount = ipProposalCount || 0;
-    const freeLimit = 3;
+    const freeLimit = 2;
     const canGenerate = usageCount < freeLimit;
 
     logStep("Usage check complete", { usageCount, freeLimit, canGenerate });

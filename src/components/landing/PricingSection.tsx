@@ -10,10 +10,10 @@ const pricingPlans = [
   {
     name: "Try It Free",
     price: "$0",
-    period: "3 proposals",
+    period: "2 proposals",
     description: "See the quality before you buy",
     features: [
-      { text: "Generate 3 complete proposal packages", included: true },
+      { text: "Generate 2 complete proposal packages", included: true },
       { text: "All 6 deliverables included", included: true },
       { text: "See the quality before you buy", included: true },
       { text: "No proposal library access", included: false },
@@ -31,7 +31,7 @@ const pricingPlans = [
     period: "/month",
     description: "Everything you need to close bigger deals",
     features: [
-      { text: "Up to 40 proposals per month", included: true },
+      { text: "Unlimited proposals per month", included: true },
       { text: "All 6 deliverables every time", included: true },
       { text: "Access to 50+ proposal library", included: true },
       { text: "Case studies and examples", included: true },
