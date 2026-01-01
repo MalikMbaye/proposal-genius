@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Link } from "react-router-dom";
 import { Logo } from "./Logo";
 import { Button } from "./ui/button";
@@ -10,6 +11,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+// ForwardRef wrapper for Link to fix ref warning with DropdownMenuItem asChild
+const MenuLink = React.forwardRef<
+  HTMLAnchorElement,
+  React.ComponentPropsWithoutRef<typeof Link>
+>(({ children, ...props }, ref) => (
+  <Link ref={ref} {...props}>
+    {children}
+  </Link>
+));
 
 export function Navbar() {
   const { user, signOut } = useAuth();
@@ -58,22 +69,22 @@ export function Navbar() {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link to="/dashboard" className="flex items-center w-full">
+                    <MenuLink to="/dashboard" className="flex items-center w-full">
                       <LayoutDashboard className="mr-2 h-4 w-4" />
                       Dashboard
-                    </Link>
+                    </MenuLink>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link to="/proposals" className="flex items-center w-full">
+                    <MenuLink to="/proposals" className="flex items-center w-full">
                       <FolderOpen className="mr-2 h-4 w-4" />
                       Saved Proposals
-                    </Link>
+                    </MenuLink>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link to="/profile" className="flex items-center w-full">
+                    <MenuLink to="/profile" className="flex items-center w-full">
                       <Settings className="mr-2 h-4 w-4" />
                       Account Settings
-                    </Link>
+                    </MenuLink>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>

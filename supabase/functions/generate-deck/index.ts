@@ -7,6 +7,34 @@ const corsHeaders = {
 };
 
 const MANUS_API_URL = 'https://api.manus.ai/v1';
+const MAX_RETRIES = 3;
+const RETRY_DELAYS = [1000, 3000, 5000]; // Exponential backoff delays in ms
+
+// Helper for retrying API calls with exponential backoff
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = MAX_RETRIES,
+  delays: number[] = RETRY_DELAYS
+): Promise<T> {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      console.log(`Attempt ${attempt + 1} failed: ${lastError.message}`);
+      
+      if (attempt < maxRetries) {
+        const delay = delays[Math.min(attempt, delays.length - 1)];
+        console.log(`Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  
+  throw lastError;
+}
 
 interface ManusTaskResponse {
   task_id: string;
@@ -243,33 +271,46 @@ Please create this presentation and provide the PDF download.`;
 
     console.log('Sending request to Manus API...');
 
-    // Create the task
-    const createResponse = await fetch(`${MANUS_API_URL}/tasks`, {
-      method: 'POST',
-      headers: {
-        'API_KEY': MANUS_API_KEY,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        prompt: fullPrompt,
-        agentProfile: 'manus-1.5',
-        hideInTaskList: true,
-        createShareableLink: true,
-      }),
-    });
+    // Create the task with retry logic
+    const createData = await retryWithBackoff(async () => {
+      const createResponse = await fetch(`${MANUS_API_URL}/tasks`, {
+        method: 'POST',
+        headers: {
+          'API_KEY': MANUS_API_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: fullPrompt,
+          agentProfile: 'manus-1.5',
+          hideInTaskList: true,
+          createShareableLink: true,
+        }),
+      });
 
-    if (!createResponse.ok) {
-      const errorText = await createResponse.text();
-      console.error('Manus create error:', createResponse.status, errorText);
-      
-      if (jobId) {
-        await failJob(jobId, `Failed to start deck generation: ${errorText}`);
+      if (!createResponse.ok) {
+        const errorText = await createResponse.text();
+        console.error('Manus create error:', createResponse.status, errorText);
+        
+        // Only retry on 5xx errors or rate limits, not client errors
+        if (createResponse.status >= 500 || createResponse.status === 429) {
+          throw new Error(`Manus API error (${createResponse.status}): ${errorText}`);
+        }
+        
+        // For 4xx errors (except 429), don't retry
+        if (jobId) {
+          await failJob(jobId, `Failed to start deck generation: ${errorText}`);
+        }
+        throw new Error(`Failed to start deck generation: ${errorText}`);
       }
-      
-      throw new Error(`Failed to start deck generation: ${errorText}`);
-    }
 
-    const createData: ManusTaskResponse = await createResponse.json();
+      return await createResponse.json() as ManusTaskResponse;
+    }).catch(async (error) => {
+      // If all retries failed, mark job as failed
+      if (jobId) {
+        await failJob(jobId, error.message);
+      }
+      throw error;
+    });
     console.log('Manus task created:', createData);
 
     const generatedTaskId = createData.task_id;

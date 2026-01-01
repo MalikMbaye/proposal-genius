@@ -74,26 +74,44 @@ function getSupabaseClient() {
   return createClient(supabaseUrl, supabaseServiceKey);
 }
 
+const MAX_RETRIES = 2;
+const RETRY_DELAY = 2000;
+
 async function checkManusTask(taskId: string, apiKey: string): Promise<ManusTaskStatus | null> {
-  try {
-    const response = await fetch(`${MANUS_API_URL}/tasks/${taskId}`, {
-      method: 'GET',
-      headers: {
-        'API_KEY': apiKey,
-        'Content-Type': 'application/json',
-      },
-    });
+  let lastError: Error | null = null;
+  
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const response = await fetch(`${MANUS_API_URL}/tasks/${taskId}`, {
+        method: 'GET',
+        headers: {
+          'API_KEY': apiKey,
+          'Content-Type': 'application/json',
+        },
+      });
 
-    if (!response.ok) {
-      console.error(`Manus API error for task ${taskId}:`, response.status);
-      return null;
+      if (!response.ok) {
+        // Only retry on 5xx errors or rate limits
+        if (response.status >= 500 || response.status === 429) {
+          throw new Error(`Manus API error: ${response.status}`);
+        }
+        console.error(`Manus API error for task ${taskId}:`, response.status);
+        return null;
+      }
+
+      return await response.json();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      console.log(`Attempt ${attempt + 1} to check task ${taskId} failed: ${lastError.message}`);
+      
+      if (attempt < MAX_RETRIES) {
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+      }
     }
-
-    return await response.json();
-  } catch (error) {
-    console.error(`Error checking Manus task ${taskId}:`, error);
-    return null;
   }
+  
+  console.error(`All retries failed for task ${taskId}:`, lastError);
+  return null;
 }
 
 async function sendCompletionEmail(job: DeckJob, pdfUrl: string | null, supabase: ReturnType<typeof getSupabaseClient>) {
