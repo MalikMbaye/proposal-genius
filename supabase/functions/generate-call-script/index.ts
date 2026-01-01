@@ -49,14 +49,7 @@ serve(async (req) => {
   }
 
   try {
-    const { leadId } = await req.json();
-
-    if (!leadId) {
-      return new Response(
-        JSON.stringify({ error: "leadId is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    const { leadId, prospectName, prospectContext } = await req.json();
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -82,29 +75,6 @@ serve(async (req) => {
       );
     }
 
-    // Fetch lead data
-    const { data: lead, error: leadError } = await supabase
-      .from("leads")
-      .select("*")
-      .eq("id", leadId)
-      .eq("user_id", user.id)
-      .single();
-
-    if (leadError || !lead) {
-      return new Response(
-        JSON.stringify({ error: "Lead not found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Fetch conversation history
-    const { data: snapshots } = await supabase
-      .from("dm_snapshots")
-      .select("analysis")
-      .eq("lead_id", leadId)
-      .order("created_at", { ascending: false })
-      .limit(5);
-
     // Fetch user profile for context
     const { data: profile } = await supabase
       .from("profiles")
@@ -112,13 +82,41 @@ serve(async (req) => {
       .eq("id", user.id)
       .single();
 
-    // Build the prompt
-    const conversationHistory = snapshots?.map(s => {
-      const analysis = s.analysis as any;
-      return analysis?.conversation_text || "";
-    }).filter(Boolean).join("\n---\n");
+    let prompt: string;
+    let finalLeadName: string;
 
-    const prompt = `Generate a phone call script for this prospect:
+    if (leadId) {
+      // Generate from lead data
+      const { data: lead, error: leadError } = await supabase
+        .from("leads")
+        .select("*")
+        .eq("id", leadId)
+        .eq("user_id", user.id)
+        .single();
+
+      if (leadError || !lead) {
+        return new Response(
+          JSON.stringify({ error: "Lead not found" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Fetch conversation history
+      const { data: snapshots } = await supabase
+        .from("dm_snapshots")
+        .select("analysis")
+        .eq("lead_id", leadId)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      const conversationHistory = snapshots?.map(s => {
+        const analysis = s.analysis as any;
+        return analysis?.conversation_text || "";
+      }).filter(Boolean).join("\n---\n") || "";
+
+      finalLeadName = lead.name;
+
+      prompt = `Generate a phone call script for this prospect:
 
 **PROSPECT INFORMATION**
 Name: ${lead.name}
@@ -141,6 +139,33 @@ Background: ${profile?.background || "Growth consultant"}
 Proof Points: ${profile?.proof_points || "Multiple successful client engagements"}
 
 Generate a complete, ready-to-use phone call script tailored to ${lead.name}.`;
+
+    } else if (prospectName) {
+      // Generate generic script from provided context
+      finalLeadName = prospectName;
+
+      prompt = `Generate a phone call script for this prospect:
+
+**PROSPECT INFORMATION**
+Name: ${prospectName}
+
+**CONTEXT PROVIDED**
+${prospectContext || "No specific context provided - create a general discovery call script"}
+
+**YOUR BUSINESS CONTEXT**
+Company: ${profile?.company_name || "Your Company"}
+Background: ${profile?.background || "Growth consultant"}
+Proof Points: ${profile?.proof_points || "Multiple successful client engagements"}
+
+Generate a complete, ready-to-use phone call script tailored to ${prospectName}. 
+Since limited context is available, focus more on discovery questions to uncover their situation, problems, and needs.`;
+
+    } else {
+      return new Response(
+        JSON.stringify({ error: "Either leadId or prospectName is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Call Lovable AI
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -199,13 +224,13 @@ Generate a complete, ready-to-use phone call script tailored to ${lead.name}.`;
       );
     }
 
-    console.log("Call script generated for lead:", leadId);
+    console.log("Call script generated for:", finalLeadName);
 
     return new Response(
       JSON.stringify({ 
         script,
-        leadName: lead.name,
-        leadId: lead.id,
+        leadName: finalLeadName,
+        leadId: leadId || null,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
