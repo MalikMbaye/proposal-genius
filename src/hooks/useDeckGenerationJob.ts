@@ -169,6 +169,9 @@ export function useDeckGenerationJob(options: UseDeckGenerationJobOptions = {}) 
   }) => {
     setIsLoading(true);
 
+    const MAX_START_RETRIES = 3;
+    let lastError: Error | null = null;
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -195,43 +198,58 @@ export function useDeckGenerationJob(options: UseDeckGenerationJobOptions = {}) 
       const newJob = job as DeckJob;
       setCurrentJob(newJob);
 
-      // Call edge function to start generation
-      const { data, error } = await supabase.functions.invoke('generate-deck', {
-        body: {
-          action: 'create',
-          jobId: newJob.id,
-          deckPrompt: params.deckPrompt,
-          clientName: params.clientName,
-          numSlides: params.numSlides || 10,
-        },
-      });
+      // Call edge function to start generation with retry logic
+      for (let attempt = 0; attempt < MAX_START_RETRIES; attempt++) {
+        try {
+          const { data, error } = await supabase.functions.invoke('generate-deck', {
+            body: {
+              action: 'create',
+              jobId: newJob.id,
+              deckPrompt: params.deckPrompt,
+              clientName: params.clientName,
+              numSlides: params.numSlides || 10,
+            },
+          });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+          if (error) throw error;
+          if (data.error) throw new Error(data.error);
 
-      // Update job with manus task ID
-      const { error: updateError } = await supabase
-        .from('deck_generation_jobs')
-        .update({
-          manus_task_id: data.taskId,
-          status: 'running',
-          progress: 5,
-        })
-        .eq('id', newJob.id);
+          // Update job with manus task ID
+          const { error: updateError } = await supabase
+            .from('deck_generation_jobs')
+            .update({
+              manus_task_id: data.taskId,
+              status: 'running',
+              progress: 5,
+            })
+            .eq('id', newJob.id);
 
-      if (updateError) {
-        console.error('Error updating job with task ID:', updateError);
+          if (updateError) {
+            console.error('Error updating job with task ID:', updateError);
+          }
+
+          // Server-side polling via pg_cron handles completion - light client polling as fallback
+          startPolling(newJob.id, data.taskId);
+
+          toast({
+            title: "Generating slide deck...",
+            description: "This typically takes 5-7 minutes. You'll receive an email when it's ready.",
+          });
+
+          return newJob;
+        } catch (err) {
+          lastError = err instanceof Error ? err : new Error(String(err));
+          console.log(`Generation start attempt ${attempt + 1} failed:`, lastError.message);
+          
+          if (attempt < MAX_START_RETRIES - 1) {
+            // Wait before retrying (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+          }
+        }
       }
 
-      // Start polling for completion
-      startPolling(newJob.id, data.taskId);
-
-      toast({
-        title: "Generating slide deck...",
-        description: "This typically takes 5-7 minutes. Feel free to switch tabs.",
-      });
-
-      return newJob;
+      // All retries failed
+      throw lastError || new Error('Failed to start generation after retries');
     } catch (error) {
       console.error('Start generation error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to start generation';
