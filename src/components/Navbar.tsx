@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Logo } from "./Logo";
 import { Button } from "./ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, User, Settings, FolderOpen, LayoutDashboard } from "lucide-react";
+import { LogOut, User, Settings, FolderOpen, LayoutDashboard, Users } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -72,6 +72,12 @@ export function Navbar() {
                     <MenuLink to="/dashboard" className="flex items-center w-full">
                       <LayoutDashboard className="mr-2 h-4 w-4" />
                       Dashboard
+                    </MenuLink>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <MenuLink to="/leads" className="flex items-center w-full">
+                      <Users className="mr-2 h-4 w-4" />
+                      Leads
                     </MenuLink>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild className="cursor-pointer">
