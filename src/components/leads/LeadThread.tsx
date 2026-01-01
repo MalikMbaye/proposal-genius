@@ -286,11 +286,10 @@ export function LeadThread({ leadId, onBack }: LeadThreadProps) {
           <Button
             variant="outline"
             className="flex-1 gap-2"
-            disabled
+            onClick={() => navigate(`/call-script?leadId=${lead.id}`)}
           >
             <Phone className="h-4 w-4" />
             Generate Call Script
-            <span className="text-xs text-muted-foreground">(Coming soon)</span>
           </Button>
         </div>
       )}
