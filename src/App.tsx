@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Generate from "./pages/Generate";
 import Preview from "./pages/Preview";
 import Proposals from "./pages/Proposals";
+import Leads from "./pages/Leads";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -64,6 +65,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Proposals />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/leads"
+              element={
+                <ProtectedRoute>
+                  <Leads />
                 </ProtectedRoute>
               }
             />
