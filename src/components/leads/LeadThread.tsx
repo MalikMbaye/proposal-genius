@@ -7,6 +7,7 @@ import { ArrowLeft, FileText, Phone, ChevronDown, ChevronRight, Trash2, Loader2 
 import { useNavigate } from 'react-router-dom';
 import type { Lead } from './LeadCard';
 import { toast } from 'sonner';
+import { useProposalStore } from '@/lib/proposalStore';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -107,15 +108,49 @@ export function LeadThread({ leadId, onBack }: LeadThreadProps) {
   };
 
   const handleGenerateProposal = () => {
-    // Navigate to proposal generator with pre-filled context
-    const params = new URLSearchParams({
-      clientName: lead?.name || '',
-      situation: lead?.goals || '',
-      source: 'dm_lead',
-      leadId: lead?.id || '',
-    });
+    if (!lead) return;
     
-    navigate(`/generate?${params.toString()}`);
+    // Build comprehensive client context from lead data
+    const contextParts: string[] = [];
+    
+    // Add prospect name and platform
+    contextParts.push(`Prospect: ${lead.name} (via ${lead.platform || 'Instagram'} DM)`);
+    
+    // Add goals if available
+    if (lead.goals) {
+      contextParts.push(`\nGoals: ${lead.goals}`);
+    }
+    
+    // Add pain points if available
+    if (lead.pain_points && lead.pain_points.length > 0) {
+      contextParts.push(`\nPain Points:\n${lead.pain_points.map(p => `• ${p}`).join('\n')}`);
+    }
+    
+    // Add budget if available
+    if (lead.budget_range) {
+      contextParts.push(`\nBudget Range: ${lead.budget_range}`);
+    }
+    
+    // Add timeline if available
+    if (lead.timeline) {
+      contextParts.push(`\nTimeline: ${lead.timeline}`);
+    }
+    
+    // Add latest conversation context if available
+    if (latestAnalysis?.conversation_text) {
+      contextParts.push(`\nRecent DM Exchange:\n"${latestAnalysis.conversation_text}"`);
+    }
+    
+    const clientContext = contextParts.join('\n');
+    
+    // Pre-fill the proposal store
+    const { setClientName, setClientContext, reset } = useProposalStore.getState();
+    reset(); // Clear previous data
+    setClientName(lead.name);
+    setClientContext(clientContext);
+    
+    // Navigate to generate page
+    navigate('/generate');
   };
 
   const handleDeleteLead = async () => {
