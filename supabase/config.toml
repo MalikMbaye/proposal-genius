@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.get-usage-stats]
 verify_jwt = false
+
+[functions.analyze-screenshot]
+verify_jwt = false
