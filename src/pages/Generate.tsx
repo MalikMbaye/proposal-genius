@@ -82,6 +82,14 @@ export default function Generate() {
     { label: "Generate", completed: false, active: currentStep === 3 },
   ];
 
+  // Check if coming from lead with pre-filled context
+  useEffect(() => {
+    if (clientContext.trim().length > 20 && clientName.trim().length > 0) {
+      // Skip to step 2 if context is pre-filled from a lead
+      setCurrentStep(2);
+    }
+  }, []); // Only run on mount
+
   // Step 1: Business type selected
   const canProceedStep1 = businessType.length > 0 && 
     (businessType !== 'other' || customBusinessType.trim().length > 0) &&
