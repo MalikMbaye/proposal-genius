@@ -1,0 +1,293 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+// System prompt for DM analysis
+const SYSTEM_PROMPT = `You are a 7-figure sales AI assistant analyzing Instagram DM screenshots.
+
+TASK:
+Analyze this DM screenshot and return a JSON response with sales coaching.
+
+EXTRACTION:
+1. Find the prospect's name in the Instagram conversation header (usually at the top)
+2. Extract all visible message text from the conversation
+3. Identify the platform (Instagram, LinkedIn, etc.)
+
+ANALYSIS FRAMEWORK (7-Figure Sales Method):
+- Stage 1 (Opening): Building initial rapport and connection
+- Stage 2 (Qualifying): Understanding their situation and needs
+- Stage 3 (Building Urgency): Helping them feel the cost of inaction
+- Stage 4 (Pitching): Introducing your solution naturally
+- Stage 5 (Booking): Getting commitment to next step
+
+RESPONSE RULES:
+- Match their energy exactly (casual if casual, professional if professional)
+- Keep messages under 3 sentences (DM appropriate length)
+- Never be salesy or pushy - be genuinely curious
+- Questions > Statements
+- Advance the conversation naturally toward booking
+
+Return ONLY valid JSON (no markdown, no explanation):
+{
+  "prospect_name": "Name from screenshot header",
+  "platform": "instagram",
+  "conversation_text": "The actual conversation text visible",
+  "qualification_score": 7,
+  "heat_level": "cold|warm|hot|qualified",
+  "current_stage": "Opening|Qualifying|Building Urgency|Pitching|Booking",
+  "response_options": {
+    "A": {
+      "type": "Direct",
+      "message": "Exact message to copy-paste, matching their tone"
+    },
+    "B": {
+      "type": "Consultative",
+      "message": "Exact message to copy-paste, matching their tone"
+    },
+    "C": {
+      "type": "Social Proof",
+      "message": "Exact message to copy-paste, matching their tone"
+    }
+  },
+  "recommended": "A|B|C",
+  "reasoning": "One sentence on why this option is best",
+  "extracted_context": {
+    "goals": "What they want to achieve (null if not mentioned)",
+    "pain_points": ["Pain point 1", "Pain point 2"],
+    "budget_signals": "Any budget mentions (null if none)",
+    "timeline_signals": "Any urgency/timeline mentions (null if none)"
+  },
+  "next_action": "What to watch for or do after they respond"
+}`;
+
+serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { screenshot, leadId } = await req.json();
+
+    if (!screenshot) {
+      throw new Error("Screenshot is required");
+    }
+
+    // Get authenticated user
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      throw new Error("Authorization header is required");
+    }
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      console.error("Auth error:", authError);
+      throw new Error("Unauthorized");
+    }
+
+    console.log("User authenticated:", user.id);
+
+    // Get user's offer context from their profile
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("business_context, background, proof_points")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const offerContext = profile
+      ? `Business: ${profile.business_context || "Not specified"}\nBackground: ${profile.background || "Not specified"}\nProof points: ${profile.proof_points || "Not specified"}`
+      : "No specific offer context provided. Assume they are a consultant/service provider.";
+
+    // Get conversation history if this is an existing lead
+    let conversationHistory = "";
+    if (leadId) {
+      const { data: snapshots } = await supabase
+        .from("dm_snapshots")
+        .select("analysis")
+        .eq("lead_id", leadId)
+        .order("created_at", { ascending: true });
+
+      if (snapshots && snapshots.length > 0) {
+        conversationHistory = snapshots
+          .map((s: { analysis: { conversation_text?: string } }, i: number) => 
+            `Exchange ${i + 1}:\n${s.analysis?.conversation_text || ""}`
+          )
+          .join("\n\n");
+      }
+    }
+
+    // Build the full system prompt with context
+    const fullSystemPrompt = `${SYSTEM_PROMPT}
+
+USER'S OFFER CONTEXT:
+${offerContext}
+
+${conversationHistory ? `PREVIOUS CONVERSATION CONTEXT:\n${conversationHistory}\n` : ""}`;
+
+    console.log("Calling Lovable AI for vision analysis...");
+
+    // Call Lovable AI Gateway with vision
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-pro",
+        messages: [
+          { role: "system", content: fullSystemPrompt },
+          {
+            role: "user",
+            content: [
+              {
+                type: "image_url",
+                image_url: {
+                  url: screenshot.startsWith("data:") ? screenshot : `data:image/png;base64,${screenshot}`,
+                },
+              },
+              {
+                type: "text",
+                text: "Analyze this DM screenshot and respond with JSON only.",
+              },
+            ],
+          },
+        ],
+      }),
+    });
+
+    if (!aiResponse.ok) {
+      const errorText = await aiResponse.text();
+      console.error("AI API error:", aiResponse.status, errorText);
+      
+      if (aiResponse.status === 429) {
+        throw new Error("Rate limit exceeded. Please try again in a moment.");
+      }
+      if (aiResponse.status === 402) {
+        throw new Error("AI usage limit reached. Please add credits to continue.");
+      }
+      throw new Error(`AI analysis failed: ${aiResponse.status}`);
+    }
+
+    const aiResult = await aiResponse.json();
+    const content = aiResult.choices?.[0]?.message?.content;
+
+    if (!content) {
+      throw new Error("No response from AI");
+    }
+
+    console.log("AI response received, parsing...");
+
+    // Parse the JSON response
+    let analysis;
+    try {
+      // Try direct parse first
+      analysis = JSON.parse(content);
+    } catch {
+      // Try to extract JSON from the response
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        analysis = JSON.parse(jsonMatch[0]);
+      } else {
+        console.error("Failed to parse AI response:", content);
+        throw new Error("Failed to parse AI response as JSON");
+      }
+    }
+
+    console.log("Analysis parsed successfully:", analysis.prospect_name);
+
+    // If no leadId, create a new lead
+    let finalLeadId = leadId;
+    if (!leadId) {
+      const { data: newLead, error: leadError } = await supabase
+        .from("leads")
+        .insert({
+          user_id: user.id,
+          name: analysis.prospect_name || "Unknown",
+          platform: analysis.platform || "instagram",
+          status: analysis.heat_level || "cold",
+          qualification_score: analysis.qualification_score || 1,
+          current_stage: analysis.current_stage || "Opening",
+          goals: analysis.extracted_context?.goals || null,
+          pain_points: analysis.extracted_context?.pain_points || null,
+          budget_range: analysis.extracted_context?.budget_signals || null,
+          timeline: analysis.extracted_context?.timeline_signals || null,
+        })
+        .select()
+        .single();
+
+      if (leadError) {
+        console.error("Error creating lead:", leadError);
+        throw new Error(`Failed to create lead: ${leadError.message}`);
+      }
+      
+      finalLeadId = newLead.id;
+      console.log("New lead created:", finalLeadId);
+    } else {
+      // Update existing lead with latest analysis
+      const { error: updateError } = await supabase
+        .from("leads")
+        .update({
+          status: analysis.heat_level || undefined,
+          qualification_score: analysis.qualification_score || undefined,
+          current_stage: analysis.current_stage || undefined,
+          goals: analysis.extracted_context?.goals || undefined,
+          pain_points: analysis.extracted_context?.pain_points || undefined,
+          budget_range: analysis.extracted_context?.budget_signals || undefined,
+          timeline: analysis.extracted_context?.timeline_signals || undefined,
+          last_activity: new Date().toISOString(),
+        })
+        .eq("id", leadId);
+
+      if (updateError) {
+        console.error("Error updating lead:", updateError);
+      }
+    }
+
+    // Save the snapshot
+    const { error: snapshotError } = await supabase.from("dm_snapshots").insert({
+      lead_id: finalLeadId,
+      analysis: analysis,
+    });
+
+    if (snapshotError) {
+      console.error("Error saving snapshot:", snapshotError);
+    }
+
+    console.log("Snapshot saved for lead:", finalLeadId);
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        leadId: finalLeadId,
+        analysis: analysis,
+        isNewLead: !leadId,
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+
+  } catch (error) {
+    console.error("Error in analyze-screenshot:", error);
+    return new Response(
+      JSON.stringify({ 
+        error: error instanceof Error ? error.message : "Unknown error occurred" 
+      }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, "Content-Type": "application/json" } 
+      }
+    );
+  }
+});

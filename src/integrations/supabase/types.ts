@@ -109,6 +109,100 @@ export type Database = {
           },
         ]
       }
+      dm_snapshots: {
+        Row: {
+          analysis: Json
+          created_at: string | null
+          id: string
+          lead_id: string
+          response_used: string | null
+        }
+        Insert: {
+          analysis: Json
+          created_at?: string | null
+          id?: string
+          lead_id: string
+          response_used?: string | null
+        }
+        Update: {
+          analysis?: Json
+          created_at?: string | null
+          id?: string
+          lead_id?: string
+          response_used?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dm_snapshots_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          budget_range: string | null
+          created_at: string | null
+          current_stage: string | null
+          goals: string | null
+          id: string
+          last_activity: string | null
+          name: string
+          pain_points: string[] | null
+          platform: string | null
+          proposal_id: string | null
+          qualification_score: number | null
+          status: string | null
+          timeline: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          budget_range?: string | null
+          created_at?: string | null
+          current_stage?: string | null
+          goals?: string | null
+          id?: string
+          last_activity?: string | null
+          name: string
+          pain_points?: string[] | null
+          platform?: string | null
+          proposal_id?: string | null
+          qualification_score?: number | null
+          status?: string | null
+          timeline?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          budget_range?: string | null
+          created_at?: string | null
+          current_stage?: string | null
+          goals?: string | null
+          id?: string
+          last_activity?: string | null
+          name?: string
+          pain_points?: string[] | null
+          platform?: string | null
+          proposal_id?: string | null
+          qualification_score?: number | null
+          status?: string | null
+          timeline?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           background: string | null
