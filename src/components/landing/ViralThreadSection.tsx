@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { Trophy, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import { Trophy, ChevronLeft, ChevronRight, ExternalLink, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import trophy3D from "@/assets/trophy-3d.png";
 
 import thread1 from "@/assets/threads/thread-1.png";
@@ -55,6 +60,8 @@ function ConfettiParticle({ delay, left, color }: { delay: number; left: number;
 
 export function ViralThreadSection() {
   const [showConfetti, setShowConfetti] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -68,6 +75,19 @@ export function ViralThreadSection() {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollBy({ left: 320, behavior: 'smooth' });
     }
+  };
+
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const nextLightbox = () => {
+    setLightboxIndex((prev) => (prev + 1) % threads.length);
+  };
+
+  const prevLightbox = () => {
+    setLightboxIndex((prev) => (prev - 1 + threads.length) % threads.length);
   };
 
   // Trigger confetti on scroll into view
@@ -340,8 +360,11 @@ export function ViralThreadSection() {
               className="flex items-center flex-shrink-0"
               style={{ scrollSnapAlign: 'center' }}
             >
-              {/* Thread image - no hyperlink */}
-              <div className="group flex-shrink-0">
+              {/* Thread image - clickable for lightbox */}
+              <div 
+                className="group flex-shrink-0 cursor-pointer"
+                onClick={() => openLightbox(index)}
+              >
                 <div className="relative">
                   {/* Gold glow behind image on hover */}
                   <div 
@@ -407,6 +430,71 @@ export function ViralThreadSection() {
           </Button>
         </div>
       </div>
+
+      {/* Lightbox Dialog */}
+      <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-none overflow-hidden">
+          <DialogTitle className="sr-only">Thread Image {lightboxIndex + 1} of {threads.length}</DialogTitle>
+          <div className="relative flex items-center justify-center w-full h-full min-h-[50vh]">
+            {/* Close button */}
+            <button
+              onClick={() => setLightboxOpen(false)}
+              className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+              style={{ color: 'hsl(45, 100%, 60%)' }}
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            {/* Previous button */}
+            <button
+              onClick={prevLightbox}
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full transition-all duration-300 hover:scale-110"
+              style={{
+                background: 'linear-gradient(135deg, hsl(45, 70%, 25%) 0%, hsl(35, 60%, 18%) 100%)',
+                border: '1px solid hsl(45, 60%, 40%)',
+                boxShadow: '0 4px 20px -5px hsl(45, 100%, 30%)'
+              }}
+            >
+              <ChevronLeft className="w-6 h-6" style={{ color: 'hsl(45, 100%, 60%)' }} />
+            </button>
+
+            {/* Image */}
+            <img
+              src={threads[lightboxIndex].src}
+              alt={threads[lightboxIndex].alt}
+              className="max-w-full max-h-[85vh] object-contain rounded-lg"
+              style={{
+                boxShadow: '0 0 40px -10px hsl(45, 100%, 40%)'
+              }}
+            />
+
+            {/* Next button */}
+            <button
+              onClick={nextLightbox}
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full transition-all duration-300 hover:scale-110"
+              style={{
+                background: 'linear-gradient(135deg, hsl(45, 70%, 25%) 0%, hsl(35, 60%, 18%) 100%)',
+                border: '1px solid hsl(45, 60%, 40%)',
+                boxShadow: '0 4px 20px -5px hsl(45, 100%, 30%)'
+              }}
+            >
+              <ChevronRight className="w-6 h-6" style={{ color: 'hsl(45, 100%, 60%)' }} />
+            </button>
+
+            {/* Image counter */}
+            <div 
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-sm font-medium"
+              style={{
+                background: 'linear-gradient(135deg, hsl(45, 70%, 20%) 0%, hsl(35, 60%, 15%) 100%)',
+                border: '1px solid hsl(45, 60%, 35%)',
+                color: 'hsl(45, 100%, 60%)'
+              }}
+            >
+              {lightboxIndex + 1} / {threads.length}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Confetti keyframes */}
       <style>{`
