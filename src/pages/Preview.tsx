@@ -34,6 +34,7 @@ import {
   User,
   Users,
   Phone,
+  MessageSquare,
   Home,
   Pencil,
   Menu,
@@ -772,6 +773,38 @@ Key requirements:
         })}
       </nav>
       
+      {/* Leads Section */}
+      <div className="px-3 pb-2">
+        <div className="border-t border-slate-700 mx-1" />
+        <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-3 mt-3 mb-2">
+          Leads
+        </p>
+        <Link
+          to="/leads"
+          onClick={onNavigate}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-700"
+        >
+          <Users className="h-4 w-4" />
+          <span className="flex-1 text-left">All Leads</span>
+        </Link>
+        <Link
+          to="/leads"
+          onClick={onNavigate}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-700"
+        >
+          <MessageSquare className="h-4 w-4" />
+          <span className="flex-1 text-left">DM Conversations</span>
+        </Link>
+        <Link
+          to="/call-script"
+          onClick={onNavigate}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-700"
+        >
+          <Phone className="h-4 w-4" />
+          <span className="flex-1 text-left">Call Scripts</span>
+        </Link>
+      </div>
+      
       {/* Proposal Library - Separated at bottom */}
       <div className="px-3 pb-2 border-t border-slate-700 pt-3">
         <button
@@ -791,30 +824,6 @@ Key requirements:
             <span className="text-[10px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded">PRO</span>
           )}
         </button>
-      </div>
-      
-      {/* Leads Section */}
-      <div className="px-3 pb-2">
-        <div className="border-t border-slate-700 mx-1" />
-        <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-3 mt-3 mb-2">
-          Leads
-        </p>
-        <Link
-          to="/leads"
-          onClick={onNavigate}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-700"
-        >
-          <Users className="h-4 w-4" />
-          <span className="flex-1 text-left">All Leads</span>
-        </Link>
-        <Link
-          to="/call-script"
-          onClick={onNavigate}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-700"
-        >
-          <Phone className="h-4 w-4" />
-          <span className="flex-1 text-left">Call Scripts</span>
-        </Link>
       </div>
 
       {/* Sidebar Actions */}
