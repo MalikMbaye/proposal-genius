@@ -11,6 +11,7 @@ import Generate from "./pages/Generate";
 import Preview from "./pages/Preview";
 import Proposals from "./pages/Proposals";
 import Leads from "./pages/Leads";
+import DMConversations from "./pages/DMConversations";
 import CallScript from "./pages/CallScript";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
@@ -74,6 +75,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Leads />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dm-conversations"
+              element={
+                <ProtectedRoute>
+                  <DMConversations />
                 </ProtectedRoute>
               }
             />

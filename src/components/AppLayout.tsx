@@ -42,7 +42,7 @@ const pitchKitTabs = [
 
 const leadsTabs = [
   { id: "leads", label: "All Leads", icon: Users, path: "/leads" },
-  { id: "dm-conversations", label: "DM Conversations", icon: MessageSquare, path: "/leads" },
+  { id: "dm-conversations", label: "DM Conversations", icon: MessageSquare, path: "/dm-conversations" },
   { id: "call-scripts", label: "Call Scripts", icon: Phone, path: "/call-script" },
 ];
 
