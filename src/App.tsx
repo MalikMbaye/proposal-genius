@@ -14,6 +14,7 @@ import Leads from "./pages/Leads";
 import CallScript from "./pages/CallScript";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,7 +34,7 @@ const App = () => (
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <Preview />
+                  <Dashboard />
                 </ProtectedRoute>
               }
             />
