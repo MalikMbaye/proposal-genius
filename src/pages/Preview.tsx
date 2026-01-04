@@ -717,6 +717,14 @@ Key requirements:
           </button>
         )}
         
+        {/* Your Pitch Kit Section */}
+        <div className="mt-4 mb-2">
+          <div className="border-t border-slate-700 mx-1" />
+          <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-3 mt-3 mb-2">
+            Your Pitch Kit
+          </p>
+        </div>
+        
         {/* Rest of tabs - skip home since it's rendered above */}
         {tabs.filter(tab => tab.id !== 'library' && tab.id !== 'home').map((tab) => {
           const Icon = tab.icon;
