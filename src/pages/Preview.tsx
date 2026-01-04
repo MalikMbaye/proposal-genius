@@ -771,14 +771,14 @@ Key requirements:
             </button>
           );
         })}
-      </nav>
-      
-      {/* Leads Section */}
-      <div className="px-3 pb-2">
-        <div className="border-t border-slate-700 mx-1" />
-        <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-3 mt-3 mb-2">
-          Leads
-        </p>
+        
+        {/* Leads Section */}
+        <div className="mt-4 mb-2">
+          <div className="border-t border-slate-700 mx-1" />
+          <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-3 mt-3 mb-2">
+            Leads
+          </p>
+        </div>
         <Link
           to="/leads"
           onClick={onNavigate}
@@ -803,7 +803,7 @@ Key requirements:
           <Phone className="h-4 w-4" />
           <span className="flex-1 text-left">Call Scripts</span>
         </Link>
-      </div>
+      </nav>
       
       {/* Proposal Library - Separated at bottom */}
       <div className="px-3 pb-2 border-t border-slate-700 pt-3">
