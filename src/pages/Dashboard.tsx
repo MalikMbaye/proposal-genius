@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { Link, useLocation, Outlet } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -19,16 +19,21 @@ import {
   FolderOpen,
   FileText,
   Settings,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const sidebarItems = [
+const pitchKitItems = [
   { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Leads", url: "/leads", icon: Users },
-  { title: "Call Scripts", url: "/call-script", icon: Phone },
   { title: "Proposals", url: "/proposals", icon: FolderOpen },
   { title: "Generate", url: "/generate", icon: FileText },
   { title: "Settings", url: "/profile", icon: Settings },
+];
+
+const salesToolsItems = [
+  { title: "Leads", url: "/leads", icon: Users },
+  { title: "DM Conversations", url: "/leads", icon: MessageSquare },
+  { title: "Call Scripts", url: "/call-script", icon: Phone },
 ];
 
 export default function Dashboard() {
@@ -49,10 +54,42 @@ export default function Dashboard() {
         <div className="flex min-h-screen w-full pt-16">
           <Sidebar className="border-r border-border">
             <SidebarContent className="pt-4">
+              {/* Pitch Kit Section */}
               <SidebarGroup>
+                <SidebarGroupLabel>Pitch Kit</SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    {sidebarItems.map((item) => (
+                    {pitchKitItems.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={isActive(item.url)}
+                        >
+                          <Link
+                            to={item.url}
+                            className={cn(
+                              "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+                              isActive(item.url)
+                                ? "bg-primary/10 text-primary font-medium"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                            )}
+                          >
+                            <item.icon className="h-4 w-4" />
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+
+              {/* Sales Tools Section */}
+              <SidebarGroup>
+                <SidebarGroupLabel>Sales Tools</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {salesToolsItems.map((item) => (
                       <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton
                           asChild
@@ -83,7 +120,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-2 mb-6">
               <SidebarTrigger className="md:hidden" />
               <h1 className="text-2xl font-bold">
-                {sidebarItems.find((item) => isActive(item.url))?.title || "Dashboard"}
+                {[...pitchKitItems, ...salesToolsItems].find((item) => isActive(item.url))?.title || "Dashboard"}
               </h1>
             </div>
             
