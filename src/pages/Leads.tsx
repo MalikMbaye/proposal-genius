@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ScreenshotDropZone, type AnalysisResult } from '@/components/leads/ScreenshotDropZone';
 import { LeadCard, type Lead } from '@/components/leads/LeadCard';
 import { LeadThread } from '@/components/leads/LeadThread';
-import { Navbar } from '@/components/Navbar';
+import { AppLayout } from '@/components/AppLayout';
+import { useProposalStore } from '@/lib/proposalStore';
 import { Loader2, Users, MessageSquareText } from 'lucide-react';
 
 export default function Leads() {
+  const navigate = useNavigate();
+  const { reset } = useProposalStore();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,16 +43,19 @@ export default function Leads() {
     fetchLeads();
   };
 
+  const handleNewProposal = () => {
+    reset();
+    navigate("/generate");
+  };
+
   // Group leads by status
   const activeLeads = leads.filter(l => !['qualified', 'proposal_sent', 'closed', 'lost'].includes(l.status));
   const qualifiedLeads = leads.filter(l => l.status === 'qualified' || l.status === 'proposal_sent');
   const closedLeads = leads.filter(l => l.status === 'closed' || l.status === 'lost');
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      
-      <main className="container mx-auto px-4 pt-24 pb-12">
+    <AppLayout onNewProposal={handleNewProposal}>
+      <div className="flex-1 overflow-auto p-4 md:p-6">
         {selectedLeadId ? (
           <LeadThread 
             leadId={selectedLeadId} 
@@ -58,11 +65,11 @@ export default function Leads() {
           <div className="max-w-6xl mx-auto">
             {/* Header */}
             <div className="mb-8">
-              <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
+              <h1 className="text-3xl font-bold mb-2 flex items-center gap-3 text-slate-100">
                 <Users className="h-8 w-8 text-primary" />
                 Leads
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-slate-400">
                 Drop a DM screenshot to get AI-powered response suggestions
               </p>
             </div>
@@ -79,9 +86,9 @@ export default function Leads() {
               </div>
             ) : leads.length === 0 ? (
               <div className="text-center py-16 px-4">
-                <MessageSquareText className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-muted-foreground mb-2">No leads yet</h3>
-                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                <MessageSquareText className="h-16 w-16 text-slate-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-slate-300 mb-2">No leads yet</h3>
+                <p className="text-sm text-slate-400 max-w-md mx-auto">
                   Drop your first DM screenshot above to get started. The AI will extract the prospect's name,
                   analyze the conversation, and give you 3 response options to copy-paste.
                 </p>
@@ -91,10 +98,10 @@ export default function Leads() {
                 {/* Active Leads */}
                 {activeLeads.length > 0 && (
                   <section>
-                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-slate-200">
                       <span className="text-xl">💬</span>
                       Active Conversations
-                      <span className="text-sm font-normal text-muted-foreground">({activeLeads.length})</span>
+                      <span className="text-sm font-normal text-slate-400">({activeLeads.length})</span>
                     </h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                       {activeLeads.map(lead => (
@@ -111,10 +118,10 @@ export default function Leads() {
                 {/* Qualified Leads */}
                 {qualifiedLeads.length > 0 && (
                   <section>
-                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-slate-200">
                       <span className="text-xl">✅</span>
                       Ready for Proposal
-                      <span className="text-sm font-normal text-muted-foreground">({qualifiedLeads.length})</span>
+                      <span className="text-sm font-normal text-slate-400">({qualifiedLeads.length})</span>
                     </h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                       {qualifiedLeads.map(lead => (
@@ -131,10 +138,10 @@ export default function Leads() {
                 {/* Closed Leads */}
                 {closedLeads.length > 0 && (
                   <section>
-                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-slate-200">
                       <span className="text-xl">📁</span>
                       Closed
-                      <span className="text-sm font-normal text-muted-foreground">({closedLeads.length})</span>
+                      <span className="text-sm font-normal text-slate-400">({closedLeads.length})</span>
                     </h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                       {closedLeads.map(lead => (
@@ -151,7 +158,7 @@ export default function Leads() {
             )}
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   );
 }
