@@ -161,24 +161,21 @@ export function HeroSection() {
             {/* Headline - Staggered animation */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6 text-light-foreground">
               <span className="block animate-slide-up" style={{ animationDelay: '0.15s' }}>
-                Increase Your Perceived Value.
+                Why Do Some Consultants Close $50K Deals
               </span>
               <span className="block animate-slide-up text-gradient" style={{ animationDelay: '0.25s' }}>
-                Charge What You're Worth.
+                While You're Stuck at $5K?
               </span>
             </h1>
             
             {/* Sub-headline */}
             <p className="text-lg md:text-xl text-light-muted mb-6 max-w-xl animate-fade-in" style={{ animationDelay: '0.35s' }}>
-              Close seven-figure deals with a proven AI proposal system.
-              Get a complete proposal, contract, deck, emails, and invoice—in seconds.
+              If you want bigger deals, you need a better pitch. Pitch Genius helps you close seven-figure deals with a proven AI proposal system. Get a complete proposal, contract, deck, emails, and invoice—in minutes.
             </p>
             
             {/* Problem hook */}
             <p className="text-sm text-light-muted/80 mb-8 max-w-lg animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              You're charging $5K for work that should cost $50K.
-              Not because you're underqualified—because you don't know
-              what six-figure proposals actually look like.
+              You're charging $5K for work that should cost $50K. Not because you're underqualified—because you don't know what six-figure proposals actually look like. Until now.
             </p>
             
             {/* CTA */}
