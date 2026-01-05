@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.generate-call-script]
 verify_jwt = false
+
+[functions.dm-leads]
+verify_jwt = false
