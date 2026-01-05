@@ -141,12 +141,12 @@ export function ProposalComparisonSection() {
       <div className="container mx-auto px-4 relative">
         <div className="flex flex-wrap justify-center gap-8 md:gap-16 pt-8 border-t border-slate-300/30">
           <div className="text-center">
-            <div className="text-3xl font-bold text-white">500+</div>
+            <div className="text-3xl font-bold text-white">100+</div>
             <div className="text-sm text-slate-300">Enterprise Clients</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-white">$50M+</div>
-            <div className="text-sm text-slate-300">Deals Closed</div>
+            <div className="text-sm text-slate-300">In Venture Capital Raised</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-white">12</div>
