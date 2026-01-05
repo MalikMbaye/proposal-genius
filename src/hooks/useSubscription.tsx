@@ -48,7 +48,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<SubscriptionStatus>(defaultStatus);
 
   const checkSubscription = useCallback(async () => {
-    if (!user || !session) {
+    if (!user) {
       setStatus({ ...defaultStatus, loading: false });
       return;
     }
@@ -56,9 +56,16 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     try {
       setStatus(prev => ({ ...prev, loading: true, error: null }));
       
+      // Get fresh session to avoid expired token errors
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !sessionData.session) {
+        setStatus({ ...defaultStatus, loading: false });
+        return;
+      }
+      
       const { data, error } = await supabase.functions.invoke('check-subscription', {
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${sessionData.session.access_token}`,
         },
       });
 
@@ -85,7 +92,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
         error: error instanceof Error ? error.message : 'Failed to check subscription',
       }));
     }
-  }, [user, session]);
+  }, [user]);
 
   const checkIpUsage = useCallback(async () => {
     try {
@@ -126,24 +133,26 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const recordUsage = useCallback(async () => {
     try {
       const headers: Record<string, string> = {};
-      if (session?.access_token) {
-        headers.Authorization = `Bearer ${session.access_token}`;
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (sessionData.session?.access_token) {
+        headers.Authorization = `Bearer ${sessionData.session.access_token}`;
       }
       await supabase.functions.invoke('record-usage', { headers });
     } catch (error) {
       console.error('Error recording usage:', error);
     }
-  }, [session]);
+  }, []);
 
   const openCheckout = useCallback(async (productType: 'pro_monthly' | 'pro_annual' | 'lifetime' | 'extra_proposals' | 'pro_library') => {
-    if (!session) {
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
       throw new Error('Must be logged in to checkout');
     }
 
     const { data, error } = await supabase.functions.invoke('create-checkout', {
       body: { product_type: productType },
       headers: {
-        Authorization: `Bearer ${session.access_token}`,
+        Authorization: `Bearer ${sessionData.session.access_token}`,
       },
     });
 
@@ -151,16 +160,17 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     if (data?.url) {
       window.open(data.url, '_blank');
     }
-  }, [session]);
+  }, []);
 
   const openCustomerPortal = useCallback(async () => {
-    if (!session) {
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
       throw new Error('Must be logged in to manage subscription');
     }
 
     const { data, error } = await supabase.functions.invoke('customer-portal', {
       headers: {
-        Authorization: `Bearer ${session.access_token}`,
+        Authorization: `Bearer ${sessionData.session.access_token}`,
       },
     });
 
@@ -168,7 +178,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     if (data?.url) {
       window.open(data.url, '_blank');
     }
-  }, [session]);
+  }, []);
 
   // Check subscription on auth change
   useEffect(() => {
