@@ -160,7 +160,8 @@ export function HeroSection() {
             
             {/* Headline - Staggered animation */}
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-tight mb-6 text-light-foreground animate-slide-up" style={{ animationDelay: '0.15s' }}>
-              Why Do Some Consultants Close $50K Deals, <span className="text-gradient">While You're Stuck at $5K?</span>
+              Why Do Some Consultants Close $50K Deals, <span className="text-gradient">While Others Stay Stuck at $5K?..</span>
+              <span className="block text-xl md:text-2xl lg:text-3xl font-medium text-light-muted mt-2">(Hint: It's the pitch)</span>
             </h1>
             
             {/* Sub-headline */}
