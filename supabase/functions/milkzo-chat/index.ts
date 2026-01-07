@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-verification-token, x-browser-fingerprint",
 };
 
 // Rate limiting: Track requests per IP
@@ -11,6 +11,12 @@ const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute
 const RATE_LIMIT_MAX_REQUESTS_ANON = 10; // 10 requests per minute for anonymous
 const RATE_LIMIT_MAX_REQUESTS_AUTH = 30; // 30 requests per minute for authenticated
+
+// Bot detection: Track verification tokens and suspicious patterns
+const verifiedTokens = new Map<string, { timestamp: number; fingerprint: string; requestCount: number }>();
+const suspiciousIPs = new Map<string, { failedAttempts: number; blockedUntil: number }>();
+const BOT_DETECTION_WINDOW_MS = 3600000; // 1 hour
+const MAX_FAILED_VERIFICATIONS = 5;
 
 // Input sanitization patterns - detect prompt injection attempts
 const INJECTION_PATTERNS = [
@@ -333,6 +339,120 @@ function detectConversion(message: string): string | null {
   return null;
 }
 
+// Validate verification token from client
+function validateVerificationToken(
+  token: string | null, 
+  fingerprint: string | null, 
+  clientIP: string
+): { valid: boolean; reason?: string } {
+  if (!token || token.length < 16) {
+    return { valid: false, reason: "Missing or invalid verification token" };
+  }
+  
+  if (!fingerprint || fingerprint.length < 20) {
+    return { valid: false, reason: "Missing browser fingerprint" };
+  }
+  
+  // Check if IP is blocked
+  const suspiciousRecord = suspiciousIPs.get(clientIP);
+  if (suspiciousRecord && Date.now() < suspiciousRecord.blockedUntil) {
+    return { valid: false, reason: "IP temporarily blocked due to suspicious activity" };
+  }
+  
+  // Check if we've seen this token before
+  const existingToken = verifiedTokens.get(token);
+  if (existingToken) {
+    // Token reuse is okay within same session, but check fingerprint consistency
+    if (existingToken.fingerprint !== fingerprint) {
+      // Fingerprint changed - possible token theft
+      console.warn(`[BOT-DETECTION] Fingerprint mismatch for token. Original: ${existingToken.fingerprint.slice(0, 8)}..., Current: ${fingerprint.slice(0, 8)}...`);
+      markSuspiciousIP(clientIP);
+      return { valid: false, reason: "Session fingerprint mismatch" };
+    }
+    
+    // Increment request count for this token
+    existingToken.requestCount++;
+    
+    // Check for abnormal usage (more than 100 requests per hour per token)
+    if (existingToken.requestCount > 100) {
+      console.warn(`[BOT-DETECTION] Token exceeded request limit: ${existingToken.requestCount} requests`);
+      return { valid: false, reason: "Rate limit exceeded for session" };
+    }
+    
+    return { valid: true };
+  }
+  
+  // New token - validate structure
+  try {
+    // Token should be base64 and contain expected format
+    const decoded = atob(token);
+    if (!decoded.includes(":") || !decoded.includes("@")) {
+      console.warn(`[BOT-DETECTION] Invalid token structure`);
+      markSuspiciousIP(clientIP);
+      return { valid: false, reason: "Invalid token structure" };
+    }
+    
+    // Extract timestamp from token
+    const parts = decoded.split(":");
+    if (parts.length >= 3) {
+      const timestampPart = parts[2];
+      const timestamp = parseInt(timestampPart, 10);
+      
+      // Token should be created recently (within 24 hours)
+      if (isNaN(timestamp) || Date.now() - timestamp > 86400000) {
+        console.warn(`[BOT-DETECTION] Token expired or invalid timestamp`);
+        return { valid: false, reason: "Token expired" };
+      }
+    }
+    
+    // Register the new token
+    verifiedTokens.set(token, {
+      timestamp: Date.now(),
+      fingerprint,
+      requestCount: 1,
+    });
+    
+    // Cleanup old tokens periodically
+    if (verifiedTokens.size > 1000) {
+      const now = Date.now();
+      for (const [key, value] of verifiedTokens.entries()) {
+        if (now - value.timestamp > BOT_DETECTION_WINDOW_MS) {
+          verifiedTokens.delete(key);
+        }
+      }
+    }
+    
+    return { valid: true };
+  } catch {
+    console.warn(`[BOT-DETECTION] Token decode failed`);
+    markSuspiciousIP(clientIP);
+    return { valid: false, reason: "Token validation failed" };
+  }
+}
+
+function markSuspiciousIP(clientIP: string): void {
+  const existing = suspiciousIPs.get(clientIP) || { failedAttempts: 0, blockedUntil: 0 };
+  existing.failedAttempts++;
+  
+  if (existing.failedAttempts >= MAX_FAILED_VERIFICATIONS) {
+    // Block IP for 1 hour
+    existing.blockedUntil = Date.now() + BOT_DETECTION_WINDOW_MS;
+    console.warn(`[BOT-DETECTION] Blocked IP ${hashIP(clientIP)} for 1 hour after ${existing.failedAttempts} failed attempts`);
+  }
+  
+  suspiciousIPs.set(clientIP, existing);
+  
+  // Cleanup old records
+  if (suspiciousIPs.size > 500) {
+    const now = Date.now();
+    for (const [key, value] of suspiciousIPs.entries()) {
+      if (value.blockedUntil > 0 && now > value.blockedUntil) {
+        suspiciousIPs.delete(key);
+      }
+    }
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function logConversation(
   supabaseAdmin: any,
@@ -429,6 +549,27 @@ serve(async (req) => {
         }
       );
     }
+    
+    // Bot detection - validate verification token
+    const verificationToken = req.headers.get("x-verification-token");
+    const browserFingerprint = req.headers.get("x-browser-fingerprint");
+    
+    const verificationResult = validateVerificationToken(verificationToken, browserFingerprint, clientIP);
+    if (!verificationResult.valid) {
+      console.warn(`[BOT-DETECTION] Verification failed for ${clientIpHash}: ${verificationResult.reason}`);
+      return new Response(
+        JSON.stringify({ 
+          error: "Verification required. Please complete the challenge first.",
+          code: "VERIFICATION_REQUIRED"
+        }),
+        { 
+          status: 403, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        }
+      );
+    }
+    
+    console.log(`[BOT-DETECTION] Verified request from ${clientIpHash}, token: ${verificationToken?.slice(0, 8)}...`);
     
     const { message, conversationHistory, sessionId } = await req.json();
     
