@@ -9,6 +9,7 @@ const corsHeaders = {
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 // System prompt for DM analysis
 const SYSTEM_PROMPT = `You are a 7-figure sales AI assistant analyzing Instagram DM screenshots.
@@ -98,6 +99,55 @@ serve(async (req) => {
     }
 
     console.log("User authenticated:", user.id);
+
+    // Check and update DM usage limits
+    const serviceClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    
+    // Get current period dates
+    const now = new Date();
+    const periodStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
+    
+    // Get or create usage record for this period
+    const { data: usageRecord } = await serviceClient
+      .from("dm_usage")
+      .select("*")
+      .eq("user_id", user.id)
+      .gte("period_start", periodStart)
+      .lte("period_end", periodEnd)
+      .maybeSingle();
+    
+    // Get user's subscription tier to determine limit
+    const { data: subscription } = await serviceClient
+      .from("user_subscriptions")
+      .select("dm_subscription_tier")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    
+    const dmTier = subscription?.dm_subscription_tier || null;
+    
+    // Determine limit based on tier
+    let analysesLimit = 5; // Free tier default
+    if (dmTier === 'starter') analysesLimit = 50;
+    else if (dmTier === 'growth') analysesLimit = 200;
+    else if (dmTier === 'unlimited') analysesLimit = 999999;
+    
+    const currentUsage = usageRecord?.analyses_used || 0;
+    
+    // Check if at limit
+    if (currentUsage >= analysesLimit) {
+      console.log("User at DM analysis limit:", currentUsage, "/", analysesLimit);
+      return new Response(
+        JSON.stringify({ 
+          error: "You've reached your monthly DM analysis limit. Upgrade to continue.",
+          limitReached: true 
+        }),
+        { 
+          status: 403, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
 
     // Get user's offer context from their profile
     const { data: profile } = await supabase
@@ -266,7 +316,27 @@ ${conversationHistory ? `PREVIOUS CONVERSATION CONTEXT:\n${conversationHistory}\
       console.error("Error saving snapshot:", snapshotError);
     }
 
-    console.log("Snapshot saved for lead:", finalLeadId);
+    // Increment DM usage count
+    if (usageRecord) {
+      await serviceClient
+        .from("dm_usage")
+        .update({ 
+          analyses_used: currentUsage + 1,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", usageRecord.id);
+    } else {
+      await serviceClient
+        .from("dm_usage")
+        .insert({
+          user_id: user.id,
+          analyses_used: 1,
+          period_start: periodStart,
+          period_end: periodEnd,
+        });
+    }
+
+    console.log("Snapshot saved for lead:", finalLeadId, "| Usage:", currentUsage + 1, "/", analysesLimit);
 
     return new Response(
       JSON.stringify({
