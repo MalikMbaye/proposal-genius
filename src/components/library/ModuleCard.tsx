@@ -1,9 +1,6 @@
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Lock, Smartphone, TrendingUp, Building2, Palette, Handshake, Presentation, FileText, DollarSign, Eye, CheckCircle, Circle } from "lucide-react";
+import { ChevronDown, Lock, Smartphone, TrendingUp, Building2, Palette, Handshake, Presentation, FileText, Play, Target, Users, Briefcase, DollarSign } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -14,6 +11,9 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Handshake,
   Presentation,
   FileText,
+  Target,
+  Users,
+  Briefcase,
 };
 
 export interface LibraryProposal {
@@ -54,28 +54,6 @@ interface ModuleCardProps {
   viewedProposalIds?: Set<string>;
 }
 
-const INDUSTRY_LABELS: Record<string, string> = {
-  ecommerce: "E-commerce",
-  saas: "SaaS",
-  fintech: "Fintech",
-  fitness: "Fitness",
-  wellness: "Wellness",
-  career: "Career",
-  media: "Media",
-  food_beverage: "Food & Beverage",
-  sports: "Sports",
-  consumer_apps: "Consumer Apps",
-  real_estate: "Real Estate",
-  technology: "Technology",
-  finance: "Finance",
-  healthcare: "Healthcare",
-  education: "Education",
-  nonprofit: "Nonprofit",
-  retail: "Retail",
-  consulting: "Consulting",
-  other: "Other",
-};
-
 export function ModuleCard({ 
   module, 
   isLocked = false, 
@@ -111,57 +89,45 @@ export function ModuleCard({
   };
 
   return (
-    <Card className={cn(
-      "overflow-hidden transition-all duration-200",
-      isLocked && "opacity-70"
-    )}>
+    <Card className="overflow-hidden border-border bg-card">
       {/* Module Header */}
       <button
         onClick={handleToggle}
-        className="w-full p-5 flex items-center gap-4 hover:bg-accent/50 transition-colors text-left"
+        className="w-full p-5 flex items-center gap-4 hover:bg-accent/30 transition-colors text-left"
       >
         <div className={cn(
-          "p-3 rounded-lg",
+          "h-12 w-12 rounded-lg flex items-center justify-center shrink-0",
           isLocked ? "bg-muted" : "bg-primary/10"
         )}>
           {isLocked ? (
-            <Lock className="h-6 w-6 text-muted-foreground" />
+            <Lock className="h-5 w-5 text-muted-foreground" />
           ) : (
-            <IconComponent className="h-6 w-6 text-primary" />
+            <IconComponent className="h-5 w-5 text-primary" />
           )}
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-lg">{module.title}</h3>
+          <h3 className="font-semibold text-foreground">{module.title}</h3>
           {module.subtitle && (
             <p className="text-sm text-muted-foreground line-clamp-1">{module.subtitle}</p>
           )}
-          {/* Progress bar */}
-          {progress && progress.total > 0 && (
-            <div className="mt-2 flex items-center gap-2">
-              <Progress value={progress.percentage} className="h-1.5 flex-1 max-w-[200px]" />
-              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                {progress.viewed}/{progress.total}
-              </span>
-            </div>
-          )}
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground whitespace-nowrap hidden sm:block">
-            {proposalCount} proposals
-          </span>
-          {isLocked ? (
-            <Lock className="h-5 w-5 text-muted-foreground" />
-          ) : isExpanded ? (
-            <ChevronDown className="h-5 w-5 text-muted-foreground" />
-          ) : (
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
-          )}
+        <div className="flex items-center gap-4 shrink-0">
+          <div className="text-right">
+            <div className="text-sm font-semibold text-foreground">
+              {progress ? `${progress.viewed}/${progress.total}` : `0/${proposalCount}`}
+            </div>
+            <div className="text-xs text-muted-foreground">proposals</div>
+          </div>
+          <ChevronDown className={cn(
+            "h-5 w-5 text-muted-foreground transition-transform duration-200",
+            isExpanded && "rotate-180"
+          )} />
         </div>
       </button>
 
-      {/* Expanded Content */}
+      {/* Expanded Content - Proposal List */}
       {isExpanded && !isLocked && (
         <div className="border-t border-border">
           {module.proposals.length === 0 ? (
@@ -170,52 +136,47 @@ export function ModuleCard({
               <p>Proposals coming soon</p>
             </div>
           ) : (
-            <div className="divide-y divide-border/50">
-              {module.proposals.map((proposal) => {
+            <div className="divide-y divide-border">
+              {module.proposals.map((proposal, index) => {
                 const isViewed = viewedProposalIds.has(proposal.id);
+                const dealSize = formatDealSize(proposal.deal_size_min, proposal.deal_size_max);
+                
                 return (
                   <button
                     key={proposal.id}
                     onClick={() => onProposalClick(proposal)}
-                    className="w-full p-4 flex items-center gap-4 hover:bg-accent/30 transition-colors text-left group"
+                    className="w-full px-5 py-4 flex items-center gap-4 hover:bg-accent/30 transition-colors text-left group"
                   >
-                    {/* View indicator */}
-                    {isViewed ? (
-                      <CheckCircle className="h-5 w-5 text-green-500 shrink-0" />
-                    ) : (
-                      <Circle className="h-5 w-5 text-muted-foreground/50 shrink-0" />
-                    )}
+                    {/* Play/Lock icon */}
+                    <div className="shrink-0">
+                      {isViewed ? (
+                        <Play className="h-4 w-4 text-primary fill-primary" />
+                      ) : (
+                        <Play className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </div>
                     
+                    {/* Title */}
                     <div className="flex-1 min-w-0">
                       <p className={cn(
-                        "font-medium text-sm group-hover:text-primary transition-colors line-clamp-1",
+                        "font-medium text-foreground group-hover:text-primary transition-colors",
                         isViewed && "text-muted-foreground"
                       )}>
                         {proposal.title}
                       </p>
-                      {proposal.description && (
-                        <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
-                          {proposal.description}
-                        </p>
-                      )}
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      {formatDealSize(proposal.deal_size_min, proposal.deal_size_max) && (
-                        <Badge variant="secondary" className="text-xs font-semibold">
-                          <DollarSign className="h-3 w-3 mr-0.5" />
-                          {formatDealSize(proposal.deal_size_min, proposal.deal_size_max)}
-                        </Badge>
+                    {/* Deal size + View button */}
+                    <div className="flex items-center gap-4 shrink-0">
+                      {dealSize && (
+                        <span className="text-sm text-muted-foreground hidden sm:block">
+                          {dealSize}
+                        </span>
                       )}
-                      {proposal.industry && (
-                        <Badge variant="outline" className="text-xs hidden md:flex">
-                          {INDUSTRY_LABELS[proposal.industry] || proposal.industry}
-                        </Badge>
-                      )}
-                      <Button variant="ghost" size="sm" className="h-8 px-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Eye className="h-4 w-4 mr-1" />
-                        View
-                      </Button>
+                      <div className="flex items-center gap-1.5 text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                        <Play className="h-4 w-4" />
+                        <span>View</span>
+                      </div>
                     </div>
                   </button>
                 );
@@ -225,17 +186,14 @@ export function ModuleCard({
         </div>
       )}
 
-      {/* Locked Overlay */}
-      {isLocked && (
-        <div className="border-t border-border p-6 bg-muted/50">
+      {/* Locked State */}
+      {isExpanded && isLocked && (
+        <div className="border-t border-border p-6 bg-muted/30">
           <div className="text-center">
-            <Lock className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground mb-3">
-              Unlock full access to view this module
+            <Lock className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">
+              Upgrade to access this module
             </p>
-            <Button onClick={onUpgradeClick} size="sm">
-              Upgrade to Access
-            </Button>
           </div>
         </div>
       )}
