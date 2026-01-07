@@ -132,7 +132,15 @@ export function ModuleCard({
           {module.proposals.length === 0 ? (
             <div className="p-8 text-center text-slate-500">
               <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>Proposals coming soon</p>
+              <p className="mb-2">Proposals coming soon</p>
+              <a 
+                href="https://malikmbaye.substack.com/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs text-primary hover:text-primary/80 underline underline-offset-2"
+              >
+                Get notified when added →
+              </a>
             </div>
           ) : (
             <div className="divide-y divide-slate-100">

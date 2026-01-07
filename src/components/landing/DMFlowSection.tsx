@@ -72,6 +72,18 @@ export function DMFlowSection() {
               <Check className="h-4 w-4 text-emerald-500" />
               Included with your PitchGenius account
             </p>
+            
+            <p className="text-xs text-slate-600 mt-3">
+              Browser extension coming soon for one-click DM analysis —{" "}
+              <a 
+                href="https://malikmbaye.substack.com/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-emerald-400/70 hover:text-emerald-400 underline underline-offset-2"
+              >
+                subscribe for early access
+              </a>
+            </p>
           </div>
         </div>
       </div>
