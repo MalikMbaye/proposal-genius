@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
+import { Mail, Sparkles } from "lucide-react";
 
 const footerLinks = {
   Product: [
@@ -27,6 +28,26 @@ export function Footer() {
             <p className="text-sm text-muted-foreground mb-4">
               AI-powered proposals for consultants who deserve better.
             </p>
+            
+            {/* Early Access Substack CTA */}
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 max-w-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="text-sm font-semibold text-foreground">Get Early Access</span>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                Subscribe to get first access to new features, Chrome extension, and sales tips.
+              </p>
+              <a
+                href="https://malikmbaye.substack.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                <Mail className="h-4 w-4" />
+                Subscribe on Substack →
+              </a>
+            </div>
           </div>
           
           {/* Link columns */}
