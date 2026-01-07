@@ -488,6 +488,90 @@ export type Database = {
         }
         Relationships: []
       }
+      milkzo_analytics_daily: {
+        Row: {
+          anonymous_sessions: number
+          authenticated_sessions: number
+          booking_intents: number
+          created_at: string
+          date: string
+          feature_questions: number
+          id: string
+          messages_sent: number
+          pricing_questions: number
+          total_conversations: number
+          unique_sessions: number
+          updated_at: string
+        }
+        Insert: {
+          anonymous_sessions?: number
+          authenticated_sessions?: number
+          booking_intents?: number
+          created_at?: string
+          date: string
+          feature_questions?: number
+          id?: string
+          messages_sent?: number
+          pricing_questions?: number
+          total_conversations?: number
+          unique_sessions?: number
+          updated_at?: string
+        }
+        Update: {
+          anonymous_sessions?: number
+          authenticated_sessions?: number
+          booking_intents?: number
+          created_at?: string
+          date?: string
+          feature_questions?: number
+          id?: string
+          messages_sent?: number
+          pricing_questions?: number
+          total_conversations?: number
+          unique_sessions?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      milkzo_conversations: {
+        Row: {
+          client_ip_hash: string | null
+          conversion_action: string | null
+          created_at: string
+          detected_intent: string | null
+          id: string
+          is_authenticated: boolean
+          message_content: string
+          message_role: string
+          session_id: string
+          user_id: string | null
+        }
+        Insert: {
+          client_ip_hash?: string | null
+          conversion_action?: string | null
+          created_at?: string
+          detected_intent?: string | null
+          id?: string
+          is_authenticated?: boolean
+          message_content: string
+          message_role: string
+          session_id: string
+          user_id?: string | null
+        }
+        Update: {
+          client_ip_hash?: string | null
+          conversion_action?: string | null
+          created_at?: string
+          detected_intent?: string | null
+          id?: string
+          is_authenticated?: boolean
+          message_content?: string
+          message_role?: string
+          session_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           background: string | null
