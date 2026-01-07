@@ -42,17 +42,17 @@ export function DMCloserSection() {
   ];
 
   return (
-    <section className="py-24 relative overflow-hidden bg-gradient-to-br from-primary/15 via-primary/10 to-accent/10">
+    <section className="py-24 relative overflow-hidden bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-rose-500/10">
       {/* Decorative elements */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--primary)/0.2),transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,hsl(var(--accent)/0.15),transparent_50%)]" />
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(38_92%_50%/0.2),transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,hsl(25_95%_53%/0.15),transparent_50%)]" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500/50 to-transparent" />
       
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/20 rounded-full text-amber-400 text-sm font-medium mb-6 border border-amber-500/30">
             <Chrome className="h-4 w-4" />
             NEW: DM Sales Assistant
           </div>
@@ -82,8 +82,8 @@ export function DMCloserSection() {
                 className="p-6 border-border/50 bg-card/50 hover:bg-card/80 transition-colors"
               >
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <feature.icon className="h-6 w-6 text-primary" />
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                    <feature.icon className="h-6 w-6 text-amber-400" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
@@ -136,7 +136,7 @@ export function DMCloserSection() {
               {/* Response Options */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                  <Sparkles className="h-4 w-4 text-primary" />
+                  <Sparkles className="h-4 w-4 text-amber-400" />
                   AI Response Options
                 </div>
                 
@@ -145,14 +145,14 @@ export function DMCloserSection() {
                     key={index}
                     className={`p-3 rounded-lg border transition-all duration-300 ${
                       isHovered && index === 0 
-                        ? 'border-primary bg-primary/5' 
+                        ? 'border-amber-500 bg-amber-500/10' 
                         : 'border-border/50 bg-muted/30'
                     }`}
                   >
                     <div className="flex items-start gap-3">
                       <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium ${
                         isHovered && index === 0 
-                          ? 'bg-primary text-primary-foreground' 
+                          ? 'bg-amber-500 text-white' 
                           : 'bg-muted text-muted-foreground'
                       }`}>
                         {index + 1}
@@ -167,9 +167,9 @@ export function DMCloserSection() {
               {isHovered && (
                 <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground animate-pulse">
                   <div className="flex gap-1">
-                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                   Generating perfect response...
                 </div>
@@ -177,7 +177,7 @@ export function DMCloserSection() {
             </div>
 
             {/* Floating badge */}
-            <div className="absolute -top-4 -right-4 px-4 py-2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-full text-sm font-bold shadow-lg">
+            <div className="absolute -top-4 -right-4 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full text-sm font-bold shadow-lg shadow-amber-500/25">
               Works on Instagram, LinkedIn, Twitter
             </div>
           </div>
