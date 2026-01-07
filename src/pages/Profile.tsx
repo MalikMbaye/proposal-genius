@@ -9,8 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, Building2, Mail, Briefcase, FileText, Trophy, CreditCard, Crown, Sparkles } from "lucide-react";
+import { Loader2, ArrowLeft, Building2, Mail, Briefcase, FileText, Trophy, CreditCard, Crown, Sparkles, RotateCcw, HelpCircle } from "lucide-react";
 import { FileUploadButton } from "@/components/FileUploadButton";
+import { useFirstVisitTour } from "@/hooks/useFirstVisitTour";
 
 export default function Profile() {
   const { user, signOut } = useAuth();
@@ -28,6 +29,7 @@ export default function Profile() {
     checkSubscription 
   } = useSubscription();
   const navigate = useNavigate();
+  const { resetAllTours } = useFirstVisitTour();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [companyName, setCompanyName] = useState("");
@@ -370,6 +372,44 @@ export default function Profile() {
                       "Save Changes"
                     )}
                   </Button>
+                </div>
+
+                {/* Preferences Section */}
+                <div className="space-y-4">
+                  <h2 className="text-lg font-semibold border-b border-border pb-2">Preferences</h2>
+                  
+                  <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-card/50">
+                    <div>
+                      <p className="font-medium">Guided Tours</p>
+                      <p className="text-sm text-muted-foreground">
+                        Reset to see onboarding tooltips again
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        resetAllTours();
+                        toast.success("Tours reset! You'll see guides again when visiting each section.");
+                      }}
+                    >
+                      <RotateCcw className="mr-2 h-4 w-4" />
+                      Reset Tours
+                    </Button>
+                  </div>
+
+                  <Link 
+                    to="/help"
+                    className="flex items-center justify-between p-4 rounded-lg border border-border bg-card/50 hover:bg-card/80 transition-colors"
+                  >
+                    <div>
+                      <p className="font-medium">Help Center</p>
+                      <p className="text-sm text-muted-foreground">
+                        Learn our methodology and how to use PitchGenius
+                      </p>
+                    </div>
+                    <HelpCircle className="h-5 w-5 text-muted-foreground" />
+                  </Link>
                 </div>
 
                 <div className="border-t border-border pt-6 mt-6">
