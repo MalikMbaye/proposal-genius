@@ -16,10 +16,16 @@ import { ProposalComparisonSection } from "@/components/landing/ProposalComparis
 import { DMProblemSection } from "@/components/landing/DMProblemSection";
 import { DMHeroTeaser } from "@/components/landing/DMHeroTeaser";
 import { DMFlowSection } from "@/components/landing/DMFlowSection";
+import { SocialProofToast } from "@/components/SocialProofToast";
+import { ExitIntentPopup } from "@/components/ExitIntentPopup";
 
 export default function Index() {
   return (
     <div className="min-h-screen bg-background">
+      {/* Conversion optimization components */}
+      <SocialProofToast />
+      <ExitIntentPopup />
+      
       <Navbar />
       
       {/* ========================================
