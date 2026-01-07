@@ -15,7 +15,6 @@ import { Footer } from "@/components/landing/Footer";
 import { ProposalComparisonSection } from "@/components/landing/ProposalComparisonSection";
 import { DMProblemSection } from "@/components/landing/DMProblemSection";
 import { DMHeroTeaser } from "@/components/landing/DMHeroTeaser";
-import { DMFeaturesSection } from "@/components/landing/DMFeaturesSection";
 import { DMFlowSection } from "@/components/landing/DMFlowSection";
 
 export default function Index() {
@@ -23,47 +22,50 @@ export default function Index() {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      {/* 1. HOOK - Grab attention */}
+      {/* ========================================
+          PHASE 1: HOOK & CREDIBILITY
+          Goal: Grab attention, establish trust
+      ======================================== */}
       <HeroSection />
-      
-      {/* 2. PROOF - Visual results */}
       <ProposalComparisonSection />
-      
-      {/* 3. CREDIBILITY - Why trust you */}
       <ViralThreadSection />
       <FounderSection />
       
-      {/* 4. CORE VALUE - Main product explained */}
+      {/* ========================================
+          PHASE 2: PITCHGENIUS CORE VALUE
+          Goal: Explain the main product fully
+      ======================================== */}
       <HowItWorksSection />
-      
-      {/* 5. DEEPER NARRATIVE - Problem/Solution for proposals */}
       <ProblemSection />
       <InsightSection />
       <SolutionSection />
       
-      {/* 6. DIFFERENTIATION - Why PitchGenius vs others */}
+      {/* ========================================
+          PHASE 3: DIFFERENTIATION & PROOF
+          Goal: Handle "why you?" objection
+      ======================================== */}
       <DifferentiationSection />
-      
-      {/* 7. SOCIAL PROOF */}
       <TestimonialsSection />
       
-      {/* 8. DM CLOSER - Complete the system */}
-      {/* Problem: You're losing deals in DMs (with funnel graph) */}
+      {/* ========================================
+          PHASE 4: DM CLOSER (BONUS/ADD-ON)
+          Goal: "But wait, there's more" - complete the system
+          
+          Story arc:
+          1. Problem (graph) - You're bleeding money in DMs
+          2. Solution (mockup) - Here's the fix
+          3. How + Proof (3-step + stats) - It's easy & proven
+      ======================================== */}
       <DMProblemSection />
-      {/* Teaser: Before you propose, qualify the lead */}
       <DMHeroTeaser />
-      {/* Features: Everything you need to close in DMs */}
-      <DMFeaturesSection />
-      {/* CTA: From DM to Deal in 3 clicks */}
       <DMFlowSection />
       
-      {/* 9. INVESTMENT */}
+      {/* ========================================
+          PHASE 5: CLOSE THE DEAL
+          Goal: Investment, objections, final push
+      ======================================== */}
       <PricingSection />
-      
-      {/* 10. OBJECTIONS */}
       <FAQSection />
-      
-      {/* 11. CLOSE */}
       <FinalCTASection />
       <Footer />
     </div>
