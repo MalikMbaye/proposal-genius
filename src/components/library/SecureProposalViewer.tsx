@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, BookOpen, Lock, Sparkles, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
@@ -33,35 +32,74 @@ export function SecureProposalViewer({ item, onClose }: SecureProposalViewerProp
   const [generating, setGenerating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Prevent screenshots and right-click
+  // Prevent screenshots, right-click, and other capture methods
   useEffect(() => {
     const preventScreenshot = (e: KeyboardEvent) => {
-      // Block PrintScreen, Cmd+Shift+3/4 (Mac), etc.
+      // Block PrintScreen, Cmd+Shift+3/4 (Mac), Ctrl+P, etc.
       if (
         e.key === "PrintScreen" ||
-        (e.metaKey && e.shiftKey && (e.key === "3" || e.key === "4")) ||
-        (e.ctrlKey && e.key === "p")
+        (e.metaKey && e.shiftKey && (e.key === "3" || e.key === "4" || e.key === "5")) ||
+        (e.ctrlKey && e.key === "p") ||
+        (e.ctrlKey && e.key === "s") ||
+        (e.ctrlKey && e.shiftKey && e.key === "s")
       ) {
         e.preventDefault();
+        e.stopPropagation();
+        return false;
       }
     };
 
     const preventContextMenu = (e: MouseEvent) => {
       e.preventDefault();
+      return false;
     };
 
     const preventDrag = (e: DragEvent) => {
       e.preventDefault();
+      return false;
     };
 
-    document.addEventListener("keydown", preventScreenshot);
-    document.addEventListener("contextmenu", preventContextMenu);
-    document.addEventListener("dragstart", preventDrag);
+    const preventCopy = (e: ClipboardEvent) => {
+      e.preventDefault();
+      return false;
+    };
+
+    // Blur content when window loses focus (screenshot detection)
+    const handleVisibilityChange = () => {
+      if (document.hidden && containerRef.current) {
+        containerRef.current.style.filter = "blur(20px)";
+      } else if (containerRef.current) {
+        containerRef.current.style.filter = "none";
+      }
+    };
+
+    document.addEventListener("keydown", preventScreenshot, true);
+    document.addEventListener("keyup", preventScreenshot, true);
+    document.addEventListener("contextmenu", preventContextMenu, true);
+    document.addEventListener("dragstart", preventDrag, true);
+    document.addEventListener("copy", preventCopy, true);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Add CSS to prevent selection and printing
+    const style = document.createElement("style");
+    style.id = "secure-viewer-styles";
+    style.textContent = `
+      @media print {
+        body * { display: none !important; }
+        body::after { content: "Printing is disabled for protected content"; display: block; }
+      }
+    `;
+    document.head.appendChild(style);
 
     return () => {
-      document.removeEventListener("keydown", preventScreenshot);
-      document.removeEventListener("contextmenu", preventContextMenu);
-      document.removeEventListener("dragstart", preventDrag);
+      document.removeEventListener("keydown", preventScreenshot, true);
+      document.removeEventListener("keyup", preventScreenshot, true);
+      document.removeEventListener("contextmenu", preventContextMenu, true);
+      document.removeEventListener("dragstart", preventDrag, true);
+      document.removeEventListener("copy", preventCopy, true);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      const existingStyle = document.getElementById("secure-viewer-styles");
+      if (existingStyle) existingStyle.remove();
     };
   }, []);
 
@@ -164,31 +202,37 @@ export function SecureProposalViewer({ item, onClose }: SecureProposalViewerProp
     <div 
       ref={containerRef}
       className="fixed inset-0 z-50 bg-background"
-      style={{ userSelect: "none" }}
+      style={{ 
+        userSelect: "none",
+        WebkitTouchCallout: "none",
+        WebkitUserSelect: "none",
+        MozUserSelect: "none",
+        msUserSelect: "none",
+      } as React.CSSProperties}
     >
       {/* Header */}
-      <div className="h-16 border-b flex items-center justify-between px-4">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={onClose}>
+      <div className="h-14 md:h-16 border-b flex items-center justify-between px-3 md:px-4">
+        <div className="flex items-center gap-2 md:gap-4 min-w-0">
+          <Button variant="ghost" size="icon" onClick={onClose} className="shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
-            <h1 className="font-semibold">{item.title}</h1>
-            <p className="text-sm text-muted-foreground">
+          <div className="min-w-0">
+            <h1 className="font-semibold text-sm md:text-base truncate">{item.title}</h1>
+            <p className="text-xs md:text-sm text-muted-foreground">
               Page {currentPage} of {item.page_count}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-muted-foreground text-sm">
+        <div className="hidden sm:flex items-center gap-2 text-muted-foreground text-sm">
           <Lock className="h-4 w-4" />
           Protected Content
         </div>
       </div>
 
       {/* Main content */}
-      <div className="flex h-[calc(100vh-4rem)]">
+      <div className="flex flex-col md:flex-row h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)]">
         {/* PDF Viewer */}
-        <div className="flex-1 flex flex-col bg-muted/30">
+        <div className="flex-1 flex flex-col bg-muted/30 min-h-0">
           {/* Page navigation */}
           <div className="flex items-center justify-center gap-4 p-4 border-b">
             <Button
@@ -244,90 +288,88 @@ export function SecureProposalViewer({ item, onClose }: SecureProposalViewerProp
           </div>
         </div>
 
-        {/* Annotations Panel */}
-        <div className="w-96 border-l bg-card">
-          <div className="p-4 border-b">
+        {/* Annotations Panel - Collapsible on mobile */}
+        <div className="w-full md:w-96 border-t md:border-t-0 md:border-l bg-card max-h-[40vh] md:max-h-none overflow-auto">
+          <div className="p-4 border-b sticky top-0 bg-card z-10">
             <h2 className="font-semibold flex items-center gap-2">
               <BookOpen className="h-5 w-5 text-primary" />
               Annotations
             </h2>
           </div>
-          <ScrollArea className="h-[calc(100vh-8rem)]">
-            <div className="p-4">
-              {currentAnnotation ? (
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    {currentAnnotation.title && (
-                      <h3 className="font-medium text-lg">{currentAnnotation.title}</h3>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleGenerateAnnotation}
-                      disabled={generating || !pageImageUrl}
-                      className="gap-1 text-xs"
-                    >
-                      {generating ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <RefreshCw className="h-3 w-3" />
-                      )}
-                      Regenerate
-                    </Button>
-                  </div>
-                  <div className="prose prose-sm prose-invert max-w-none">
-                    <p className="text-muted-foreground whitespace-pre-wrap">
-                      {currentAnnotation.content}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <BookOpen className="h-8 w-8 mx-auto mb-3 opacity-50 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground mb-4">No annotations for this page</p>
+          <div className="p-4">
+            {currentAnnotation ? (
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  {currentAnnotation.title && (
+                    <h3 className="font-medium text-lg">{currentAnnotation.title}</h3>
+                  )}
                   <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={handleGenerateAnnotation}
                     disabled={generating || !pageImageUrl}
-                    size="sm"
-                    className="gap-2"
+                    className="gap-1 text-xs"
                   >
                     {generating ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Generating...
-                      </>
+                      <Loader2 className="h-3 w-3 animate-spin" />
                     ) : (
-                      <>
-                        <Sparkles className="h-4 w-4" />
-                        Generate with AI
-                      </>
+                      <RefreshCw className="h-3 w-3" />
                     )}
+                    Regenerate
                   </Button>
                 </div>
-              )}
-
-              {/* Page thumbnails / navigation */}
-              {annotations.length > 0 && (
-                <div className="mt-8 pt-6 border-t">
-                  <h4 className="text-sm font-medium text-muted-foreground mb-3">
-                    Annotated Pages
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {annotations.map((ann) => (
-                      <Button
-                        key={ann.id}
-                        variant={currentPage === ann.page_number ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => goToPage(ann.page_number)}
-                      >
-                        {ann.page_number}
-                      </Button>
-                    ))}
-                  </div>
+                <div className="prose prose-sm prose-invert max-w-none">
+                  <p className="text-muted-foreground whitespace-pre-wrap">
+                    {currentAnnotation.content}
+                  </p>
                 </div>
-              )}
-            </div>
-          </ScrollArea>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <BookOpen className="h-8 w-8 mx-auto mb-3 opacity-50 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground mb-4">No annotations for this page</p>
+                <Button
+                  onClick={handleGenerateAnnotation}
+                  disabled={generating || !pageImageUrl}
+                  size="sm"
+                  className="gap-2"
+                >
+                  {generating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4" />
+                      Generate with AI
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+
+            {/* Page thumbnails / navigation */}
+            {annotations.length > 0 && (
+              <div className="mt-8 pt-6 border-t">
+                <h4 className="text-sm font-medium text-muted-foreground mb-3">
+                  Annotated Pages
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {annotations.map((ann) => (
+                    <Button
+                      key={ann.id}
+                      variant={currentPage === ann.page_number ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => goToPage(ann.page_number)}
+                    >
+                      {ann.page_number}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

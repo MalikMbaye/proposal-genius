@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 import { LibraryHeader } from "./LibraryHeader";
 import { LibraryFilters } from "./LibraryFilters";
@@ -11,9 +12,11 @@ interface LibraryModuleViewProps {
 }
 
 export function LibraryModuleView({ onUpgradeClick }: LibraryModuleViewProps) {
+  const { user } = useAuth();
   const [modules, setModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProposal, setSelectedProposal] = useState<LibraryProposal | null>(null);
+  const [viewedProposalIds, setViewedProposalIds] = useState<Set<string>>(new Set());
 
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -21,9 +24,24 @@ export function LibraryModuleView({ onUpgradeClick }: LibraryModuleViewProps) {
   const [industryFilter, setIndustryFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
 
+  // Fetch user's viewed proposals
+  const fetchViewedProposals = useCallback(async () => {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from("user_proposal_views")
+      .select("library_item_id")
+      .eq("user_id", user.id);
+    
+    if (data) {
+      setViewedProposalIds(new Set(data.map(v => v.library_item_id)));
+    }
+  }, [user]);
+
   useEffect(() => {
     fetchModulesAndProposals();
-  }, []);
+    fetchViewedProposals();
+  }, [fetchViewedProposals]);
 
   const fetchModulesAndProposals = async () => {
     try {
@@ -70,6 +88,30 @@ export function LibraryModuleView({ onUpgradeClick }: LibraryModuleViewProps) {
       setLoading(false);
     }
   };
+
+  // Record a view when proposal is opened
+  const recordView = useCallback(async (proposalId: string) => {
+    if (!user) return;
+    
+    try {
+      // Upsert the view record
+      const { error } = await supabase
+        .from("user_proposal_views")
+        .upsert({
+          user_id: user.id,
+          library_item_id: proposalId,
+          last_viewed_at: new Date().toISOString(),
+        }, {
+          onConflict: "user_id,library_item_id",
+        });
+      
+      if (!error) {
+        setViewedProposalIds(prev => new Set([...prev, proposalId]));
+      }
+    } catch (err) {
+      console.error("Error recording view:", err);
+    }
+  }, [user]);
 
   // Apply filters to proposals within modules
   const filteredModules = useMemo(() => {
@@ -124,6 +166,18 @@ export function LibraryModuleView({ onUpgradeClick }: LibraryModuleViewProps) {
 
   const handleProposalClick = (proposal: LibraryProposal) => {
     setSelectedProposal(proposal);
+    recordView(proposal.id);
+  };
+
+  // Calculate progress for each module
+  const getModuleProgress = (module: Module) => {
+    if (module.proposals.length === 0) return { viewed: 0, total: 0, percentage: 0 };
+    const viewed = module.proposals.filter(p => viewedProposalIds.has(p.id)).length;
+    return {
+      viewed,
+      total: module.proposals.length,
+      percentage: Math.round((viewed / module.proposals.length) * 100),
+    };
   };
 
   if (loading) {
@@ -177,6 +231,8 @@ export function LibraryModuleView({ onUpgradeClick }: LibraryModuleViewProps) {
               isLocked={false}
               onProposalClick={handleProposalClick}
               onUpgradeClick={onUpgradeClick}
+              progress={getModuleProgress(module)}
+              viewedProposalIds={viewedProposalIds}
               defaultExpanded={index === 0}
             />
           ))

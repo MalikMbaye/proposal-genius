@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Lock, Smartphone, TrendingUp, Building2, Palette, Handshake, Presentation, FileText, DollarSign, Eye, CheckCircle } from "lucide-react";
+import { ChevronDown, ChevronRight, Lock, Smartphone, TrendingUp, Building2, Palette, Handshake, Presentation, FileText, DollarSign, Eye, CheckCircle, Circle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -37,12 +38,20 @@ export interface Module {
   proposals: LibraryProposal[];
 }
 
+interface ModuleProgress {
+  viewed: number;
+  total: number;
+  percentage: number;
+}
+
 interface ModuleCardProps {
   module: Module;
   isLocked?: boolean;
   onProposalClick: (proposal: LibraryProposal) => void;
   onUpgradeClick?: () => void;
   defaultExpanded?: boolean;
+  progress?: ModuleProgress;
+  viewedProposalIds?: Set<string>;
 }
 
 const INDUSTRY_LABELS: Record<string, string> = {
@@ -72,7 +81,9 @@ export function ModuleCard({
   isLocked = false, 
   onProposalClick, 
   onUpgradeClick,
-  defaultExpanded = false 
+  defaultExpanded = false,
+  progress,
+  viewedProposalIds = new Set(),
 }: ModuleCardProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const IconComponent = ICON_MAP[module.icon] || FileText;
@@ -125,10 +136,19 @@ export function ModuleCard({
           {module.subtitle && (
             <p className="text-sm text-muted-foreground line-clamp-1">{module.subtitle}</p>
           )}
+          {/* Progress bar */}
+          {progress && progress.total > 0 && (
+            <div className="mt-2 flex items-center gap-2">
+              <Progress value={progress.percentage} className="h-1.5 flex-1 max-w-[200px]" />
+              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                {progress.viewed}/{progress.total}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground whitespace-nowrap">
+          <span className="text-sm text-muted-foreground whitespace-nowrap hidden sm:block">
             {proposalCount} proposals
           </span>
           {isLocked ? (
@@ -151,47 +171,55 @@ export function ModuleCard({
             </div>
           ) : (
             <div className="divide-y divide-border/50">
-              {module.proposals.map((proposal) => (
-                <button
-                  key={proposal.id}
-                  onClick={() => onProposalClick(proposal)}
-                  className="w-full p-4 flex items-center gap-4 hover:bg-accent/30 transition-colors text-left group"
-                >
-                  <FileText className="h-5 w-5 text-muted-foreground shrink-0" />
-                  
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm group-hover:text-primary transition-colors line-clamp-1">
-                      {proposal.title}
-                    </p>
-                    {proposal.description && (
-                      <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
-                        {proposal.description}
+              {module.proposals.map((proposal) => {
+                const isViewed = viewedProposalIds.has(proposal.id);
+                return (
+                  <button
+                    key={proposal.id}
+                    onClick={() => onProposalClick(proposal)}
+                    className="w-full p-4 flex items-center gap-4 hover:bg-accent/30 transition-colors text-left group"
+                  >
+                    {/* View indicator */}
+                    {isViewed ? (
+                      <CheckCircle className="h-5 w-5 text-green-500 shrink-0" />
+                    ) : (
+                      <Circle className="h-5 w-5 text-muted-foreground/50 shrink-0" />
+                    )}
+                    
+                    <div className="flex-1 min-w-0">
+                      <p className={cn(
+                        "font-medium text-sm group-hover:text-primary transition-colors line-clamp-1",
+                        isViewed && "text-muted-foreground"
+                      )}>
+                        {proposal.title}
                       </p>
-                    )}
-                  </div>
+                      {proposal.description && (
+                        <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                          {proposal.description}
+                        </p>
+                      )}
+                    </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
-                    {formatDealSize(proposal.deal_size_min, proposal.deal_size_max) && (
-                      <Badge variant="secondary" className="text-xs font-semibold">
-                        <DollarSign className="h-3 w-3 mr-0.5" />
-                        {formatDealSize(proposal.deal_size_min, proposal.deal_size_max)}
-                      </Badge>
-                    )}
-                    {proposal.industry && (
-                      <Badge variant="outline" className="text-xs hidden md:flex">
-                        {INDUSTRY_LABELS[proposal.industry] || proposal.industry}
-                      </Badge>
-                    )}
-                    {proposal.outcome === "closed_won" && (
-                      <CheckCircle className="h-4 w-4 text-green-500 hidden sm:block" />
-                    )}
-                    <Button variant="ghost" size="sm" className="h-8 px-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Eye className="h-4 w-4 mr-1" />
-                      View
-                    </Button>
-                  </div>
-                </button>
-              ))}
+                    <div className="flex items-center gap-2 shrink-0">
+                      {formatDealSize(proposal.deal_size_min, proposal.deal_size_max) && (
+                        <Badge variant="secondary" className="text-xs font-semibold">
+                          <DollarSign className="h-3 w-3 mr-0.5" />
+                          {formatDealSize(proposal.deal_size_min, proposal.deal_size_max)}
+                        </Badge>
+                      )}
+                      {proposal.industry && (
+                        <Badge variant="outline" className="text-xs hidden md:flex">
+                          {INDUSTRY_LABELS[proposal.industry] || proposal.industry}
+                        </Badge>
+                      )}
+                      <Button variant="ghost" size="sm" className="h-8 px-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Eye className="h-4 w-4 mr-1" />
+                        View
+                      </Button>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
