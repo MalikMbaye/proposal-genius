@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
-import { Users, Sparkles, TrendingUp, CheckCircle } from "lucide-react";
+import { Users, Sparkles, TrendingUp, CheckCircle, Zap } from "lucide-react";
 
 // Social proof message templates with variety
 const proofMessages = [
@@ -21,16 +21,26 @@ const proofMessages = [
   {
     type: "proposal",
     templates: [
-      { role: "Marketing Consultant", location: "Kansas City", action: "generated a $15K proposal" },
-      { role: "Brand Strategist", location: "Nashville", action: "created a proposal for a Fortune 500 client" },
-      { role: "Creative Director", location: "Portland", action: "just closed a $25K deal" },
-      { role: "Business Coach", location: "San Diego", action: "generated 3 proposals today" },
-      { role: "UX Designer", location: "Brooklyn", action: "landed a $8K project" },
-      { role: "Content Creator", location: "Dallas", action: "closed a $12K brand deal" },
-      { role: "Freelance Developer", location: "Boston", action: "generated a proposal in 2 minutes" },
-      { role: "Agency Owner", location: "Toronto", action: "created proposals for 5 clients" },
+      { role: "Marketing Consultant", location: "Kansas City", action: "generated a $15K proposal in 38 seconds" },
+      { role: "Brand Strategist", location: "Nashville", action: "created a Fortune 500 proposal in 45 seconds" },
+      { role: "Creative Director", location: "Portland", action: "generated a $25K proposal in 41 seconds" },
+      { role: "Business Coach", location: "San Diego", action: "created a proposal in 36 seconds" },
+      { role: "UX Designer", location: "Brooklyn", action: "generated an $8K proposal in 42 seconds" },
+      { role: "Content Creator", location: "Dallas", action: "created a $12K brand deal proposal in 39 seconds" },
+      { role: "Freelance Developer", location: "Boston", action: "generated a proposal in 34 seconds" },
+      { role: "Agency Owner", location: "Toronto", action: "created 3 proposals in under 2 minutes" },
     ],
     icon: Sparkles,
+  },
+  {
+    type: "speed",
+    templates: [
+      { stat: "34 sec", action: "average proposal generation time today" },
+      { stat: "47 sec", action: "for the last $50K proposal generated" },
+      { stat: "2 min", action: "to generate a full pitch deck" },
+      { stat: "38 sec", action: "average time to close-ready proposal" },
+    ],
+    icon: Zap,
   },
   {
     type: "milestone",
@@ -39,6 +49,8 @@ const proofMessages = [
       { stat: "89", action: "consultants signed up this week" },
       { stat: "$2.3M", action: "in proposals generated this month" },
       { stat: "156", action: "deals closed using PitchGenius this week" },
+      { stat: "4,821", action: "proposals generated this week" },
+      { stat: "$847K", action: "in deals closed today" },
     ],
     icon: TrendingUp,
   },
@@ -49,6 +61,8 @@ const proofMessages = [
       { name: "An agency", location: "New York", action: "closed 3 deals this week" },
       { name: "A consultant", location: "Charlotte", action: "10x'd their close rate" },
       { name: "A coach", location: "Las Vegas", action: "landed their biggest client yet" },
+      { name: "A designer", location: "San Francisco", action: "doubled their average deal size" },
+      { name: "A strategist", location: "Chicago", action: "closed a $35K retainer" },
     ],
     icon: CheckCircle,
   },
