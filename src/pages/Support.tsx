@@ -46,14 +46,26 @@ const Support = () => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from("contact_submissions").insert({
-        name: data.name,
-        email: data.email,
-        subject: data.subject || null,
-        message: data.message,
+      const { data: responseData, error } = await supabase.functions.invoke("submit-contact", {
+        body: {
+          name: data.name,
+          email: data.email,
+          subject: data.subject || null,
+          message: data.message,
+        },
       });
 
       if (error) throw error;
+      
+      // Check for rate limit or validation errors in response
+      if (responseData?.error) {
+        if (responseData.error.includes("Too many")) {
+          toast.error("Too many submissions. Please try again in an hour.");
+        } else {
+          toast.error(responseData.error);
+        }
+        return;
+      }
 
       setIsSubmitted(true);
       reset();
