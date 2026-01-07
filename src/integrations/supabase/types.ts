@@ -683,6 +683,41 @@ export type Database = {
         }
         Relationships: []
       }
+      user_proposal_views: {
+        Row: {
+          id: string
+          last_viewed_at: string
+          library_item_id: string
+          user_id: string
+          view_count: number
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          last_viewed_at?: string
+          library_item_id: string
+          user_id: string
+          view_count?: number
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          last_viewed_at?: string
+          library_item_id?: string
+          user_id?: string
+          view_count?: number
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_proposal_views_library_item_id_fkey"
+            columns: ["library_item_id"]
+            isOneToOne: false
+            referencedRelation: "library_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_subscriptions: {
         Row: {
           created_at: string
