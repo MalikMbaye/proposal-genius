@@ -14,6 +14,7 @@ import { ProposalLibraryTab } from "@/components/ProposalLibraryTab";
 import { StyledProposalPreview } from "@/components/StyledProposalPreview";
 import { LoadingScreen, LoadingStep } from "@/components/LoadingScreen";
 import { useFirstVisitTour } from "@/hooks/useFirstVisitTour";
+import { ProTip, getProTip } from "@/components/ProTip";
 import jsPDF from "jspdf";
 import {
   FileText,
@@ -400,10 +401,15 @@ export default function Preview() {
       // Brief delay to show completion
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      toast({
-        title: `${tabLabels[assetType]} generated`,
-        description: "Your asset is ready to use.",
-      });
+      // Educational toast based on asset type
+      const assetToasts: Record<string, { title: string; description: string }> = {
+        contract: { title: "Contract ready.", description: "Fill in [BRACKETED] fields and send for signature." },
+        contractEmail: { title: "Email ready.", description: "Customize and send with your contract." },
+        invoiceDescription: { title: "Invoice ready.", description: "Paste into your invoicing tool." },
+        proposalEmail: { title: "Email ready.", description: "Pro tip: Schedule a walkthrough call instead of just emailing." },
+      };
+      const toastContent = assetToasts[assetType] || { title: `${tabLabels[assetType]} generated`, description: "Your asset is ready to use." };
+      toast(toastContent);
     } catch (error) {
       console.error("Asset generation error:", error);
       toast({
@@ -462,10 +468,16 @@ Key requirements:
     try {
       await navigator.clipboard.writeText(currentContent);
       setCopied(true);
-      toast({
-        title: "Copied to clipboard",
-        description: "Content has been copied successfully.",
-      });
+      // Educational toast based on content type
+      const copyToasts: Record<string, { title: string; description: string }> = {
+        proposal: { title: "Copied. Go close that deal.", description: "Paste into Google Docs and customize the [BRACKETED] fields." },
+        contract: { title: "Contract copied.", description: "Paste into Square Contracts or your signing tool." },
+        contractEmail: { title: "Email copied.", description: "Customize the [BRACKETED] fields before sending." },
+        invoiceDescription: { title: "Invoice copied.", description: "Paste into your invoicing tool." },
+        proposalEmail: { title: "Email copied.", description: "Customize and send. Schedule a walkthrough call!" },
+      };
+      const toastContent = copyToasts[activeTab] || { title: "Copied to clipboard", description: "Content copied successfully." };
+      toast(toastContent);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       toast({
@@ -1175,10 +1187,19 @@ Key requirements:
               </div>
             )}
             {!isDeckTab && !isHomeTab && !isLibraryTab && hasContent && activeTab === 'proposal' && lightMode && (
-              <StyledProposalPreview
-                content={currentContent}
-                clientName={clientName}
-              />
+              <div className="space-y-4">
+                {/* Pro Tip - contextual guidance */}
+                <ProTip 
+                  tip={getProTip({
+                    isFirstProposal: location.state?.fromGenerate,
+                    contextLength: clientContext?.length || 0,
+                  })}
+                />
+                <StyledProposalPreview
+                  content={currentContent}
+                  clientName={clientName}
+                />
+              </div>
             )}
             {!isDeckTab && !isHomeTab && !isLibraryTab && hasContent && (activeTab !== 'proposal' || !lightMode) && (
               <div 

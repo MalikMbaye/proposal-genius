@@ -165,14 +165,19 @@ export function HeroSection() {
             </h1>
             
             {/* Sub-headline */}
-            <p className="text-lg md:text-xl text-light-muted mb-6 max-w-xl animate-fade-in" style={{ animationDelay: '0.35s' }}>
+            <p className="text-lg md:text-xl text-light-muted mb-4 max-w-xl animate-fade-in" style={{ animationDelay: '0.35s' }}>
               From the first DM to the final signature. AI-powered proposals + real-time DM coaching that's closed $1.5M+ in deals.
             </p>
             
-            {/* Problem hook */}
-            <p className="text-sm text-light-muted/80 mb-8 max-w-lg animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              You're charging $5K for work that should cost $50K. Not because you're underqualified—because you don't know what six-figure proposals actually look like <span className="font-medium">or how to qualify leads before you write them</span>. Until now.
-            </p>
+            {/* Expectation setting - what you get */}
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-6 max-w-lg animate-fade-in" style={{ animationDelay: '0.4s' }}>
+              <p className="text-sm text-light-foreground font-medium mb-2">
+                Every generation includes 7 deliverables:
+              </p>
+              <p className="text-sm text-light-muted">
+                Proposal, deck prompt, contract, emails, invoice, one-pager. <strong className="text-light-foreground">That's not overkill — that's options.</strong> Use what fits your client.
+              </p>
+            </div>
             
             {/* CTA */}
             <div className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
