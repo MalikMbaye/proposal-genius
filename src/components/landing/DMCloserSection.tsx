@@ -186,28 +186,14 @@ export function DMCloserSection() {
               className="group text-lg px-8"
               onClick={() => navigate('/generate')}
             >
-              Included with PitchGenius
+              Try It Free
               <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-            </Button>
-            
-            <Button 
-              size="lg" 
-              variant="outline"
-              className="text-lg"
-              onClick={() => {
-                const pricingSection = document.getElementById("dm-pricing");
-                if (pricingSection) {
-                  pricingSection.scrollIntoView({ behavior: "smooth" });
-                }
-              }}
-            >
-              See DM Plans
             </Button>
           </div>
           
           <p className="text-sm text-muted-foreground mt-4 flex items-center justify-center gap-2">
-            <Check className="h-4 w-4 text-success" />
-            Free tier available — 5 analyses/month
+            <Check className="h-4 w-4 text-green-500" />
+            Included with your PitchGenius account
           </p>
         </div>
       </div>
