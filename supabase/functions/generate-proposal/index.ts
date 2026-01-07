@@ -43,7 +43,6 @@ async function trackUsage(userId: string, inputTokens: number, outputTokens: num
     console.log(`[USAGE] Tracked ${totalTokens} tokens (${estimatedCostCents} cents) for user ${userId}`);
   }
 }
-
 // Check if user is over their usage limit
 async function checkUsageLimit(userId: string): Promise<{ allowed: boolean; message?: string }> {
   const supabase = createClient(
@@ -90,6 +89,64 @@ async function checkUsageLimit(userId: string): Promise<{ allowed: boolean; mess
   }
 
   return { allowed: true };
+}
+
+// Constants for anonymous rate limiting
+const ANONYMOUS_FREE_LIMIT = 2; // Max proposals per IP for anonymous users
+
+// Check IP-based rate limit for anonymous users
+async function checkAnonymousRateLimit(clientIp: string): Promise<{ allowed: boolean; message?: string; remaining: number }> {
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+
+  // Count proposals from this IP (anonymous only - where user_id is null)
+  const { count } = await supabase
+    .from('proposal_usage')
+    .select('*', { count: 'exact', head: true })
+    .eq('ip_address', clientIp)
+    .is('user_id', null);
+
+  const usageCount = count || 0;
+  const remaining = Math.max(0, ANONYMOUS_FREE_LIMIT - usageCount);
+
+  if (usageCount >= ANONYMOUS_FREE_LIMIT) {
+    return {
+      allowed: false,
+      remaining: 0,
+      message: `You've reached the free limit of ${ANONYMOUS_FREE_LIMIT} proposals. Please sign up for an account to continue.`,
+    };
+  }
+
+  return { allowed: true, remaining };
+}
+
+// Record anonymous usage by IP
+async function recordAnonymousUsage(clientIp: string): Promise<void> {
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+
+  const { error } = await supabase
+    .from('proposal_usage')
+    .insert({ ip_address: clientIp, user_id: null });
+
+  if (error) {
+    console.error('Error recording anonymous usage:', error);
+  } else {
+    console.log(`[USAGE] Recorded anonymous proposal for IP: ${clientIp.substring(0, 10)}...`);
+  }
+}
+
+// Extract client IP from request headers
+function getClientIp(req: Request): string {
+  const cfConnectingIp = req.headers.get('cf-connecting-ip');
+  const forwardedFor = req.headers.get('x-forwarded-for');
+  const realIp = req.headers.get('x-real-ip');
+  
+  return cfConnectingIp || (forwardedFor?.split(',')[0]?.trim()) || realIp || 'unknown';
 }
 
 const PROPOSAL_SYSTEM_PROMPT = `You are an expert business proposal writer. Your proposals follow a narrative-driven, detailed style that prioritizes depth over conciseness.
@@ -375,13 +432,17 @@ serve(async (req) => {
     const proposalOnly = body.proposalOnly === true;
     const stream = body.stream === true;
     const userId = typeof body.userId === 'string' ? body.userId : null;
+    
+    // Get client IP for anonymous rate limiting
+    const clientIp = getClientIp(req);
 
     // Log sanitized lengths (not content) to avoid log injection
     console.log('Generating proposal with Claude API:', { 
       proposalLength, 
       proposalOnly, 
       stream, 
-      userId,
+      userId: userId ? 'authenticated' : 'anonymous',
+      clientIp: clientIp.substring(0, 10) + '...',
       inputLengths: {
         clientContext: clientContext.length,
         background: background.length,
@@ -393,8 +454,9 @@ serve(async (req) => {
       throw new Error('ANTHROPIC_API_KEY is not configured');
     }
 
-    // Check usage limits if user is authenticated
+    // Rate limiting: Check usage limits based on auth status
     if (userId) {
+      // Authenticated user: check token-based limits
       const limitCheck = await checkUsageLimit(userId);
       if (!limitCheck.allowed) {
         return new Response(JSON.stringify({ error: limitCheck.message, usage_exceeded: true }), {
@@ -402,6 +464,22 @@ serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
+    } else {
+      // Anonymous user: check IP-based rate limits
+      const anonLimitCheck = await checkAnonymousRateLimit(clientIp);
+      if (!anonLimitCheck.allowed) {
+        console.log(`[RATE_LIMIT] Anonymous user blocked - IP: ${clientIp.substring(0, 10)}...`);
+        return new Response(JSON.stringify({ 
+          error: anonLimitCheck.message, 
+          usage_exceeded: true,
+          remaining: 0,
+          requires_signup: true
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      console.log(`[RATE_LIMIT] Anonymous user allowed - remaining: ${anonLimitCheck.remaining}`);
     }
 
     const systemPrompt = proposalOnly ? PROPOSAL_ONLY_PROMPT : PROPOSAL_SYSTEM_PROMPT;
@@ -445,6 +523,11 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
     // Streaming mode
     if (stream) {
       console.log('Starting streaming response...');
+      
+      // Record anonymous usage upfront for streaming (can't track after stream completes)
+      if (!userId) {
+        await recordAnonymousUsage(clientIp);
+      }
       
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -563,9 +646,13 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
 
     console.log('Received Claude response, length:', fullText.length, 'tokens:', inputTokens + outputTokens);
 
-    // Track usage if user is authenticated
+    // Track usage based on auth status
     if (userId && (inputTokens > 0 || outputTokens > 0)) {
+      // Authenticated user: track token usage
       await trackUsage(userId, inputTokens, outputTokens);
+    } else if (!userId) {
+      // Anonymous user: record IP-based usage
+      await recordAnonymousUsage(clientIp);
     }
 
     // Parse sections using the --- separator
