@@ -9,30 +9,6 @@ const corsHeaders = {
 const RATE_LIMIT_MAX = 3;
 const RATE_LIMIT_WINDOW_HOURS = 1;
 
-// In-memory rate limiting store (resets on cold start, but provides basic protection)
-const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const record = rateLimitStore.get(ip);
-  
-  if (!record || now > record.resetAt) {
-    // Reset or create new record
-    rateLimitStore.set(ip, {
-      count: 1,
-      resetAt: now + (RATE_LIMIT_WINDOW_HOURS * 60 * 60 * 1000)
-    });
-    return false;
-  }
-  
-  if (record.count >= RATE_LIMIT_MAX) {
-    return true;
-  }
-  
-  record.count++;
-  return false;
-}
-
 function getClientIp(req: Request): string {
   // Check various headers for the real IP
   const forwardedFor = req.headers.get('x-forwarded-for');
@@ -107,6 +83,30 @@ function validateInput(data: unknown): { valid: true; data: { name: string; emai
   };
 }
 
+async function checkRateLimit(supabase: any, ip: string): Promise<{ allowed: boolean; count: number }> {
+  const windowStart = new Date();
+  windowStart.setHours(windowStart.getHours() - RATE_LIMIT_WINDOW_HOURS);
+  
+  // Count submissions from this IP in the rate limit window
+  const { count, error } = await supabase
+    .from('contact_submissions')
+    .select('*', { count: 'exact', head: true })
+    .gte('created_at', windowStart.toISOString())
+    .eq('ip_address', ip);
+  
+  if (error) {
+    console.error('[CONTACT-FORM] Rate limit check error:', error);
+    // On error, allow the request but log it
+    return { allowed: true, count: 0 };
+  }
+  
+  const currentCount = count || 0;
+  return { 
+    allowed: currentCount < RATE_LIMIT_MAX, 
+    count: currentCount 
+  };
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -125,9 +125,24 @@ Deno.serve(async (req) => {
     const clientIp = getClientIp(req);
     console.log(`[CONTACT-FORM] Submission attempt from IP: ${clientIp.substring(0, 10)}...`);
 
-    // Check rate limit
-    if (isRateLimited(clientIp)) {
-      console.log(`[CONTACT-FORM] Rate limit exceeded for IP: ${clientIp.substring(0, 10)}...`);
+    // Create Supabase client with service role to bypass RLS
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('[CONTACT-FORM] Missing Supabase configuration');
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Check rate limit using database
+    const rateLimit = await checkRateLimit(supabase, clientIp);
+    if (!rateLimit.allowed) {
+      console.log(`[CONTACT-FORM] Rate limit exceeded for IP: ${clientIp.substring(0, 10)}... (${rateLimit.count}/${RATE_LIMIT_MAX})`);
       return new Response(
         JSON.stringify({ error: 'Too many submissions. Please try again later.' }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -156,21 +171,7 @@ Deno.serve(async (req) => {
 
     const { name, email, subject, message } = validation.data;
 
-    // Create Supabase client with service role to bypass RLS
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      console.error('[CONTACT-FORM] Missing Supabase configuration');
-      return new Response(
-        JSON.stringify({ error: 'Server configuration error' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Insert the contact submission
+    // Insert the contact submission with IP for rate limiting
     const { error: insertError } = await supabase
       .from('contact_submissions')
       .insert({
@@ -178,6 +179,7 @@ Deno.serve(async (req) => {
         email,
         subject: subject || null,
         message,
+        ip_address: clientIp,
       });
 
     if (insertError) {
@@ -188,7 +190,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log(`[CONTACT-FORM] Successfully submitted from: ${email}`);
+    console.log(`[CONTACT-FORM] Successfully submitted from: ${email} (${rateLimit.count + 1}/${RATE_LIMIT_MAX})`);
 
     return new Response(
       JSON.stringify({ success: true, message: 'Message sent successfully' }),
