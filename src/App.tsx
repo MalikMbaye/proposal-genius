@@ -25,6 +25,7 @@ import TermsOfService from "./pages/TermsOfService";
 import Library from "./pages/Library";
 import UploadProposals from "./pages/UploadProposals";
 import Help from "./pages/Help";
+import LifetimeSuccess from "./pages/LifetimeSuccess";
 
 const queryClient = new QueryClient();
 
@@ -131,6 +132,14 @@ const App = () => (
                   <Help />
                 </ProtectedRoute>
               }
+            />
+            <Route 
+              path="/welcome" 
+              element={
+                <ProtectedRoute>
+                  <LifetimeSuccess />
+                </ProtectedRoute>
+              } 
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
