@@ -43,6 +43,9 @@ export function Navbar() {
           <a href="#solution" className="text-sm text-slate-300 hover:text-white transition-colors">
             Features
           </a>
+          <a href="#dm-closer" className="text-sm text-slate-300 hover:text-white transition-colors">
+            DM Closer
+          </a>
           <a href="#how-it-works" className="text-sm text-slate-300 hover:text-white transition-colors">
             How It Works
           </a>
