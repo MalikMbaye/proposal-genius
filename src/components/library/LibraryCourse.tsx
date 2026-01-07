@@ -58,9 +58,17 @@ export function LibraryCourse() {
       <div className="text-center py-20">
         <Video className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
         <h3 className="text-lg font-medium mb-2">Course videos coming soon</h3>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground mb-4">
           Video content is being prepared and will be available shortly.
         </p>
+        <a 
+          href="https://malikmbaye.substack.com/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-sm text-primary hover:text-primary/80 underline underline-offset-2"
+        >
+          Subscribe for updates when new content drops →
+        </a>
       </div>
     );
   }

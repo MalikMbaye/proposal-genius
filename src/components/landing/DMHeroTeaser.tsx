@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Chrome } from "lucide-react";
+import { ArrowRight, Chrome, Mail } from "lucide-react";
 import heroMockup from "@/assets/dm-closer/hero-mockup.png";
 
 export function DMHeroTeaser() {
@@ -26,16 +26,31 @@ export function DMHeroTeaser() {
               AI that scores your leads and suggests the perfect response.
             </p>
 
-            <Button 
-              size="lg" 
-              className="bg-emerald-500 hover:bg-emerald-600 text-white group"
-              onClick={() => {
-                document.getElementById('dm-closer')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              Learn More
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button>
+            <div className="flex flex-wrap gap-3 mb-4">
+              <Button 
+                size="lg" 
+                className="bg-emerald-500 hover:bg-emerald-600 text-white group"
+                onClick={() => {
+                  document.getElementById('dm-closer')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                Learn More
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </div>
+            
+            <p className="text-sm text-slate-500">
+              <Chrome className="h-3.5 w-3.5 inline mr-1" />
+              Chrome extension coming soon —{" "}
+              <a 
+                href="https://malikmbaye.substack.com/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2"
+              >
+                get early access
+              </a>
+            </p>
           </div>
           
           <div>
