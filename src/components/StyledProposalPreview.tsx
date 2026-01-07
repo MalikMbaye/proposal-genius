@@ -11,6 +11,10 @@ export function StyledProposalPreview({
   clientName,
   className,
 }: StyledProposalPreviewProps) {
+  // Prevent right-click context menu on protected content
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+  };
   const renderContent = () => {
     const lines = content.split("\n");
     const elements: JSX.Element[] = [];
@@ -189,9 +193,10 @@ export function StyledProposalPreview({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-card shadow-lg overflow-hidden",
+        "rounded-xl border border-border bg-card shadow-lg overflow-hidden no-screenshot",
         className
       )}
+      onContextMenu={handleContextMenu}
     >
       {/* Header bar */}
       <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b border-border px-8 py-4">

@@ -92,6 +92,20 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Space Grotesk', system-ui, sans-serif;
   }
+
+  /* Screenshot/selection blocking for sensitive content */
+  .no-screenshot {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* Prevent right-click context menu on protected content */
+  .no-context-menu {
+    pointer-events: auto;
+  }
 }
 
 @layer components {
