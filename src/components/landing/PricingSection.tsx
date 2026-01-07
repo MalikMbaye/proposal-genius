@@ -6,11 +6,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
 import { toast } from "sonner";
 
-// Launch promo configuration
+// Launch promo configuration - uses backend data for spots
 const LAUNCH_PROMO = {
   enabled: true,
-  totalSpots: 10,
-  spotsRemaining: 7, // Track this in your backend if you want it dynamic
+  totalSpots: 9, // Matches LIFETIME_LIMIT in check-lifetime-availability
   discountPercent: 50,
   promoPrice: "$97",
 };
@@ -302,8 +301,8 @@ export function PricingSection() {
         
       </div>
       
-      {/* Launch Promo Banner - Full Width */}
-      {LAUNCH_PROMO.enabled && (
+      {/* Launch Promo Banner - Full Width - Uses real lifetime spots data */}
+      {LAUNCH_PROMO.enabled && lifetime_available && (
         <div className="relative overflow-hidden bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border-y border-amber-500/30 py-8 mt-16">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgZmlsbD0iI2ZmYmYwMCIgZmlsbC1vcGFjaXR5PSIuMSIgY3g9IjIwIiBjeT0iMjAiIHI9IjIiLz48L2c+PC9zdmc+')] opacity-50" />
           <div className="container relative mx-auto px-4 text-center">
@@ -324,7 +323,7 @@ export function PricingSection() {
             </p>
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/20 rounded-full text-amber-600 dark:text-amber-400 font-semibold">
               <Clock className="h-4 w-4" />
-              Only {LAUNCH_PROMO.spotsRemaining} spots remaining!
+              Only {lifetime_spots_remaining} spots remaining!
             </div>
           </div>
         </div>
