@@ -526,6 +526,45 @@ export type Database = {
         }
         Relationships: []
       }
+      uploaded_proposals: {
+        Row: {
+          created_at: string
+          file_size: number | null
+          id: string
+          original_filename: string
+          redacted_storage_path: string | null
+          redaction_summary: Json | null
+          status: string
+          storage_path: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_size?: number | null
+          id?: string
+          original_filename: string
+          redacted_storage_path?: string | null
+          redaction_summary?: Json | null
+          status?: string
+          storage_path: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_size?: number | null
+          id?: string
+          original_filename?: string
+          redacted_storage_path?: string | null
+          redaction_summary?: Json | null
+          status?: string
+          storage_path?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_subscriptions: {
         Row: {
           created_at: string
