@@ -1,15 +1,19 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
 import { MessageCircle, X, Send, Loader2, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
+}
+
+// Generate a unique session ID for analytics tracking
+function generateSessionId(): string {
+  return `mz_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 }
 
 export function MilkZoWidget() {
@@ -21,6 +25,15 @@ export function MilkZoWidget() {
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  // Generate a session ID that persists for this browser session
+  const sessionId = useMemo(() => {
+    const stored = sessionStorage.getItem("milkzo_session_id");
+    if (stored) return stored;
+    const newId = generateSessionId();
+    sessionStorage.setItem("milkzo_session_id", newId);
+    return newId;
+  }, []);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -80,6 +93,7 @@ export function MilkZoWidget() {
           body: JSON.stringify({
             message: userMessage,
             conversationHistory: messages,
+            sessionId,
           }),
         }
       );

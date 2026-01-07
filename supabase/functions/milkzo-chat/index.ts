@@ -50,6 +50,24 @@ const FORBIDDEN_OUTPUT_PATTERNS = [
   /Bearer\s+[a-zA-Z0-9]/i,
 ];
 
+// Intent detection patterns for analytics
+const INTENT_PATTERNS: Array<{ pattern: RegExp; intent: string }> = [
+  { pattern: /book\s*(a\s*)?call|schedule|calendar|talk\s*to\s*malik|meet/i, intent: "booking" },
+  { pattern: /price|pricing|cost|how\s*much|subscription|plan|free|pay/i, intent: "pricing" },
+  { pattern: /feature|what\s*(does|can)|how\s*does|capabilities|do\s*you|work/i, intent: "features" },
+  { pattern: /proposal|deck|contract|pitch|template/i, intent: "product_details" },
+  { pattern: /coach|consultant|agency|freelance|business/i, intent: "use_case" },
+  { pattern: /help|support|problem|issue|stuck|struggling/i, intent: "support" },
+  { pattern: /sign\s*up|register|start|get\s*started|try/i, intent: "signup" },
+];
+
+// Conversion action patterns
+const CONVERSION_PATTERNS: Array<{ pattern: RegExp; action: string }> = [
+  { pattern: /yes.*call|book.*call|schedule.*call|let'?s\s*do\s*it|i'?m\s*in|sounds\s*good/i, action: "call_accepted" },
+  { pattern: /sign\s*up|create\s*account|get\s*started|try\s*it/i, action: "signup_intent" },
+  { pattern: /no\s*thanks|not\s*interested|maybe\s*later|not\s*now/i, action: "declined" },
+];
+
 const MILKZO_SYSTEM_PROMPT = `You are MilkZo - the "Evil Genius" AI sales assistant for PitchGenius. You're witty, confident, slightly mischievous, but genuinely helpful. Think Tony Stark meets a seasoned sales coach.
 
 ## YOUR PERSONALITY
@@ -187,6 +205,75 @@ function getClientIP(req: Request): string {
          "unknown";
 }
 
+function hashIP(ip: string): string {
+  // Simple hash for privacy - just take first part and add random suffix
+  const parts = ip.split(".");
+  return `${parts[0]}.${parts[1] || "x"}.***`;
+}
+
+function detectIntent(message: string): string | null {
+  for (const { pattern, intent } of INTENT_PATTERNS) {
+    if (pattern.test(message)) {
+      return intent;
+    }
+  }
+  return null;
+}
+
+function detectConversion(message: string): string | null {
+  for (const { pattern, action } of CONVERSION_PATTERNS) {
+    if (pattern.test(message)) {
+      return action;
+    }
+  }
+  return null;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function logConversation(
+  supabaseAdmin: any,
+  sessionId: string,
+  userMessage: string,
+  assistantResponse: string,
+  userId: string | null,
+  isAuthenticated: boolean,
+  clientIpHash: string
+): Promise<void> {
+  try {
+    const intent = detectIntent(userMessage);
+    const conversion = detectConversion(userMessage);
+    
+    // Log user message
+    await supabaseAdmin.from("milkzo_conversations").insert({
+      session_id: sessionId,
+      message_role: "user",
+      message_content: userMessage.slice(0, 1000), // Limit stored content
+      user_id: userId,
+      is_authenticated: isAuthenticated,
+      client_ip_hash: clientIpHash,
+      detected_intent: intent,
+      conversion_action: conversion,
+    });
+    
+    // Log assistant response
+    await supabaseAdmin.from("milkzo_conversations").insert({
+      session_id: sessionId,
+      message_role: "assistant",
+      message_content: assistantResponse.slice(0, 1000),
+      user_id: userId,
+      is_authenticated: isAuthenticated,
+      client_ip_hash: clientIpHash,
+      detected_intent: null,
+      conversion_action: null,
+    });
+    
+    console.log(`[MILKZO-ANALYTICS] Logged conversation - Session: ${sessionId.slice(0, 8)}***, Intent: ${intent || "none"}, Conversion: ${conversion || "none"}`);
+  } catch (error) {
+    // Don't fail the request if logging fails
+    console.error("[MILKZO-ANALYTICS] Failed to log conversation:", error);
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -195,6 +282,12 @@ serve(async (req) => {
 
   try {
     const clientIP = getClientIP(req);
+    const clientIpHash = hashIP(clientIP);
+    
+    // Initialize Supabase with service role for analytics logging
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
     
     // Check for auth token
     const authHeader = req.headers.get("authorization");
@@ -202,7 +295,6 @@ serve(async (req) => {
     let userId: string | null = null;
     
     if (authHeader) {
-      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
       const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
       const supabase = createClient(supabaseUrl, supabaseKey);
       
@@ -234,12 +326,19 @@ serve(async (req) => {
       );
     }
     
-    const { message, conversationHistory } = await req.json();
+    const { message, conversationHistory, sessionId } = await req.json();
     
     // Validate input
     if (!message || typeof message !== "string") {
       return new Response(
         JSON.stringify({ error: "Message is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    if (!sessionId || typeof sessionId !== "string") {
+      return new Response(
+        JSON.stringify({ error: "Session ID is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -254,11 +353,23 @@ serve(async (req) => {
     
     // Detect injection attempts
     if (detectInjection(message)) {
-      console.log(`[SECURITY] Injection attempt detected from IP: ${clientIP}`);
+      console.log(`[SECURITY] Injection attempt detected from IP: ${clientIpHash}`);
+      
+      const injectionResponse = "Ha! Nice try, but a genius never falls for tricks like that. 😏 So what do you actually want to know about closing more deals?";
+      
+      // Still log injection attempts for security monitoring
+      await logConversation(
+        supabaseAdmin,
+        sessionId,
+        "[INJECTION ATTEMPT BLOCKED]",
+        injectionResponse,
+        userId,
+        isAuthenticated,
+        clientIpHash
+      );
+      
       return new Response(
-        JSON.stringify({ 
-          response: "Ha! Nice try, but a genius never falls for tricks like that. 😏 So what do you actually want to know about closing more deals?" 
-        }),
+        JSON.stringify({ response: injectionResponse }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -336,8 +447,19 @@ serve(async (req) => {
     // Sanitize output before sending
     responseText = sanitizeOutput(responseText);
     
-    // Log for analytics (no PII)
-    console.log(`[MILKZO] Request processed - Auth: ${isAuthenticated}, IP prefix: ${clientIP.slice(0, 8)}***`);
+    // Log conversation for analytics (async, don't block response)
+    logConversation(
+      supabaseAdmin,
+      sessionId,
+      message,
+      responseText,
+      userId,
+      isAuthenticated,
+      clientIpHash
+    );
+    
+    // Log for console (no PII)
+    console.log(`[MILKZO] Request processed - Auth: ${isAuthenticated}, Session: ${sessionId.slice(0, 8)}***`);
     
     return new Response(
       JSON.stringify({ 
