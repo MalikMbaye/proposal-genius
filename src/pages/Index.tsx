@@ -21,35 +21,43 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      
+      {/* 1. HOOK - Grab attention */}
       <HeroSection />
+      
+      {/* 2. PROOF - Visual results */}
       <ProposalComparisonSection />
+      
+      {/* 3. CREDIBILITY - Why trust you */}
       <ViralThreadSection />
-      
-      {/* Story flow: Intro to DM Closer - tease the problem before proposals */}
-      <DMHeroTeaser />
-      
-      {/* Credibility: Who built this */}
       <FounderSection />
       
-      {/* PitchGenius flow */}
+      {/* 4. CORE VALUE - Main product explained */}
       <HowItWorksSection />
       
-      {/* DM Closer features - break up with visual */}
-      <DMFeaturesSection />
-      
-      {/* Problem/Solution narrative */}
+      {/* 5. DEEPER NARRATIVE - Problem/Solution */}
       <ProblemSection />
       <InsightSection />
       <SolutionSection />
       
-      {/* Full DM Closer flow with CTA */}
+      {/* 6. DIFFERENTIATION - Why you vs others */}
+      <DifferentiationSection />
+      
+      {/* 7. SOCIAL PROOF */}
+      <TestimonialsSection />
+      
+      {/* 8. BONUS/ADD-ON - DM Closer completes the system */}
+      <DMHeroTeaser />
+      <DMFeaturesSection />
       <DMFlowSection />
       
-      {/* Differentiation and social proof */}
-      <DifferentiationSection />
-      <TestimonialsSection />
+      {/* 9. INVESTMENT */}
       <PricingSection />
+      
+      {/* 10. OBJECTIONS */}
       <FAQSection />
+      
+      {/* 11. CLOSE */}
       <FinalCTASection />
       <Footer />
     </div>
