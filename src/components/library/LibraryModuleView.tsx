@@ -180,6 +180,14 @@ export function LibraryModuleView({ onUpgradeClick }: LibraryModuleViewProps) {
     };
   };
 
+  // Calculate total progress
+  const totalStats = useMemo(() => {
+    const allProposals = modules.flatMap(m => m.proposals);
+    const total = allProposals.length;
+    const viewed = allProposals.filter(p => viewedProposalIds.has(p.id)).length;
+    return { total, viewed };
+  }, [modules, viewedProposalIds]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -205,7 +213,10 @@ export function LibraryModuleView({ onUpgradeClick }: LibraryModuleViewProps) {
 
   return (
     <div>
-      <LibraryHeader />
+      <LibraryHeader 
+        totalProposals={totalStats.total} 
+        viewedCount={totalStats.viewed} 
+      />
       
       <LibraryFilters
         searchQuery={searchQuery}
@@ -217,6 +228,9 @@ export function LibraryModuleView({ onUpgradeClick }: LibraryModuleViewProps) {
         typeFilter={typeFilter}
         onTypeChange={setTypeFilter}
       />
+
+      {/* Section Title */}
+      <h2 className="text-xl font-semibold text-foreground mb-4">Proposal Modules</h2>
 
       <div className="space-y-4">
         {filteredModules.length === 0 ? (
