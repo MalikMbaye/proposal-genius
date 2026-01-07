@@ -36,23 +36,23 @@ const deliverables = [
 const faqs = [
   {
     question: "Why does the slide deck take longer?",
-    answer: "Great design takes time. Our AI designer creates each slide from scratch with custom layouts, visuals, and animations. This isn't a template slap — it's bespoke work. Worth the wait.",
+    answer: "Great design takes time. We build each presentation from scratch with custom layouts and visuals — not templates.",
   },
   {
     question: "Can I work on other things while it generates?",
-    answer: "Absolutely. Generate your deck, go grab lunch, reply to some emails. We'll have it ready when you get back. No need to babysit.",
+    answer: "Absolutely. Start the generation and come back when it's ready. No need to stay on the page.",
   },
   {
     question: "What makes these proposals different?",
-    answer: "Trained on real proposals that closed over $1M in deals. The structure, psychology, and language patterns are battle-tested by consultants who actually win.",
+    answer: "Built on proven frameworks that have won real business. The structure and language are designed to close deals.",
   },
   {
     question: "Can I edit the generated content?",
-    answer: "100%. Everything we generate is a starting point. Copy to Google Docs, tweak the details, make it yours. We give you the foundation, you add the finishing touches.",
+    answer: "100%. Everything is a starting point. Copy to Google Docs, make it yours, then send.",
   },
   {
     question: "Where are my proposals saved?",
-    answer: "Auto-saved to your account. Access them anytime from the dropdown above or 'Saved Proposals' in your profile menu.",
+    answer: "Auto-saved to your account. Access them anytime from the dropdown or your profile.",
   },
 ];
 
@@ -177,33 +177,32 @@ export function OnboardingTab({ onNewProposal }: OnboardingTabProps) {
             </div>
             
             <p className="text-lg text-slate-300 mb-6 leading-relaxed">
-              Real talk: Our AI designer takes <span className="text-white font-semibold">5+ minutes</span> per deck. 
-              Why? Because we're not slapping your content onto a template and calling it a day. 
-              We're building <span className="text-purple-400 font-semibold">bespoke, million-dollar presentations</span> that 
-              actually close deals.
+              Our presentation builder takes <span className="text-white font-semibold">a few minutes</span> per deck. 
+              Why? Because we're building <span className="text-purple-400 font-semibold">custom presentations</span> designed 
+              to close deals — not slapping content onto templates.
             </p>
 
             <div className="grid md:grid-cols-3 gap-4 mb-6">
               <div className="rounded-xl bg-white/10 backdrop-blur p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Sparkles className="h-4 w-4 text-purple-400" />
-                  <span className="font-semibold text-sm">Premium AI Models</span>
+                  <span className="font-semibold text-sm">Smart Design</span>
                 </div>
-                <p className="text-xs text-slate-400">The same tech powering top creative agencies. Not some bargain-bin AI.</p>
+                <p className="text-xs text-slate-400">Professional layouts built for your content, not generic templates.</p>
               </div>
               <div className="rounded-xl bg-white/10 backdrop-blur p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Trophy className="h-4 w-4 text-yellow-400" />
-                  <span className="font-semibold text-sm">Proven Layouts</span>
+                  <span className="font-semibold text-sm">Proven Structure</span>
                 </div>
-                <p className="text-xs text-slate-400">Structures that have won real contracts. Psychology-backed design.</p>
+                <p className="text-xs text-slate-400">Layouts designed to communicate value and win business.</p>
               </div>
               <div className="rounded-xl bg-white/10 backdrop-blur p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <CheckCircle2 className="h-4 w-4 text-green-400" />
                   <span className="font-semibold text-sm">Ready to Send</span>
                 </div>
-                <p className="text-xs text-slate-400">Download as PDF. No editing needed. Just send and close.</p>
+                <p className="text-xs text-slate-400">Download as PDF. Review, customize if needed, and send.</p>
               </div>
             </div>
 

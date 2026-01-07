@@ -105,38 +105,31 @@ export function getRandomLoadingContent(): { videoUrl: string; headline: string 
 // Context-specific headlines for different generation types
 export const contextSubtitles: Record<string, string[]> = {
   proposal: [
-    "~30 seconds to a proposal that closes deals",
-    "AI is writing copy that would take you hours",
-    "Pulling structure from 50+ closed deals...",
-    "This isn't ChatGPT. This is methodology, systematized."
+    "Creating your proposal...",
+    "Building your pitch materials...",
+    "Almost there..."
   ],
   slides: [
-    "5-7 minutes for a deck that wins pitches. Max 7 minutes.",
-    "Go grab a coffee. We got this.",
-    "Your deck is being crafted. 7 minutes max.",
-    "Almost there — quality takes an extra second."
+    "Building your presentation...",
+    "This takes a few minutes. Feel free to step away.",
+    "Designing your slides..."
   ],
   contract: [
-    "Generating airtight terms",
-    "Legal magic in progress",
-    "Crafting your contract. ~15 seconds.",
-    "Structuring legal clauses that protect you."
+    "Generating your contract...",
+    "Structuring terms...",
+    "Almost ready..."
   ],
   invoice: [
-    "Making getting paid look professional",
-    "Invoice incoming...",
-    "Formatting your invoice. Almost there.",
-    "Parsing deliverables into line items."
+    "Formatting your invoice...",
+    "Almost there..."
   ],
   email: [
-    "Writing your email. ~10 seconds.",
-    "Crafting the perfect message.",
-    "Pro tip: Schedule a walkthrough call, don't just email."
+    "Writing your email...",
+    "Crafting the message..."
   ],
   "full-package": [
-    "The whole enchilada. Give us a few minutes.",
-    "Building your complete pitch arsenal",
-    "7 deliverables loading. That's not overkill — that's options."
+    "Building your complete pitch kit...",
+    "This takes a moment..."
   ]
 };
 

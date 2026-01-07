@@ -8,27 +8,27 @@ import {
 const faqs = [
   {
     question: "How is this different from proposal templates?",
-    answer: "Templates give you fill-in-the-blank structure. We give you the patterns from $1M+ in closed deals—the language, pricing frameworks, and positioning strategies that actually win six-figure contracts.",
+    answer: "Templates give you fill-in-the-blank structure. We give you proven patterns—the language, pricing frameworks, and positioning strategies that actually win contracts.",
   },
   {
     question: "Can I customize the proposals?",
-    answer: "Yes! Every proposal is editable. The AI generates the first draft based on proven patterns, then you customize it for your specific client.",
+    answer: "Yes! Every proposal is fully editable. We generate the first draft, then you customize it for your specific client.",
   },
   {
     question: "What if I don't like the output?",
-    answer: "Regenerate with different inputs or options. Most users get what they need on the first try, but you can iterate unlimited times.",
+    answer: "Regenerate with different inputs. Most users get what they need quickly, but you can iterate as needed.",
   },
   {
     question: "Is my data secure?",
-    answer: "Yes. We don't store client details. Your proposals are private. We use enterprise-grade encryption and never sell or share your data.",
+    answer: "Yes. Your proposals are private. We use industry-standard encryption and never sell or share your data.",
   },
   {
     question: "Can I cancel anytime?",
-    answer: "Yes. Cancel anytime. No long-term contracts. If you have lifetime access, it's yours forever—no cancellation needed.",
+    answer: "Yes. Cancel anytime. No long-term contracts. Lifetime access is yours forever.",
   },
   {
     question: "Do you offer refunds?",
-    answer: "Yes. 30-day money-back guarantee. If you're not satisfied, we'll refund you in full—no questions asked.",
+    answer: "Yes. 30-day money-back guarantee. If you're not satisfied, we'll refund you in full.",
   },
 ];
 
