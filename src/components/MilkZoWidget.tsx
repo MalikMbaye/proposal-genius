@@ -359,7 +359,7 @@ export function MilkZoWidget() {
           <div className="flex-1 p-4">
             {/* Calendly Embed - Replace URL with your actual Calendly link */}
             <iframe
-              src="https://calendly.com/pitchgenius/strategy-call"
+              src="https://calendly.com/malikxmbaye/consultation"
               className="w-full h-full rounded-lg border-0"
               title="Book a call"
             />

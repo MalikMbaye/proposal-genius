@@ -273,6 +273,32 @@ const helpSections: HelpSection[] = [
       ],
     },
   },
+  {
+    id: "milkzo",
+    title: "MilkZo AI Assistant",
+    icon: Sparkles,
+    description: "Your evil genius sidekick — ask anything, anytime",
+    content: {
+      whatItIs: "MilkZo is your personal AI assistant that lives in the bottom-right corner of every page. Ask questions about PitchGenius, get help with your pitch strategy, submit feedback, or book a strategy call — all from one place.",
+      howToUse: [
+        "Click the orange chat bubble in the bottom-right corner",
+        "Ask any question about PitchGenius features or sales strategy",
+        "Use the 'Book a Call' button to schedule a strategy session",
+        "Use the 'Feedback' button to share ideas, bugs, or love",
+      ],
+      proTips: [
+        "MilkZo uses NEPQ (Neuro-Emotional Persuasion Questions) methodology",
+        "Ask MilkZo for help crafting your pitch or handling objections",
+        "The more context you give, the better the advice you'll get",
+        "MilkZo is available 24/7 — use it whenever you're stuck",
+      ],
+      commonMistakes: [
+        "Not using MilkZo when you have questions",
+        "Asking for sensitive info (MilkZo won't reveal secrets!)",
+        "Forgetting to book a call when you need personalized help",
+      ],
+    },
+  },
 ];
 
 const workflowSteps = [
