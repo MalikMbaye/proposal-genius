@@ -103,9 +103,10 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "http://localhost:3000";
 
-    // Lifetime buyers get redirected to onboarding page
-    const successUrl = product_type === 'lifetime' 
-      ? `${origin}/welcome?checkout=success`
+    // High-ticket purchases ($300+) get redirected to onboarding call page
+    const highTicketProducts = ['lifetime', 'pro_library'];
+    const successUrl = highTicketProducts.includes(product_type)
+      ? `${origin}/welcome?checkout=success&product=${product_type}`
       : `${origin}/dashboard?checkout=success&product=${product_type}`;
 
     // Create checkout session

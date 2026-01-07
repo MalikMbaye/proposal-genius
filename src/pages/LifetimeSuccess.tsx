@@ -1,13 +1,42 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Calendar, ArrowRight, Sparkles, BookOpen, MessageSquare } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { DeckRevealConfetti } from "@/components/DeckRevealConfetti";
 
+const productContent = {
+  lifetime: {
+    title: "Welcome to the Inner Circle! 🎉",
+    subtitle: "Your lifetime access is confirmed. You now have unlimited proposals, decks, and all future features forever.",
+    features: [
+      "Unlimited AI proposals & slide decks forever",
+      "DM Sales Assistant with unlimited analyses",
+      "Proposal Library with 50+ winning templates (coming soon)",
+      "All future features at no extra cost",
+      "Priority support directly from Malik"
+    ]
+  },
+  pro_library: {
+    title: "Welcome to the Proposal Library! 📚",
+    subtitle: "Your access is confirmed. You now have full access to 50+ proven proposal templates and the complete methodology.",
+    features: [
+      "50+ winning proposal templates",
+      "Industry-specific examples across tech, consulting, creative & more",
+      "Detailed breakdown methodology videos",
+      "New proposals added monthly",
+      "Priority support directly from Malik"
+    ]
+  }
+};
+
 export default function LifetimeSuccess() {
   const [showConfetti, setShowConfetti] = useState(false);
+  const [searchParams] = useSearchParams();
+  const product = searchParams.get('product') as keyof typeof productContent || 'lifetime';
+  
+  const content = productContent[product] || productContent.lifetime;
 
   useEffect(() => {
     // Trigger confetti on mount
@@ -43,11 +72,11 @@ export default function LifetimeSuccess() {
               </div>
 
               <h1 className="text-3xl md:text-4xl font-bold mb-4">
-                Welcome to the Inner Circle! 🎉
+                {content.title}
               </h1>
               
               <p className="text-lg text-muted-foreground mb-8">
-                Your lifetime access is confirmed. You now have unlimited proposals, decks, and all future features forever.
+                {content.subtitle}
               </p>
 
               {/* What's Included */}
@@ -60,26 +89,12 @@ export default function LifetimeSuccess() {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-3">
-                    <li className="flex items-start gap-3">
-                      <CheckCircle className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
-                      <span>Unlimited AI proposals & slide decks forever</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
-                      <span>DM Sales Assistant with unlimited analyses</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
-                      <span>Proposal Library with 50+ winning templates (coming soon)</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
-                      <span>All future features at no extra cost</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
-                      <span>Priority support directly from Malik</span>
-                    </li>
+                    {content.features.map((feature, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <CheckCircle className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
                   </ul>
                 </CardContent>
               </Card>
