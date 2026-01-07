@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { SubscriptionProvider } from "@/hooks/useSubscription";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { MilkZoWidget } from "@/components/MilkZoWidget";
 import Index from "./pages/Index";
 import Generate from "./pages/Generate";
 import Preview from "./pages/Preview";
@@ -135,6 +136,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
           </BrowserRouter>
+          <MilkZoWidget />
         </SubscriptionProvider>
       </AuthProvider>
     </TooltipProvider>
