@@ -1,6 +1,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { analytics } from '@/lib/analytics';
 
 export interface SubscriptionStatus {
   subscribed: boolean;
@@ -164,7 +165,10 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const openCheckout = useCallback(async (productType: 'pro_monthly' | 'pro_annual' | 'lifetime' | 'extra_proposals' | 'pro_library') => {
+  const openCheckout = useCallback(async (productType: 'pro_monthly' | 'pro_annual' | 'lifetime' | 'extra_proposals' | 'pro_library' | 'dm_starter' | 'dm_growth' | 'dm_unlimited') => {
+    // Track checkout started
+    analytics.subscriptionCheckoutStarted(productType);
+    
     const { data: sessionData } = await supabase.auth.getSession();
     if (!sessionData.session) {
       throw new Error('Must be logged in to checkout');

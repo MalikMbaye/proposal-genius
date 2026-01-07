@@ -1,6 +1,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { analytics } from '@/lib/analytics';
 
 interface AuthContextType {
   user: User | null;
@@ -48,6 +49,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         emailRedirectTo: redirectUrl
       }
     });
+    if (!error) {
+      analytics.userSignup('email_password');
+    }
     return { error };
   };
 
@@ -56,6 +60,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       password
     });
+    if (!error) {
+      analytics.userLogin('email_password');
+    }
     return { error };
   };
 
@@ -78,6 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     
     if (!error) {
+      analytics.userSignup('quick_email');
       // Send password reset email so user can set their own password later
       setTimeout(() => {
         supabase.auth.resetPasswordForEmail(email, {
