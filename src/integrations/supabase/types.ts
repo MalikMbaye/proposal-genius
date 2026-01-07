@@ -230,6 +230,143 @@ export type Database = {
           },
         ]
       }
+      library_annotations: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          library_item_id: string
+          page_number: number
+          title: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          library_item_id: string
+          page_number: number
+          title?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          library_item_id?: string
+          page_number?: number
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "library_annotations_library_item_id_fkey"
+            columns: ["library_item_id"]
+            isOneToOne: false
+            referencedRelation: "library_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      library_items: {
+        Row: {
+          company_size: Database["public"]["Enums"]["library_company_size"]
+          created_at: string
+          deal_size_max: number | null
+          deal_size_min: number | null
+          deliverable_type: string | null
+          description: string | null
+          format: Database["public"]["Enums"]["library_format"]
+          id: string
+          industry: Database["public"]["Enums"]["library_industry"]
+          is_published: boolean | null
+          page_count: number | null
+          pdf_path: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          company_size?: Database["public"]["Enums"]["library_company_size"]
+          created_at?: string
+          deal_size_max?: number | null
+          deal_size_min?: number | null
+          deliverable_type?: string | null
+          description?: string | null
+          format?: Database["public"]["Enums"]["library_format"]
+          id?: string
+          industry?: Database["public"]["Enums"]["library_industry"]
+          is_published?: boolean | null
+          page_count?: number | null
+          pdf_path: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          company_size?: Database["public"]["Enums"]["library_company_size"]
+          created_at?: string
+          deal_size_max?: number | null
+          deal_size_min?: number | null
+          deliverable_type?: string | null
+          description?: string | null
+          format?: Database["public"]["Enums"]["library_format"]
+          id?: string
+          industry?: Database["public"]["Enums"]["library_industry"]
+          is_published?: boolean | null
+          page_count?: number | null
+          pdf_path?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      library_nda_acceptances: {
+        Row: {
+          accepted_at: string
+          id: string
+          ip_address: string | null
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          id?: string
+          ip_address?: string | null
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string
+          id?: string
+          ip_address?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      library_videos: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          sort_order: number | null
+          title: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          sort_order?: number | null
+          title: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          sort_order?: number | null
+          title?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           background: string | null
@@ -436,7 +573,25 @@ export type Database = {
       get_deck_queue_position: { Args: { job_id: string }; Returns: number }
     }
     Enums: {
-      [_ in never]: never
+      library_company_size:
+        | "startup"
+        | "small_business"
+        | "mid_market"
+        | "enterprise"
+        | "nonprofit"
+        | "government"
+      library_format: "written" | "deck" | "hybrid"
+      library_industry:
+        | "technology"
+        | "finance"
+        | "healthcare"
+        | "education"
+        | "nonprofit"
+        | "retail"
+        | "media"
+        | "consulting"
+        | "real_estate"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -563,6 +718,28 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      library_company_size: [
+        "startup",
+        "small_business",
+        "mid_market",
+        "enterprise",
+        "nonprofit",
+        "government",
+      ],
+      library_format: ["written", "deck", "hybrid"],
+      library_industry: [
+        "technology",
+        "finance",
+        "healthcare",
+        "education",
+        "nonprofit",
+        "retail",
+        "media",
+        "consulting",
+        "real_estate",
+        "other",
+      ],
+    },
   },
 } as const

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Lock,
@@ -75,8 +76,10 @@ const faqs = [
 ];
 
 export function ProposalLibraryTab() {
+  const navigate = useNavigate();
+  
   const handleUnlock = () => {
-    window.open("https://buy.stripe.com/your-link", "_blank");
+    navigate("/library");
   };
 
   return (
