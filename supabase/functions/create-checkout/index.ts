@@ -103,6 +103,11 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || "http://localhost:3000";
 
+    // Lifetime buyers get redirected to onboarding page
+    const successUrl = product_type === 'lifetime' 
+      ? `${origin}/welcome?checkout=success`
+      : `${origin}/dashboard?checkout=success&product=${product_type}`;
+
     // Create checkout session
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
@@ -114,7 +119,7 @@ serve(async (req) => {
         },
       ],
       mode: product.mode,
-      success_url: `${origin}/dashboard?checkout=success&product=${product_type}`,
+      success_url: successUrl,
       cancel_url: `${origin}/dashboard?checkout=canceled`,
       metadata: {
         user_id: user.id,
