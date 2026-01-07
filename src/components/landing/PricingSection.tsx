@@ -4,15 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Check, X, ArrowRight, Shield, Zap, CreditCard, Clock, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-// Launch promo configuration - uses backend data for spots
-const LAUNCH_PROMO = {
-  enabled: true,
-  totalSpots: 9, // Matches LIFETIME_LIMIT in check-lifetime-availability
-  discountPercent: 50,
-  promoPrice: "$97",
-};
+// Launch promo state type
+interface LaunchPromoState {
+  promo_available: boolean;
+  spots_remaining: number;
+  total_spots: number;
+  discount_percent: number;
+  promo_price: string;
+  promo_code?: string;
+}
 
 const pricingPlans = [
   {
@@ -96,10 +99,35 @@ export function PricingSection() {
     checkLifetimeAvailability
   } = useSubscription();
   
+  // Launch promo state (separate from lifetime spots)
+  const [launchPromo, setLaunchPromo] = useState<LaunchPromoState>({
+    promo_available: false,
+    spots_remaining: 0,
+    total_spots: 10,
+    discount_percent: 50,
+    promo_price: "$97",
+  });
+  
   // Check lifetime availability on mount
   useEffect(() => {
     checkLifetimeAvailability();
   }, [checkLifetimeAvailability]);
+  
+  // Check launch promo availability separately
+  useEffect(() => {
+    const checkLaunchPromo = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('check-launch-promo');
+        if (!error && data) {
+          setLaunchPromo(data);
+        }
+      } catch (err) {
+        console.error('Error checking launch promo:', err);
+      }
+    };
+    
+    checkLaunchPromo();
+  }, []);
 
   const handlePlanClick = async (plan: typeof pricingPlans[0]) => {
     // Free tier - just go to generate
@@ -301,8 +329,8 @@ export function PricingSection() {
         
       </div>
       
-      {/* Launch Promo Banner - Full Width - Uses real lifetime spots data */}
-      {LAUNCH_PROMO.enabled && lifetime_available && (
+      {/* Launch Promo Banner - Full Width - Uses separate promo tracking */}
+      {launchPromo.promo_available && (
         <div className="relative overflow-hidden bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border-y border-amber-500/30 py-8 mt-16">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgZmlsbD0iI2ZmYmYwMCIgZmlsbC1vcGFjaXR5PSIuMSIgY3g9IjIwIiBjeT0iMjAiIHI9IjIiLz48L2c+PC9zdmc+')] opacity-50" />
           <div className="container relative mx-auto px-4 text-center">
@@ -314,16 +342,16 @@ export function PricingSection() {
               <Sparkles className="h-5 w-5 text-amber-500" />
             </div>
             <h3 className="text-2xl md:text-3xl font-bold mb-2">
-              First {LAUNCH_PROMO.totalSpots} customers get{" "}
-              <span className="text-amber-500">{LAUNCH_PROMO.discountPercent}% OFF</span>
+              First {launchPromo.total_spots} customers get{" "}
+              <span className="text-amber-500">{launchPromo.discount_percent}% OFF</span>
             </h3>
             <p className="text-muted-foreground mb-4">
-              Lock in Pro Annual for just <span className="font-bold text-foreground">{LAUNCH_PROMO.promoPrice}</span>{" "}
+              Lock in Pro Annual for just <span className="font-bold text-foreground">{launchPromo.promo_price}</span>{" "}
               <span className="line-through text-muted-foreground/60">$197</span> — one year of unlimited proposals
             </p>
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/20 rounded-full text-amber-600 dark:text-amber-400 font-semibold">
               <Clock className="h-4 w-4" />
-              Only {lifetime_spots_remaining} spots remaining!
+              Only {launchPromo.spots_remaining} spots remaining!
             </div>
           </div>
         </div>
