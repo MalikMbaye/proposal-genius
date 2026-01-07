@@ -166,12 +166,12 @@ export function HeroSection() {
             
             {/* Sub-headline */}
             <p className="text-lg md:text-xl text-light-muted mb-6 max-w-xl animate-fade-in" style={{ animationDelay: '0.35s' }}>
-              If you want bigger deals, you need a better pitch. Pitch Genius helps you close seven-figure deals with a proven AI proposal system.
+              From the first DM to the final signature. AI-powered proposals + real-time DM coaching that's closed $1.5M+ in deals.
             </p>
             
             {/* Problem hook */}
             <p className="text-sm text-light-muted/80 mb-8 max-w-lg animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              You're charging $5K for work that should cost $50K. Not because you're underqualified—because you don't know what six-figure proposals actually look like. Until now. Increase your perceived value and charge what you're worth today.
+              You're charging $5K for work that should cost $50K. Not because you're underqualified—because you don't know what six-figure proposals actually look like <span className="font-medium">or how to qualify leads before you write them</span>. Until now.
             </p>
             
             {/* CTA */}
