@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, BookOpen, Lock } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, BookOpen, Lock, Sparkles, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 
 interface LibraryItem {
   id: string;
@@ -30,6 +30,7 @@ export function SecureProposalViewer({ item, onClose }: SecureProposalViewerProp
   const [pageImageUrl, setPageImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
+  const [generating, setGenerating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Prevent screenshots and right-click
@@ -108,6 +109,54 @@ export function SecureProposalViewer({ item, onClose }: SecureProposalViewerProp
   const goToPage = (page: number) => {
     if (page >= 1 && page <= item.page_count) {
       setCurrentPage(page);
+    }
+  };
+
+  const handleGenerateAnnotation = async () => {
+    if (!pageImageUrl) {
+      toast.error("Page image not loaded yet");
+      return;
+    }
+
+    setGenerating(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        throw new Error("Not authenticated");
+      }
+
+      const { data, error } = await supabase.functions.invoke("generate-annotation", {
+        body: {
+          library_item_id: item.id,
+          page_number: currentPage,
+          image_url: pageImageUrl,
+        },
+        headers: {
+          Authorization: `Bearer ${sessionData.session.access_token}`,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.annotation) {
+        // Add or update annotation in local state
+        setAnnotations((prev) => {
+          const existing = prev.findIndex((a) => a.page_number === currentPage);
+          if (existing >= 0) {
+            const updated = [...prev];
+            updated[existing] = data.annotation;
+            return updated;
+          }
+          return [...prev, data.annotation].sort((a, b) => a.page_number - b.page_number);
+        });
+        toast.success("Annotation generated!");
+      }
+    } catch (err) {
+      console.error("Error generating annotation:", err);
+      const message = err instanceof Error ? err.message : "Failed to generate annotation";
+      toast.error(message);
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -207,9 +256,25 @@ export function SecureProposalViewer({ item, onClose }: SecureProposalViewerProp
             <div className="p-4">
               {currentAnnotation ? (
                 <div>
-                  {currentAnnotation.title && (
-                    <h3 className="font-medium text-lg mb-3">{currentAnnotation.title}</h3>
-                  )}
+                  <div className="flex items-center justify-between mb-3">
+                    {currentAnnotation.title && (
+                      <h3 className="font-medium text-lg">{currentAnnotation.title}</h3>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleGenerateAnnotation}
+                      disabled={generating || !pageImageUrl}
+                      className="gap-1 text-xs"
+                    >
+                      {generating ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-3 w-3" />
+                      )}
+                      Regenerate
+                    </Button>
+                  </div>
                   <div className="prose prose-sm prose-invert max-w-none">
                     <p className="text-muted-foreground whitespace-pre-wrap">
                       {currentAnnotation.content}
@@ -217,9 +282,27 @@ export function SecureProposalViewer({ item, onClose }: SecureProposalViewerProp
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <BookOpen className="h-8 w-8 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm">No annotations for this page</p>
+                <div className="text-center py-8">
+                  <BookOpen className="h-8 w-8 mx-auto mb-3 opacity-50 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground mb-4">No annotations for this page</p>
+                  <Button
+                    onClick={handleGenerateAnnotation}
+                    disabled={generating || !pageImageUrl}
+                    size="sm"
+                    className="gap-2"
+                  >
+                    {generating ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4" />
+                        Generate with AI
+                      </>
+                    )}
+                  </Button>
                 </div>
               )}
 
