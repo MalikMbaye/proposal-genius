@@ -35,7 +35,6 @@ export function AppHeader({ center, onNewProposal }: AppHeaderProps) {
 
   const navItems = [
     { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { to: "/library", icon: BookOpen, label: "Library" },
     { to: "/help", icon: HelpCircle, label: "Help Center" },
   ];
 
