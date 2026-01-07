@@ -7,10 +7,29 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
 };
 
+// DM Closer product IDs
+const DM_PRODUCT_IDS: Record<string, string> = {
+  "prod_TkMy6rPwq8SHFq": "starter",
+  "prod_TkMyPJgltjMy3Y": "growth",
+  "prod_TkMysm8u0ORj04": "unlimited",
+};
+
 const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
 };
+
+// Helper to get DM tier from product ID
+function getDMTierFromProductId(productId: string | null): string | null {
+  if (!productId) return null;
+  return DM_PRODUCT_IDS[productId] || null;
+}
+
+// Helper to check if a product is a DM subscription
+function isDMProduct(productId: string | null): boolean {
+  if (!productId) return false;
+  return Object.keys(DM_PRODUCT_IDS).includes(productId);
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -102,19 +121,44 @@ serve(async (req) => {
 
         logStep("Found user", { userId: user.id, email: customerEmail });
 
+        // Check if this is a DM subscription
+        const isDMSubscription = productType?.startsWith("dm_");
+        
         // Update or create user subscription record
         const subscriptionData: Record<string, unknown> = {
           user_id: user.id,
           stripe_customer_id: session.customer as string,
-          status: "active",
           updated_at: new Date().toISOString(),
         };
 
-        if (productType === "lifetime") {
+        if (isDMSubscription) {
+          // Handle DM subscription
+          const dmTier = productType?.replace("dm_", "") || null;
+          subscriptionData.dm_subscription_tier = dmTier;
+          subscriptionData.dm_subscription_id = session.subscription as string;
+          subscriptionData.dm_period_end = null; // Will be set by subscription.updated event
+          
+          // Mark as PitchGenius customer if they have an existing subscription
+          const { data: existingSub } = await supabase
+            .from("user_subscriptions")
+            .select("subscription_type")
+            .eq("user_id", user.id)
+            .single();
+          
+          if (existingSub?.subscription_type) {
+            subscriptionData.pitchgenius_customer = true;
+          }
+          
+          logStep("DM subscription checkout completed", { dmTier });
+        } else if (productType === "lifetime") {
           subscriptionData.subscription_type = "lifetime";
-        } else if (productType === "pro_monthly") {
-          subscriptionData.subscription_type = "pro_monthly";
+          subscriptionData.status = "active";
+          subscriptionData.pitchgenius_customer = true;
+        } else if (productType === "pro_monthly" || productType === "pro_annual") {
+          subscriptionData.subscription_type = productType;
           subscriptionData.stripe_subscription_id = session.subscription as string;
+          subscriptionData.status = "active";
+          subscriptionData.pitchgenius_customer = true;
         } else if (productType === "extra_proposals") {
           // For extra proposals, increment the count
           const { data: existing } = await supabase
@@ -142,32 +186,98 @@ serve(async (req) => {
 
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
+        const productId = subscription.items.data[0]?.price?.product as string;
+        
         logStep("Processing subscription update", { 
           subscriptionId: subscription.id,
-          status: subscription.status 
+          status: subscription.status,
+          productId
         });
 
-        // Find user by Stripe customer ID
-        const { data: existingSub } = await supabase
-          .from("user_subscriptions")
-          .select("*")
-          .eq("stripe_subscription_id", subscription.id)
-          .single();
-
-        if (existingSub) {
-          const { error } = await supabase
+        // Check if this is a DM subscription
+        if (isDMProduct(productId)) {
+          const dmTier = getDMTierFromProductId(productId);
+          logStep("DM subscription update detected", { dmTier });
+          
+          // Find by DM subscription ID
+          const { data: existingSub } = await supabase
             .from("user_subscriptions")
-            .update({
-              status: subscription.status,
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", existingSub.id);
+            .select("*")
+            .eq("dm_subscription_id", subscription.id)
+            .single();
 
-          if (error) {
-            logStep("Error updating subscription", { error: error.message });
+          if (existingSub) {
+            const updateData: Record<string, unknown> = {
+              dm_subscription_tier: subscription.status === "active" ? dmTier : null,
+              dm_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+              updated_at: new Date().toISOString(),
+            };
+            
+            // If subscription is canceled or past_due, clear the tier
+            if (subscription.status !== "active") {
+              updateData.dm_subscription_tier = null;
+            }
+
+            const { error } = await supabase
+              .from("user_subscriptions")
+              .update(updateData)
+              .eq("id", existingSub.id);
+
+            if (error) {
+              logStep("Error updating DM subscription", { error: error.message });
+            } else {
+              logStep("DM subscription updated", { dmTier, status: subscription.status });
+            }
           } else {
-            logStep("Subscription status updated", { status: subscription.status });
+            // Try to find by stripe_customer_id
+            const customerId = subscription.customer as string;
+            const { data: subByCustomer } = await supabase
+              .from("user_subscriptions")
+              .select("*")
+              .eq("stripe_customer_id", customerId)
+              .single();
+              
+            if (subByCustomer) {
+              const { error } = await supabase
+                .from("user_subscriptions")
+                .update({
+                  dm_subscription_id: subscription.id,
+                  dm_subscription_tier: subscription.status === "active" ? dmTier : null,
+                  dm_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                  updated_at: new Date().toISOString(),
+                })
+                .eq("id", subByCustomer.id);
+                
+              if (error) {
+                logStep("Error updating DM subscription by customer", { error: error.message });
+              } else {
+                logStep("DM subscription linked and updated", { dmTier });
+              }
+            }
+          }
+        } else {
+          // Regular PitchGenius subscription update
+          const { data: existingSub } = await supabase
+            .from("user_subscriptions")
+            .select("*")
+            .eq("stripe_subscription_id", subscription.id)
+            .single();
+
+          if (existingSub) {
+            const { error } = await supabase
+              .from("user_subscriptions")
+              .update({
+                status: subscription.status,
+                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", existingSub.id);
+
+            if (error) {
+              logStep("Error updating subscription", { error: error.message });
+            } else {
+              logStep("Subscription status updated", { status: subscription.status });
+            }
           }
         }
         break;
@@ -175,20 +285,45 @@ serve(async (req) => {
 
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
-        logStep("Processing subscription deletion", { subscriptionId: subscription.id });
+        const productId = subscription.items.data[0]?.price?.product as string;
+        
+        logStep("Processing subscription deletion", { 
+          subscriptionId: subscription.id,
+          productId 
+        });
 
-        const { error } = await supabase
-          .from("user_subscriptions")
-          .update({
-            status: "canceled",
-            updated_at: new Date().toISOString(),
-          })
-          .eq("stripe_subscription_id", subscription.id);
+        // Check if this is a DM subscription
+        if (isDMProduct(productId)) {
+          const { error } = await supabase
+            .from("user_subscriptions")
+            .update({
+              dm_subscription_tier: null,
+              dm_subscription_id: null,
+              dm_period_end: null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("dm_subscription_id", subscription.id);
 
-        if (error) {
-          logStep("Error canceling subscription", { error: error.message });
+          if (error) {
+            logStep("Error canceling DM subscription", { error: error.message });
+          } else {
+            logStep("DM subscription canceled successfully");
+          }
         } else {
-          logStep("Subscription canceled successfully");
+          // Regular subscription deletion
+          const { error } = await supabase
+            .from("user_subscriptions")
+            .update({
+              status: "canceled",
+              updated_at: new Date().toISOString(),
+            })
+            .eq("stripe_subscription_id", subscription.id);
+
+          if (error) {
+            logStep("Error canceling subscription", { error: error.message });
+          } else {
+            logStep("Subscription canceled successfully");
+          }
         }
         break;
       }
