@@ -354,8 +354,11 @@ export type Database = {
           id: string
           industry: Database["public"]["Enums"]["library_industry"]
           is_published: boolean | null
+          module_id: string | null
+          outcome: string | null
           page_count: number | null
           pdf_path: string
+          sort_order: number | null
           title: string
           updated_at: string
         }
@@ -370,8 +373,11 @@ export type Database = {
           id?: string
           industry?: Database["public"]["Enums"]["library_industry"]
           is_published?: boolean | null
+          module_id?: string | null
+          outcome?: string | null
           page_count?: number | null
           pdf_path: string
+          sort_order?: number | null
           title: string
           updated_at?: string
         }
@@ -386,10 +392,48 @@ export type Database = {
           id?: string
           industry?: Database["public"]["Enums"]["library_industry"]
           is_published?: boolean | null
+          module_id?: string | null
+          outcome?: string | null
           page_count?: number | null
           pdf_path?: string
+          sort_order?: number | null
           title?: string
           updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "library_items_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "library_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      library_modules: {
+        Row: {
+          created_at: string
+          icon: string
+          id: string
+          sort_order: number
+          subtitle: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string
+          id?: string
+          sort_order?: number
+          subtitle?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string
+          id?: string
+          sort_order?: number
+          subtitle?: string | null
+          title?: string
         }
         Relationships: []
       }
