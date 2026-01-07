@@ -4,6 +4,7 @@ import { Logo } from "@/components/Logo";
 const footerLinks = {
   Product: [
     { label: "Features", href: "#solution" },
+    { label: "DM Closer AI", href: "#dm-closer" },
     { label: "How It Works", href: "#how-it-works" },
     { label: "Pricing", href: "#pricing" },
   ],
