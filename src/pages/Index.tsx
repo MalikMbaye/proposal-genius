@@ -13,6 +13,7 @@ import { FAQSection } from "@/components/landing/FAQSection";
 import { FinalCTASection } from "@/components/landing/FinalCTASection";
 import { Footer } from "@/components/landing/Footer";
 import { ProposalComparisonSection } from "@/components/landing/ProposalComparisonSection";
+import { DMProblemSection } from "@/components/landing/DMProblemSection";
 import { DMHeroTeaser } from "@/components/landing/DMHeroTeaser";
 import { DMFeaturesSection } from "@/components/landing/DMFeaturesSection";
 import { DMFlowSection } from "@/components/landing/DMFlowSection";
@@ -35,20 +36,25 @@ export default function Index() {
       {/* 4. CORE VALUE - Main product explained */}
       <HowItWorksSection />
       
-      {/* 5. DEEPER NARRATIVE - Problem/Solution */}
+      {/* 5. DEEPER NARRATIVE - Problem/Solution for proposals */}
       <ProblemSection />
       <InsightSection />
       <SolutionSection />
       
-      {/* 6. DIFFERENTIATION - Why you vs others */}
+      {/* 6. DIFFERENTIATION - Why PitchGenius vs others */}
       <DifferentiationSection />
       
       {/* 7. SOCIAL PROOF */}
       <TestimonialsSection />
       
-      {/* 8. BONUS/ADD-ON - DM Closer completes the system */}
+      {/* 8. DM CLOSER - Complete the system */}
+      {/* Problem: You're losing deals in DMs (with funnel graph) */}
+      <DMProblemSection />
+      {/* Teaser: Before you propose, qualify the lead */}
       <DMHeroTeaser />
+      {/* Features: Everything you need to close in DMs */}
       <DMFeaturesSection />
+      {/* CTA: From DM to Deal in 3 clicks */}
       <DMFlowSection />
       
       {/* 9. INVESTMENT */}
