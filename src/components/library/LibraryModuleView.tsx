@@ -191,7 +191,7 @@ export function LibraryModuleView({ onUpgradeClick }: LibraryModuleViewProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
       </div>
     );
   }
@@ -230,12 +230,12 @@ export function LibraryModuleView({ onUpgradeClick }: LibraryModuleViewProps) {
       />
 
       {/* Section Title */}
-      <h2 className="text-xl font-semibold text-foreground mb-4">Proposal Modules</h2>
+      <h2 className="text-xl font-semibold text-slate-900 mb-4">Proposal Modules</h2>
 
       <div className="space-y-4">
         {filteredModules.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-muted-foreground">No proposals match your filters</p>
+          <div className="text-center py-16 rounded-xl border border-slate-200 bg-white">
+            <p className="text-slate-500">No proposals match your filters</p>
           </div>
         ) : (
           filteredModules.map((module, index) => (

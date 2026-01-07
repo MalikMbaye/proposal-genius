@@ -1,7 +1,6 @@
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 
 interface LibraryFiltersProps {
   searchQuery: string;
@@ -69,19 +68,19 @@ export function LibraryFilters({
 
   return (
     <div className="mb-8 space-y-4">
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             placeholder="Search proposals..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 bg-card/50"
+            className="pl-10 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400"
           />
         </div>
 
         <Select value={dealSizeFilter} onValueChange={onDealSizeChange}>
-          <SelectTrigger className="w-full sm:w-[160px] bg-card/50">
+          <SelectTrigger className="w-full sm:w-[160px] bg-white border-slate-200 text-slate-700">
             <SelectValue placeholder="Deal Size" />
           </SelectTrigger>
           <SelectContent>
@@ -94,7 +93,7 @@ export function LibraryFilters({
         </Select>
 
         <Select value={industryFilter} onValueChange={onIndustryChange}>
-          <SelectTrigger className="w-full sm:w-[160px] bg-card/50">
+          <SelectTrigger className="w-full sm:w-[160px] bg-white border-slate-200 text-slate-700">
             <SelectValue placeholder="Industry" />
           </SelectTrigger>
           <SelectContent>
@@ -107,7 +106,7 @@ export function LibraryFilters({
         </Select>
 
         <Select value={typeFilter} onValueChange={onTypeChange}>
-          <SelectTrigger className="w-full sm:w-[160px] bg-card/50">
+          <SelectTrigger className="w-full sm:w-[160px] bg-white border-slate-200 text-slate-700">
             <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
@@ -123,15 +122,14 @@ export function LibraryFilters({
       {activeFilters.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {activeFilters.map((filter) => (
-            <Badge
+            <button
               key={filter.key}
-              variant="secondary"
-              className="cursor-pointer hover:bg-secondary/80 transition-colors"
               onClick={() => clearFilter(filter.key)}
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-sm hover:bg-slate-200 transition-colors"
             >
               {filter.label}
-              <X className="h-3 w-3 ml-1" />
-            </Badge>
+              <X className="h-3 w-3" />
+            </button>
           ))}
         </div>
       )}

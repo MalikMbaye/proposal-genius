@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, Lock, Smartphone, TrendingUp, Building2, Palette, Handshake, Presentation, FileText, Play, Target, Users, Briefcase, DollarSign } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { ChevronDown, Lock, Smartphone, TrendingUp, Building2, Palette, Handshake, Presentation, FileText, Play, Target, Users, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -89,39 +88,39 @@ export function ModuleCard({
   };
 
   return (
-    <Card className="overflow-hidden border-border bg-card">
+    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
       {/* Module Header */}
       <button
         onClick={handleToggle}
-        className="w-full p-5 flex items-center gap-4 hover:bg-accent/30 transition-colors text-left"
+        className="w-full p-5 flex items-center gap-4 hover:bg-slate-50 transition-colors text-left"
       >
         <div className={cn(
-          "h-12 w-12 rounded-lg flex items-center justify-center shrink-0",
-          isLocked ? "bg-muted" : "bg-primary/10"
+          "h-12 w-12 rounded-xl flex items-center justify-center shrink-0",
+          isLocked ? "bg-slate-100" : "bg-slate-100"
         )}>
           {isLocked ? (
-            <Lock className="h-5 w-5 text-muted-foreground" />
+            <Lock className="h-5 w-5 text-slate-400" />
           ) : (
-            <IconComponent className="h-5 w-5 text-primary" />
+            <IconComponent className="h-5 w-5 text-slate-700" />
           )}
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-foreground">{module.title}</h3>
+          <h3 className="font-semibold text-slate-900">{module.title}</h3>
           {module.subtitle && (
-            <p className="text-sm text-muted-foreground line-clamp-1">{module.subtitle}</p>
+            <p className="text-sm text-slate-500 line-clamp-1">{module.subtitle}</p>
           )}
         </div>
 
         <div className="flex items-center gap-4 shrink-0">
           <div className="text-right">
-            <div className="text-sm font-semibold text-foreground">
+            <div className="text-sm font-semibold text-slate-900">
               {progress ? `${progress.viewed}/${progress.total}` : `0/${proposalCount}`}
             </div>
-            <div className="text-xs text-muted-foreground">proposals</div>
+            <div className="text-xs text-slate-500">proposals</div>
           </div>
           <ChevronDown className={cn(
-            "h-5 w-5 text-muted-foreground transition-transform duration-200",
+            "h-5 w-5 text-slate-400 transition-transform duration-200",
             isExpanded && "rotate-180"
           )} />
         </div>
@@ -129,15 +128,15 @@ export function ModuleCard({
 
       {/* Expanded Content - Proposal List */}
       {isExpanded && !isLocked && (
-        <div className="border-t border-border">
+        <div className="border-t border-slate-100">
           {module.proposals.length === 0 ? (
-            <div className="p-6 text-center text-muted-foreground">
+            <div className="p-8 text-center text-slate-500">
               <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p>Proposals coming soon</p>
             </div>
           ) : (
-            <div className="divide-y divide-border">
-              {module.proposals.map((proposal, index) => {
+            <div className="divide-y divide-slate-100">
+              {module.proposals.map((proposal) => {
                 const isViewed = viewedProposalIds.has(proposal.id);
                 const dealSize = formatDealSize(proposal.deal_size_min, proposal.deal_size_max);
                 
@@ -145,22 +144,21 @@ export function ModuleCard({
                   <button
                     key={proposal.id}
                     onClick={() => onProposalClick(proposal)}
-                    className="w-full px-5 py-4 flex items-center gap-4 hover:bg-accent/30 transition-colors text-left group"
+                    className="w-full px-5 py-4 flex items-center gap-4 hover:bg-slate-50 transition-colors text-left group"
                   >
-                    {/* Play/Lock icon */}
+                    {/* Play icon */}
                     <div className="shrink-0">
-                      {isViewed ? (
-                        <Play className="h-4 w-4 text-primary fill-primary" />
-                      ) : (
-                        <Play className="h-4 w-4 text-muted-foreground" />
-                      )}
+                      <Play className={cn(
+                        "h-4 w-4",
+                        isViewed ? "text-emerald-600 fill-emerald-600" : "text-slate-400"
+                      )} />
                     </div>
                     
                     {/* Title */}
                     <div className="flex-1 min-w-0">
                       <p className={cn(
-                        "font-medium text-foreground group-hover:text-primary transition-colors",
-                        isViewed && "text-muted-foreground"
+                        "font-medium group-hover:text-emerald-700 transition-colors",
+                        isViewed ? "text-slate-500" : "text-slate-900"
                       )}>
                         {proposal.title}
                       </p>
@@ -169,11 +167,11 @@ export function ModuleCard({
                     {/* Deal size + View button */}
                     <div className="flex items-center gap-4 shrink-0">
                       {dealSize && (
-                        <span className="text-sm text-muted-foreground hidden sm:block">
+                        <span className="text-sm text-slate-500 hidden sm:block">
                           {dealSize}
                         </span>
                       )}
-                      <div className="flex items-center gap-1.5 text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                      <div className="flex items-center gap-1.5 text-sm font-medium text-slate-700 group-hover:text-emerald-700 transition-colors">
                         <Play className="h-4 w-4" />
                         <span>View</span>
                       </div>
@@ -187,16 +185,18 @@ export function ModuleCard({
       )}
 
       {/* Locked State */}
-      {isExpanded && isLocked && (
-        <div className="border-t border-border p-6 bg-muted/30">
-          <div className="text-center">
-            <Lock className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
-              Upgrade to access this module
-            </p>
+      {isLocked && (
+        <div className="border-t border-slate-100 p-6 bg-slate-50/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Lock className="h-4 w-4 text-slate-400" />
+              <span className="text-sm text-slate-500">
+                {proposalCount} proposals locked
+              </span>
+            </div>
           </div>
         </div>
       )}
-    </Card>
+    </div>
   );
 }
