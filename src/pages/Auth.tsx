@@ -205,6 +205,17 @@ export default function Auth() {
                     )}
                   </Button>
                 </div>
+
+                {isLogin && (
+                  <div className="text-center">
+                    <Link
+                      to="/forgot-password"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Forgot your password?
+                    </Link>
+                  </div>
+                )}
               </form>
             )}
 
