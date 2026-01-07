@@ -23,6 +23,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Library from "./pages/Library";
 import UploadProposals from "./pages/UploadProposals";
+import Help from "./pages/Help";
 
 const queryClient = new QueryClient();
 
@@ -119,6 +120,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <UploadProposals />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/help"
+              element={
+                <ProtectedRoute>
+                  <Help />
                 </ProtectedRoute>
               }
             />
