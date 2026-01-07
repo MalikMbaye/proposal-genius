@@ -6,6 +6,7 @@ import { Upload, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { DMUpgradeModal } from './DMUpgradeModal';
+import { analytics } from '@/lib/analytics';
 
 interface ScreenshotDropZoneProps {
   leadId?: string;
@@ -73,9 +74,13 @@ export function ScreenshotDropZone({ leadId, onAnalyzed, className, compact = fa
 
     // Check if user is at their limit BEFORE analyzing
     if (isAtLimit) {
+      analytics.paywallShown('dm_analysis_limit');
       setShowUpgradeModal(true);
       return;
     }
+
+    // Track analysis started
+    analytics.dmAnalysisStarted(!!leadId);
 
     setAnalyzing(true);
 
@@ -111,11 +116,19 @@ export function ScreenshotDropZone({ leadId, onAnalyzed, className, compact = fa
       if (result.error) {
         // Check if it's a limit error from the backend
         if (result.error.includes('limit') || result.error.includes('upgrade')) {
+          analytics.paywallShown('dm_analysis_limit_backend');
           setShowUpgradeModal(true);
           return;
         }
         throw new Error(result.error);
       }
+
+      // Track successful analysis
+      analytics.dmAnalysisCompleted(
+        result.analysis?.platform || 'unknown',
+        result.analysis?.qualification_score || 0,
+        result.isNewLead
+      );
 
       // Refresh subscription to update usage count
       await checkSubscription();
@@ -125,6 +138,7 @@ export function ScreenshotDropZone({ leadId, onAnalyzed, className, compact = fa
 
     } catch (error) {
       console.error('Analysis failed:', error);
+      analytics.dmAnalysisFailed(error instanceof Error ? error.message : 'Unknown error');
       toast.error(error instanceof Error ? error.message : 'Failed to analyze screenshot');
     } finally {
       setAnalyzing(false);

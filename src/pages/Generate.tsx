@@ -25,6 +25,7 @@ import { ArrowLeft, ArrowRight, Lightbulb, Check, Sparkles } from "lucide-react"
 import { Link } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { analytics } from "@/lib/analytics";
 
 export default function Generate() {
   const navigate = useNavigate();
@@ -116,6 +117,7 @@ export default function Generate() {
       // Check IP-based usage for free tier
       const ipUsage = await checkIpUsage();
       if (!ipUsage.can_generate) {
+        analytics.paywallShown('ip_limit_reached');
         setShowPaywall(true);
         return;
       }
@@ -128,6 +130,7 @@ export default function Generate() {
       if (subscribed) {
         // Pro user - check monthly limit
         if (proposals_this_month >= proposals_limit) {
+          analytics.paywallShown('monthly_limit_reached');
           setShowPaywall(true);
           return;
         }
@@ -135,6 +138,7 @@ export default function Generate() {
         // Free user - check IP-based limit
         const ipUsage = await checkIpUsage();
         if (!ipUsage.can_generate) {
+          analytics.paywallShown('free_limit_reached');
           setShowPaywall(true);
           return;
         }
@@ -171,6 +175,9 @@ export default function Generate() {
   };
 
   const startGeneration = () => {
+    // Track proposal generation started
+    analytics.proposalStarted(getBusinessTypeLabel(), background.trim().length > 0);
+
     setGeneratingSteps([
       { label: "Analyzing client context", status: "active" },
       { label: "Creating proposal structure", status: "pending" },
@@ -186,6 +193,8 @@ export default function Generate() {
       }
       return acc;
     }, { strategy: '', ai: '', managed: '' });
+
+    const hasPricing = pricingTiers.some(t => t.name && t.price);
 
     startStreaming({
       clientContext,
@@ -220,6 +229,9 @@ export default function Generate() {
           { label: "Writing proposal content", status: "completed" },
         ]);
 
+        // Track successful generation
+        analytics.proposalGenerated(proposalLength, hasPricing);
+
         setDeliverables({
           proposal: content,
           deckPrompt: '',
@@ -240,6 +252,9 @@ export default function Generate() {
         navigate("/dashboard", { state: { fromGenerate: true } });
       },
       onError: (error) => {
+        // Track failed generation
+        analytics.proposalFailed(error || 'Unknown error');
+        
         toast({
           title: "Generation failed",
           description: error || "Something went wrong. Please try again.",
