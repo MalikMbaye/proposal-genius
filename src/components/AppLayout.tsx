@@ -162,17 +162,17 @@ export function AppLayout({ children, onNewProposal }: AppLayoutProps) {
       {/* Proposal Library - Separated at bottom */}
       <div className="px-3 pb-2 border-t border-slate-700 pt-3">
         <Link
-          to="/proposals"
+          to="/library"
           onClick={onNavigate}
           className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-            isActiveRoute('/proposals')
+            isActiveRoute('/library')
               ? "bg-primary text-primary-foreground shadow-md"
               : "text-emerald-400 hover:text-emerald-300 border border-emerald-500/50 hover:border-emerald-400 hover:bg-emerald-500/10"
           }`}
         >
           <Library className="h-4 w-4" />
           <span className="flex-1 text-left">Proposal Library</span>
-          {!isActiveRoute('/proposals') && (
+          {!isActiveRoute('/library') && (
             <span className="text-[10px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded">PRO</span>
           )}
         </Link>
