@@ -20,25 +20,25 @@ export function DMCloserSection() {
   const features = [
     {
       icon: Zap,
-      title: "Instant Analysis",
-      description: "Get real-time insights on every DM conversation. Know exactly where each prospect stands."
+      title: "Instant Lead Scoring",
+      description: "Drop a screenshot, get a score. Know instantly if they're cold, warm, or ready to buy—so you never waste time on tire-kickers."
     },
     {
       icon: Target,
-      title: "Lead Scoring",
-      description: "Automatic qualification from cold to hot. Focus your energy on the leads most likely to close."
+      title: "AI Response Coaching",
+      description: "Get 3 tailored responses for every message: qualify their budget, build value, or go for the close. Pick the one that fits."
     },
     {
       icon: Shield,
-      title: "Zero Account Risk",
-      description: "Works from screenshots only. Your login stays on your device, never shared."
+      title: "100% Privacy-First",
+      description: "Works entirely from screenshots. No login sharing, no API access, no risk to your accounts. Your DMs stay yours."
     }
   ];
 
   const responseTypes = [
-    "Qualification question to uncover budget",
-    "Value-building response to warm them up", 
-    "Direct close to book the call"
+    "\"What timeline are you working with?\" — Qualify the opportunity",
+    "\"Here's how we've solved this before...\" — Build credibility", 
+    "\"Let's jump on a quick call this week\" — Go for the close"
   ];
 
   return (
@@ -48,16 +48,20 @@ export function DMCloserSection() {
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium mb-6">
             <Chrome className="h-4 w-4" />
-            Chrome Extension
+            NEW: DM Sales Assistant
           </div>
           
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            Close Before the Proposal
+            Stop Wasting Proposals on <span className="text-gradient">Unqualified Leads</span>
           </h2>
           
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            AI that tells you exactly what to say in your DMs. 
-            The same framework behind $1.5M in closed deals — now available from your first message.
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
+            Know exactly what to say—before you ever send a proposal. 
+            AI that scores your leads, suggests the perfect response, and tells you when they're ready to close.
+          </p>
+          
+          <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+            The same qualification framework behind $1.5M in closed deals—now analyzing your DMs in real-time from a simple screenshot.
           </p>
         </div>
 
