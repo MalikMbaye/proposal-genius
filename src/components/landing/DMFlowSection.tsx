@@ -1,13 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Check, Chrome, Instagram, Linkedin, Twitter } from "lucide-react";
-
-import heroMockup from "@/assets/dm-closer/hero-mockup.png";
-import featureGrid from "@/assets/dm-closer/feature-grid.png";
+import { ArrowRight, Check, Instagram, Linkedin, Twitter } from "lucide-react";
 import threeStepFlow from "@/assets/dm-closer/three-step-flow.png";
 import statsBanner from "@/assets/dm-closer/stats-banner.png";
 
-export function DMCloserSection() {
+export function DMFlowSection() {
   const navigate = useNavigate();
 
   return (
@@ -15,52 +12,14 @@ export function DMCloserSection() {
       {/* Background effects */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,rgba(34,197,94,0.06),transparent_50%)]" />
       
-      {/* Part 1: Hero with Mockup */}
-      <div className="py-16 md:py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 rounded-full text-emerald-400 text-sm font-medium mb-6 border border-emerald-500/20">
-              <Chrome className="h-4 w-4" />
-              🆕 NEW: DM Sales Assistant
-            </div>
-            
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
-              Stop Wasting Proposals on{" "}
-              <span className="text-emerald-400">Unqualified Leads</span>
-            </h2>
-            
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-              Know exactly what to say—before you ever send a proposal.
-            </p>
-          </div>
-
-          {/* Hero Mockup Image */}
-          <div className="max-w-4xl mx-auto">
-            <img 
-              src={heroMockup} 
-              alt="DM Closer AI - Turn DMs into booked calls" 
-              className="w-full rounded-xl"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Part 2: Feature Grid */}
-      <div className="py-12 md:py-16 bg-[#080c10]">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <img 
-              src={featureGrid} 
-              alt="DM Closer AI Features - Instant Analysis, 3 Response Options, Lead Scoring, Zero Account Risk" 
-              className="w-full rounded-xl"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Part 3: 3-Step Flow */}
+      {/* 3-Step Flow */}
       <div className="py-12 md:py-16">
         <div className="container mx-auto px-4">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl md:text-3xl font-bold text-white">
+              From DM to Deal in <span className="text-emerald-400">3 Clicks</span>
+            </h3>
+          </div>
           <div className="max-w-5xl mx-auto">
             <img 
               src={threeStepFlow} 
@@ -71,7 +30,7 @@ export function DMCloserSection() {
         </div>
       </div>
 
-      {/* Part 4: Stats Banner */}
+      {/* Stats Banner */}
       <div className="py-12 md:py-16 bg-[#080c10]">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
