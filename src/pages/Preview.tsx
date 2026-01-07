@@ -7,6 +7,7 @@ import { useProposalStore, caseStudies } from "@/lib/proposalStore";
 import { supabase } from "@/integrations/supabase/client";
 import { PDFViewer } from "@/components/PDFViewer";
 import { DeckGeneratingLoader } from "@/components/DeckGeneratingLoader";
+import { DeckRevealConfetti } from "@/components/DeckRevealConfetti";
 import { OnboardingTab } from "@/components/OnboardingTab";
 import { ProposalLibraryTab } from "@/components/ProposalLibraryTab";
 import { StyledProposalPreview } from "@/components/StyledProposalPreview";
@@ -132,6 +133,9 @@ export default function Preview() {
   const [lightMode, setLightMode] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showDeckConfetti, setShowDeckConfetti] = useState(false);
+  const [hasShownConfetti, setHasShownConfetti] = useState(false);
+  const previousDeckStatus = useRef<string | null>(null);
   
   const { 
     proposalId,
@@ -172,11 +176,18 @@ export default function Preview() {
       thumbnailUrl: null,
     });
     saveToDatabase();
+    
+    // Trigger confetti celebration!
+    if (!hasShownConfetti) {
+      setShowDeckConfetti(true);
+      setHasShownConfetti(true);
+    }
+    
     toast({
-      title: "Slide deck generated!",
+      title: "🎉 Slide deck generated!",
       description: "Your presentation is ready to preview and download.",
     });
-  }, [setDeckData, saveToDatabase]);
+  }, [setDeckData, saveToDatabase, hasShownConfetti]);
 
   const handleDeckError = useCallback((error: string) => {
     setDeckData({
@@ -219,6 +230,22 @@ export default function Preview() {
       }
     }
   }, [deckJob, deckData.status, setDeckData]);
+
+  // Trigger confetti when deck status changes from generating to completed
+  useEffect(() => {
+    if (previousDeckStatus.current === 'generating' && deckData.status === 'completed' && !hasShownConfetti) {
+      setShowDeckConfetti(true);
+      setHasShownConfetti(true);
+    }
+    previousDeckStatus.current = deckData.status;
+  }, [deckData.status, hasShownConfetti]);
+
+  // Reset confetti state when starting a new deck generation
+  useEffect(() => {
+    if (deckData.status === 'generating') {
+      setHasShownConfetti(false);
+    }
+  }, [deckData.status]);
 
   // If we have a proposal, show banner and switch to proposal tab on initial load
   useEffect(() => {
@@ -866,7 +893,14 @@ Key requirements:
   );
 
   return (
-    <div className="h-screen bg-slate-800 flex flex-col overflow-hidden">
+    <>
+      {/* Deck reveal confetti celebration */}
+      <DeckRevealConfetti 
+        isActive={showDeckConfetti} 
+        onComplete={() => setShowDeckConfetti(false)} 
+      />
+      
+      <div className="h-screen bg-slate-800 flex flex-col overflow-hidden">
       {/* Mobile Header with Hamburger */}
       {isMobile ? (
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700 bg-slate-800">
@@ -1271,6 +1305,7 @@ Key requirements:
           showTerminal={true}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }
