@@ -373,7 +373,6 @@ export type Database = {
           business_context: string | null
           company_name: string | null
           created_at: string
-          email: string | null
           id: string
           proof_points: string | null
           updated_at: string
@@ -383,7 +382,6 @@ export type Database = {
           business_context?: string | null
           company_name?: string | null
           created_at?: string
-          email?: string | null
           id: string
           proof_points?: string | null
           updated_at?: string
@@ -393,7 +391,6 @@ export type Database = {
           business_context?: string | null
           company_name?: string | null
           created_at?: string
-          email?: string | null
           id?: string
           proof_points?: string | null
           updated_at?: string
