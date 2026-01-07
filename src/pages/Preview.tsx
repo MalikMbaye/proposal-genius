@@ -8,10 +8,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { PDFViewer } from "@/components/PDFViewer";
 import { DeckGeneratingLoader } from "@/components/DeckGeneratingLoader";
 import { DeckRevealConfetti } from "@/components/DeckRevealConfetti";
+import { TourTooltip } from "@/components/TourTooltip";
 import { OnboardingTab } from "@/components/OnboardingTab";
 import { ProposalLibraryTab } from "@/components/ProposalLibraryTab";
 import { StyledProposalPreview } from "@/components/StyledProposalPreview";
 import { LoadingScreen, LoadingStep } from "@/components/LoadingScreen";
+import { useFirstVisitTour } from "@/hooks/useFirstVisitTour";
 import jsPDF from "jspdf";
 import {
   FileText,
@@ -137,6 +139,14 @@ export default function Preview() {
   const [hasShownConfetti, setHasShownConfetti] = useState(false);
   const previousDeckStatus = useRef<string | null>(null);
   
+  // First-visit tour system
+  const { 
+    currentTour, 
+    checkAndShowTour, 
+    dismissTour, 
+    getTourContent 
+  } = useFirstVisitTour();
+  
   const { 
     proposalId,
     deliverables, 
@@ -257,6 +267,11 @@ export default function Preview() {
       }
     }
   }, [deliverables?.proposal, location.state]);
+
+  // Trigger first-visit tour when tab changes
+  useEffect(() => {
+    checkAndShowTour(activeTab);
+  }, [activeTab, checkAndShowTour]);
 
   const hasProposal = deliverables?.proposal;
   const isHomeTab = activeTab === 'home';
@@ -892,6 +907,10 @@ Key requirements:
     </>
   );
 
+  // Get the current tab's icon for the tour tooltip
+  const currentTabIcon = tabs.find(t => t.id === currentTour)?.icon;
+  const CurrentTourIcon = currentTabIcon || FileText;
+
   return (
     <>
       {/* Deck reveal confetti celebration */}
@@ -899,6 +918,15 @@ Key requirements:
         isActive={showDeckConfetti} 
         onComplete={() => setShowDeckConfetti(false)} 
       />
+      
+      {/* First-visit tour tooltip */}
+      {currentTour && getTourContent(currentTour) && (
+        <TourTooltip
+          content={getTourContent(currentTour)!}
+          onDismiss={dismissTour}
+          tabIcon={<CurrentTourIcon className="h-5 w-5" />}
+        />
+      )}
       
       <div className="h-screen bg-slate-800 flex flex-col overflow-hidden">
       {/* Mobile Header with Hamburger */}
