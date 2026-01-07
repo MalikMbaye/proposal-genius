@@ -15,6 +15,13 @@ export interface SubscriptionStatus {
   lifetime_spots_remaining: number;
   loading: boolean;
   error: string | null;
+  // DM Closer subscription
+  dm_tier: 'starter' | 'growth' | 'unlimited' | null;
+  dm_subscription_end: string | null;
+  dm_analyses_used: number;
+  dm_analyses_limit: number;
+  dm_leads_limit: number;
+  is_pitchgenius_customer: boolean;
 }
 
 interface SubscriptionContextType extends SubscriptionStatus {
@@ -22,7 +29,7 @@ interface SubscriptionContextType extends SubscriptionStatus {
   checkIpUsage: () => Promise<{ can_generate: boolean; remaining: number; proposals_used: number }>;
   checkLifetimeAvailability: () => Promise<{ available: boolean; spots_remaining: number }>;
   recordUsage: () => Promise<void>;
-  openCheckout: (productType: 'pro_monthly' | 'pro_annual' | 'lifetime' | 'extra_proposals' | 'pro_library') => Promise<void>;
+  openCheckout: (productType: 'pro_monthly' | 'pro_annual' | 'lifetime' | 'extra_proposals' | 'pro_library' | 'dm_starter' | 'dm_growth' | 'dm_unlimited') => Promise<void>;
   openCustomerPortal: () => Promise<void>;
 }
 
@@ -39,6 +46,13 @@ const defaultStatus: SubscriptionStatus = {
   lifetime_spots_remaining: 9,
   loading: true,
   error: null,
+  // DM Closer defaults
+  dm_tier: null,
+  dm_subscription_end: null,
+  dm_analyses_used: 0,
+  dm_analyses_limit: 5, // Free tier
+  dm_leads_limit: 3, // Free tier
+  is_pitchgenius_customer: false,
 };
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -81,6 +95,13 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
         proposals_this_month: data.proposals_this_month,
         proposals_limit: data.proposals_limit,
         extra_proposals_purchased: data.extra_proposals_purchased || 0,
+        // DM Closer subscription info
+        dm_tier: data.dm_tier || null,
+        dm_subscription_end: data.dm_subscription_end || null,
+        dm_analyses_used: data.dm_analyses_used || 0,
+        dm_analyses_limit: data.dm_analyses_limit || 5,
+        dm_leads_limit: data.dm_leads_limit || 3,
+        is_pitchgenius_customer: data.is_pitchgenius_customer || false,
         loading: false,
         error: null,
       }));

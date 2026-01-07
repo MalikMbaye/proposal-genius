@@ -141,6 +141,36 @@ export type Database = {
           },
         ]
       }
+      dm_usage: {
+        Row: {
+          analyses_used: number
+          created_at: string
+          id: string
+          period_end: string
+          period_start: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analyses_used?: number
+          created_at?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analyses_used?: number
+          created_at?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           budget_range: string | null
@@ -500,8 +530,12 @@ export type Database = {
         Row: {
           created_at: string
           current_period_end: string | null
+          dm_period_end: string | null
+          dm_subscription_id: string | null
+          dm_subscription_tier: string | null
           extra_proposals_purchased: number | null
           id: string
+          pitchgenius_customer: boolean | null
           status: string
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
@@ -512,8 +546,12 @@ export type Database = {
         Insert: {
           created_at?: string
           current_period_end?: string | null
+          dm_period_end?: string | null
+          dm_subscription_id?: string | null
+          dm_subscription_tier?: string | null
           extra_proposals_purchased?: number | null
           id?: string
+          pitchgenius_customer?: boolean | null
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -524,8 +562,12 @@ export type Database = {
         Update: {
           created_at?: string
           current_period_end?: string | null
+          dm_period_end?: string | null
+          dm_subscription_id?: string | null
+          dm_subscription_tier?: string | null
           extra_proposals_purchased?: number | null
           id?: string
+          pitchgenius_customer?: boolean | null
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null

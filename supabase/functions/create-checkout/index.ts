@@ -34,6 +34,22 @@ const PRODUCTS = {
     product_id: "prod_ThUg9Hwf9icoDz",
     mode: "payment" as const,
   },
+  // DM Closer subscriptions
+  dm_starter: {
+    price_id: "price_1SmsEYAIOyHZaZ4i1EsxcRgz",
+    product_id: "prod_TkMy6rPwq8SHFq",
+    mode: "subscription" as const,
+  },
+  dm_growth: {
+    price_id: "price_1SmsElAIOyHZaZ4ixyzkwJXg",
+    product_id: "prod_TkMyPJgltjMy3Y",
+    mode: "subscription" as const,
+  },
+  dm_unlimited: {
+    price_id: "price_1SmsExAIOyHZaZ4iBXeLRvLG",
+    product_id: "prod_TkMysm8u0ORj04",
+    mode: "subscription" as const,
+  },
 };
 
 const logStep = (step: string, details?: unknown) => {
