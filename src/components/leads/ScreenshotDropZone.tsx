@@ -1,9 +1,11 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { supabase } from '@/integrations/supabase/client';
+import { useSubscription } from '@/hooks/useSubscription';
 import { Upload, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { DMUpgradeModal } from './DMUpgradeModal';
 
 interface ScreenshotDropZoneProps {
   leadId?: string;
@@ -53,10 +55,27 @@ function fileToBase64(file: File): Promise<string> {
 
 export function ScreenshotDropZone({ leadId, onAnalyzed, className, compact = false }: ScreenshotDropZoneProps) {
   const [analyzing, setAnalyzing] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
+  const { 
+    dm_analyses_used, 
+    dm_analyses_limit, 
+    dm_tier,
+    checkSubscription 
+  } = useSubscription();
+
+  const isUnlimited = dm_tier === 'unlimited';
+  const isAtLimit = dm_analyses_used >= dm_analyses_limit && !isUnlimited;
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (!file) return;
+
+    // Check if user is at their limit BEFORE analyzing
+    if (isAtLimit) {
+      setShowUpgradeModal(true);
+      return;
+    }
 
     setAnalyzing(true);
 
@@ -90,8 +109,16 @@ export function ScreenshotDropZone({ leadId, onAnalyzed, className, compact = fa
       const result = await response.json();
 
       if (result.error) {
+        // Check if it's a limit error from the backend
+        if (result.error.includes('limit') || result.error.includes('upgrade')) {
+          setShowUpgradeModal(true);
+          return;
+        }
         throw new Error(result.error);
       }
+
+      // Refresh subscription to update usage count
+      await checkSubscription();
 
       toast.success(result.isNewLead ? 'New lead created!' : 'Screenshot analyzed!');
       onAnalyzed(result);
@@ -102,7 +129,7 @@ export function ScreenshotDropZone({ leadId, onAnalyzed, className, compact = fa
     } finally {
       setAnalyzing(false);
     }
-  }, [leadId, onAnalyzed]);
+  }, [leadId, onAnalyzed, isAtLimit, checkSubscription]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -112,32 +139,39 @@ export function ScreenshotDropZone({ leadId, onAnalyzed, className, compact = fa
   });
 
   return (
-    <div
-      {...getRootProps()}
-      className={cn(
-        'border-2 border-dashed rounded-xl text-center cursor-pointer transition-all duration-200',
-        isDragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/30 hover:border-muted-foreground/50',
-        analyzing ? 'opacity-50 cursor-wait' : '',
-        compact ? 'p-4' : 'p-8',
-        className
-      )}
-    >
-      <input {...getInputProps()} />
-      
-      {analyzing ? (
-        <div className="flex flex-col items-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Analyzing screenshot...</p>
-        </div>
-      ) : (
-        <div className="flex flex-col items-center gap-2">
-          <Upload className={cn("text-muted-foreground", compact ? "h-6 w-6" : "h-10 w-10")} />
-          <p className="font-medium">
-            {isDragActive ? 'Drop screenshot here' : compact ? 'Drop next screenshot' : 'Drop your DM screenshot here'}
-          </p>
-          {!compact && <p className="text-sm text-muted-foreground">or click to upload</p>}
-        </div>
-      )}
-    </div>
+    <>
+      <div
+        {...getRootProps()}
+        className={cn(
+          'border-2 border-dashed rounded-xl text-center cursor-pointer transition-all duration-200',
+          isDragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/30 hover:border-muted-foreground/50',
+          analyzing ? 'opacity-50 cursor-wait' : '',
+          compact ? 'p-4' : 'p-8',
+          className
+        )}
+      >
+        <input {...getInputProps()} />
+        
+        {analyzing ? (
+          <div className="flex flex-col items-center gap-2">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-muted-foreground">Analyzing screenshot...</p>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-2">
+            <Upload className={cn("text-muted-foreground", compact ? "h-6 w-6" : "h-10 w-10")} />
+            <p className="font-medium">
+              {isDragActive ? 'Drop screenshot here' : compact ? 'Drop next screenshot' : 'Drop your DM screenshot here'}
+            </p>
+            {!compact && <p className="text-sm text-muted-foreground">or click to upload</p>}
+          </div>
+        )}
+      </div>
+
+      <DMUpgradeModal 
+        open={showUpgradeModal} 
+        onOpenChange={setShowUpgradeModal} 
+      />
+    </>
   );
 }
