@@ -106,30 +106,37 @@ export function getRandomLoadingContent(): { videoUrl: string; headline: string 
 export const contextSubtitles: Record<string, string[]> = {
   proposal: [
     "~30 seconds to a proposal that closes deals",
-    "AI is writing copy that would take you hours"
+    "AI is writing copy that would take you hours",
+    "Pulling structure from 50+ closed deals...",
+    "This isn't ChatGPT. This is methodology, systematized."
   ],
   slides: [
     "5-7 minutes for a deck that wins pitches. Max 7 minutes.",
     "Go grab a coffee. We got this.",
-    "Your deck is being crafted. 7 minutes max."
+    "Your deck is being crafted. 7 minutes max.",
+    "Almost there — quality takes an extra second."
   ],
   contract: [
     "Generating airtight terms",
     "Legal magic in progress",
-    "Crafting your contract. ~15 seconds."
+    "Crafting your contract. ~15 seconds.",
+    "Structuring legal clauses that protect you."
   ],
   invoice: [
     "Making getting paid look professional",
     "Invoice incoming...",
-    "Formatting your invoice. Almost there."
+    "Formatting your invoice. Almost there.",
+    "Parsing deliverables into line items."
   ],
   email: [
     "Writing your email. ~10 seconds.",
-    "Crafting the perfect message."
+    "Crafting the perfect message.",
+    "Pro tip: Schedule a walkthrough call, don't just email."
   ],
   "full-package": [
     "The whole enchilada. Give us a few minutes.",
-    "Building your complete pitch arsenal"
+    "Building your complete pitch arsenal",
+    "7 deliverables loading. That's not overkill — that's options."
   ]
 };
 
