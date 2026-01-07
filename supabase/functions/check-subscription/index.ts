@@ -15,6 +15,21 @@ const PRODUCT_IDS = {
   pro_library: "prod_ThUg9Hwf9icoDz",
 };
 
+// DM Closer subscription product IDs
+const DM_PRODUCT_IDS = {
+  dm_starter: "prod_TkMy6rPwq8SHFq",
+  dm_growth: "prod_TkMyPJgltjMy3Y",
+  dm_unlimited: "prod_TkMysm8u0ORj04",
+};
+
+// DM tier limits
+const DM_TIER_LIMITS = {
+  free: { analyses: 5, leads: 3 },
+  starter: { analyses: 50, leads: 10 },
+  growth: { analyses: 200, leads: 25 },
+  unlimited: { analyses: 999999, leads: 999999 },
+};
+
 const logStep = (step: string, details?: unknown) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
@@ -123,11 +138,30 @@ serve(async (req) => {
       }
     }
 
+    // Check for DM Closer subscriptions
+    let dmTier: string | null = null;
+    let dmSubscriptionEnd: string | null = null;
+
+    for (const sub of subscriptions.data) {
+      const productId = sub.items.data[0]?.price?.product;
+      if (productId === DM_PRODUCT_IDS.dm_starter) {
+        dmTier = "starter";
+        dmSubscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
+      } else if (productId === DM_PRODUCT_IDS.dm_growth) {
+        dmTier = "growth";
+        dmSubscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
+      } else if (productId === DM_PRODUCT_IDS.dm_unlimited) {
+        dmTier = "unlimited";
+        dmSubscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
+      }
+    }
+
     logStep("Subscription status", { 
       hasProMonthly, 
       hasLifetime, 
       hasProLibrary, 
-      extraProposalsPurchased 
+      extraProposalsPurchased,
+      dmTier 
     });
 
     // Count proposals used this month
@@ -141,6 +175,16 @@ serve(async (req) => {
       .eq("user_id", user.id)
       .gte("created_at", startOfMonth.toISOString());
 
+    // Get DM usage for current period
+    const { data: dmUsageData } = await supabaseClient
+      .from("dm_usage")
+      .select("analyses_used")
+      .eq("user_id", user.id)
+      .gte("period_start", startOfMonth.toISOString())
+      .single();
+
+    const dmAnalysesUsed = dmUsageData?.analyses_used || 0;
+
     // Calculate proposal limit
     let proposalsLimit = 2; // Free tier - 2 proposals
     if (hasLifetime) {
@@ -148,6 +192,10 @@ serve(async (req) => {
     } else if (hasProMonthly) {
       proposalsLimit = 999999; // Unlimited for Pro Access
     }
+
+    // Calculate DM limits based on tier
+    const tierLimits = DM_TIER_LIMITS[dmTier as keyof typeof DM_TIER_LIMITS] || DM_TIER_LIMITS.free;
+    const isPitchGeniusCustomer = hasProMonthly || hasLifetime;
 
     return new Response(JSON.stringify({
       subscribed: hasProMonthly || hasLifetime,
@@ -158,6 +206,13 @@ serve(async (req) => {
       proposals_this_month: proposalsThisMonth || 0,
       proposals_limit: proposalsLimit,
       extra_proposals_purchased: extraProposalsPurchased,
+      // DM Closer subscription info
+      dm_tier: dmTier,
+      dm_subscription_end: dmSubscriptionEnd,
+      dm_analyses_used: dmAnalysesUsed,
+      dm_analyses_limit: tierLimits.analyses,
+      dm_leads_limit: tierLimits.leads,
+      is_pitchgenius_customer: isPitchGeniusCustomer,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
