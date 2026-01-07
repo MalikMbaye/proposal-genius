@@ -52,6 +52,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          ip_address: string | null
           message: string
           name: string
           subject: string | null
@@ -60,6 +61,7 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          ip_address?: string | null
           message: string
           name: string
           subject?: string | null
@@ -68,6 +70,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          ip_address?: string | null
           message?: string
           name?: string
           subject?: string | null
