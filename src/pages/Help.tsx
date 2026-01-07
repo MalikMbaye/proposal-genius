@@ -33,6 +33,7 @@ interface HelpSection {
   description: string;
   content: {
     whatItIs: string;
+    quickStart: string[]; // Simple numbered steps
     howToUse: string[];
     proTips: string[];
     commonMistakes?: string[];
@@ -47,6 +48,13 @@ const helpSections: HelpSection[] = [
     description: "Our proven framework for winning more deals",
     content: {
       whatItIs: "PitchGenius is built on a simple principle: professionals who present themselves with clarity, structure, and confidence close more deals. Our methodology combines AI-powered content generation with battle-tested sales frameworks to help you create compelling pitch materials in minutes, not hours.",
+      quickStart: [
+        "Go to Dashboard → Click 'New Proposal'",
+        "Enter client name and project details",
+        "Click 'Generate' → Your proposal appears in seconds",
+        "Edit any [BRACKETED] placeholders with your specifics",
+        "Download as PDF or copy to send",
+      ],
       howToUse: [
         "Start with your client's context — the more specific, the better your outputs",
         "Generate your core proposal first — it becomes the foundation for all other assets",
@@ -68,6 +76,13 @@ const helpSections: HelpSection[] = [
     description: "The foundation of your pitch kit",
     content: {
       whatItIs: "Your AI-generated proposal is a comprehensive document that outlines scope, approach, pricing, and why you're the right choice. It's designed to be professional, persuasive, and ready to customize.",
+      quickStart: [
+        "Click 'New Proposal' from dashboard or sidebar",
+        "Fill in: Client Name, Project Context, Your Background",
+        "Add 1-3 pricing tiers (e.g., Basic $2K, Standard $5K, Premium $10K)",
+        "Click 'Generate Proposal' → Wait ~30 seconds",
+        "Review the output, fill in [BRACKETS], download or copy",
+      ],
       howToUse: [
         "Fill out the client context with as much detail as possible",
         "Add your background and credentials in your profile (one-time setup)",
@@ -96,6 +111,13 @@ const helpSections: HelpSection[] = [
     description: "Visual presentations that make your pitch memorable",
     content: {
       whatItIs: "Transform your proposal into a stunning visual presentation — perfect for live pitches, video calls, or leaving behind after meetings. Each deck is custom-designed with data visualizations and professional layouts.",
+      quickStart: [
+        "First, generate a written proposal (required)",
+        "On the proposal preview page, click 'Generate Slide Deck'",
+        "Wait 5-7 minutes (you can navigate away — it runs in background)",
+        "You'll get an email notification when it's ready",
+        "Download as PDF or PPTX from your Proposals list",
+      ],
       howToUse: [
         "Generate your written proposal first (required)",
         "Click 'Generate Slide Deck' — takes 5-7 minutes",
@@ -122,6 +144,13 @@ const helpSections: HelpSection[] = [
     description: "Seal the deal with professional agreements",
     content: {
       whatItIs: "A legally-structured contract generated from your proposal — with payment terms, scope of work, and project milestones ready to customize. Protects both you and your client.",
+      quickStart: [
+        "Open an existing proposal from your Proposals list",
+        "Click 'Generate Contract' button",
+        "Wait a few seconds for generation",
+        "Fill in all [BRACKETED] fields (dates, names, specifics)",
+        "Copy into DocuSign, Square Contracts, or send as PDF",
+      ],
       howToUse: [
         "Generate after the client agrees to your proposal",
         "Fill in all [BRACKETED] fields with specific details",
@@ -148,6 +177,13 @@ const helpSections: HelpSection[] = [
     description: "Professional emails that get responses",
     content: {
       whatItIs: "Pre-written emails to accompany your proposal and contract. These are designed to reduce friction, answer common questions upfront, and include clear calls-to-action.",
+      quickStart: [
+        "Open a proposal from your Proposals list",
+        "Click 'Proposal Email' or 'Contract Email' tab",
+        "Copy the generated email",
+        "Paste into Gmail/Outlook and personalize the opener",
+        "Attach your proposal/contract PDF and send",
+      ],
       howToUse: [
         "Generate the Proposal Email when you're ready to send your proposal",
         "Generate the Contract Email when the client says 'yes'",
@@ -174,6 +210,13 @@ const helpSections: HelpSection[] = [
     description: "Clear line items that reduce payment questions",
     content: {
       whatItIs: "Pre-formatted invoice descriptions and line items you can paste directly into your invoicing tool — Stripe, QuickBooks, FreshBooks, or whatever you use.",
+      quickStart: [
+        "Open a proposal from your Proposals list",
+        "Click the 'Invoice' tab",
+        "Copy the line items",
+        "Paste into Stripe, QuickBooks, FreshBooks, or your invoice tool",
+        "Adjust amounts if needed and send",
+      ],
       howToUse: [
         "Generate after the contract is signed",
         "Copy line items into your invoicing software",
@@ -200,6 +243,13 @@ const helpSections: HelpSection[] = [
     description: "Learn from 50+ winning proposals",
     content: {
       whatItIs: "Access real proposals that closed real deals — from agencies, consultants, and freelancers across industries. Study what works and adapt it to your own style.",
+      quickStart: [
+        "Click 'Library' in the sidebar (Lifetime members only)",
+        "Accept the NDA to access content",
+        "Browse by industry or deal size",
+        "Click any proposal to view full PDF",
+        "Take notes on structure and pricing strategies",
+      ],
       howToUse: [
         "Browse proposals in your industry first",
         "Study the structure, not just the content",
@@ -226,6 +276,13 @@ const helpSections: HelpSection[] = [
     description: "Turn cold DMs into warm conversations",
     content: {
       whatItIs: "Upload screenshots of DM conversations and get AI-powered analysis of where the prospect is in the buying journey, plus suggested responses to move them forward.",
+      quickStart: [
+        "Click 'DM Closer' in the sidebar",
+        "Screenshot your Instagram/LinkedIn/Twitter DM",
+        "Drag and drop or click to upload",
+        "Wait a few seconds for AI analysis",
+        "Copy a suggested response or write your own",
+      ],
       howToUse: [
         "Screenshot your DM conversation on Instagram, LinkedIn, or Twitter",
         "Upload to the DM Closer tool",
@@ -253,6 +310,13 @@ const helpSections: HelpSection[] = [
     description: "Never freeze on a discovery call again",
     content: {
       whatItIs: "AI-generated call scripts customized to your client and project. Includes opening hooks, discovery questions, pricing discussions, and closing techniques.",
+      quickStart: [
+        "Open a proposal from your Proposals list",
+        "Click 'Call Script' button",
+        "Review the generated script sections",
+        "Print or keep it open during your call",
+        "Use as a guide — don't read word-for-word",
+      ],
       howToUse: [
         "Generate after filling out client context",
         "Review and familiarize yourself with the flow",
@@ -279,7 +343,14 @@ const helpSections: HelpSection[] = [
     icon: Sparkles,
     description: "Your evil genius sidekick — ask anything, anytime",
     content: {
-      whatItIs: "MilkZo is your personal AI assistant that lives in the bottom-right corner of every page. Ask questions about PitchGenius, get help with your pitch strategy, submit feedback, or book a strategy call — all from one place. MilkZo uses conversational AI to help you close more deals.",
+      whatItIs: "MilkZo is your personal AI assistant that lives in the bottom-right corner of every page. Ask questions about PitchGenius, get help with your pitch strategy, submit feedback, or book a strategy call — all from one place.",
+      quickStart: [
+        "Click the orange chat bubble (bottom-right corner)",
+        "Solve the quick math verification",
+        "Type your question and hit send",
+        "Get instant answers about features or strategy",
+        "Use 'Book a Call' for hands-on help with Malik",
+      ],
       howToUse: [
         "Click the orange chat bubble in the bottom-right corner",
         "Complete the quick verification (solves a simple math problem)",
@@ -308,6 +379,13 @@ const helpSections: HelpSection[] = [
     description: "Your data and conversations are protected",
     content: {
       whatItIs: "PitchGenius takes security seriously. Your proposals, client data, and conversations are protected. We use industry-standard practices to keep your business information safe.",
+      quickStart: [
+        "Your account is already protected — no setup needed",
+        "Use a strong password (12+ characters recommended)",
+        "Log out on shared/public computers",
+        "Review proposals before sharing with clients",
+        "Contact support@pitchgenius.com for any concerns",
+      ],
       howToUse: [
         "Your proposals are tied to your account and only visible to you",
         "Client information you enter is used only to generate your materials",
@@ -467,6 +545,24 @@ export default function Help() {
 
                     {isExpanded && (
                       <div className="px-4 md:px-5 pb-5 space-y-5 border-t border-border pt-5">
+                        {/* Quick Start - Most prominent */}
+                        <div className="bg-accent/30 rounded-lg p-4 border border-accent">
+                          <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+                            <Rocket className="h-4 w-4 text-primary" />
+                            Quick Start
+                          </h4>
+                          <ol className="space-y-2">
+                            {section.content.quickStart.map((step, i) => (
+                              <li key={i} className="flex gap-3 text-foreground">
+                                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
+                                  {i + 1}
+                                </span>
+                                <span className="pt-0.5">{step}</span>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+
                         {/* What It Is */}
                         <div>
                           <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide mb-2">
@@ -477,15 +573,15 @@ export default function Help() {
                           </p>
                         </div>
 
-                        {/* How To Use */}
+                        {/* Detailed How To Use */}
                         <div>
                           <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide mb-2">
-                            How To Use
+                            Detailed Guide
                           </h4>
                           <ul className="space-y-2">
                             {section.content.howToUse.map((item, i) => (
                               <li key={i} className="flex gap-2 text-muted-foreground">
-                                <span className="text-primary font-semibold">{i + 1}.</span>
+                                <ArrowRight className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                                 <span>{item}</span>
                               </li>
                             ))}
