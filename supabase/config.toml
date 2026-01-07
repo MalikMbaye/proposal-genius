@@ -56,3 +56,6 @@ verify_jwt = false
 
 [functions.check-launch-promo]
 verify_jwt = false
+
+[functions.milkzo-chat]
+verify_jwt = false
