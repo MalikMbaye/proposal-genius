@@ -14,9 +14,6 @@ import { FinalCTASection } from "@/components/landing/FinalCTASection";
 import { Footer } from "@/components/landing/Footer";
 import { ProposalComparisonSection } from "@/components/landing/ProposalComparisonSection";
 import { DMCloserSection } from "@/components/landing/DMCloserSection";
-import { DMPricingSection } from "@/components/landing/DMPricingSection";
-
-
 
 export default function Index() {
   return (
@@ -34,7 +31,6 @@ export default function Index() {
       <DifferentiationSection />
       <TestimonialsSection />
       <PricingSection />
-      <DMPricingSection />
       <FAQSection />
       <FinalCTASection />
       <Footer />
