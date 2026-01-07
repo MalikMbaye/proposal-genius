@@ -171,6 +171,80 @@ export type Database = {
         }
         Relationships: []
       }
+      launch_promo_claims: {
+        Row: {
+          claimed_at: string
+          id: string
+          promo_id: string
+          stripe_payment_id: string | null
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          id?: string
+          promo_id: string
+          stripe_payment_id?: string | null
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          id?: string
+          promo_id?: string
+          stripe_payment_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "launch_promo_claims_promo_id_fkey"
+            columns: ["promo_id"]
+            isOneToOne: false
+            referencedRelation: "launch_promo_config"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      launch_promo_config: {
+        Row: {
+          created_at: string
+          discount_percent: number
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          promo_code: string
+          promo_price_cents: number
+          spots_claimed: number
+          starts_at: string
+          total_spots: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          discount_percent?: number
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          promo_code?: string
+          promo_price_cents?: number
+          spots_claimed?: number
+          starts_at?: string
+          total_spots?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          discount_percent?: number
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          promo_code?: string
+          promo_price_cents?: number
+          spots_claimed?: number
+          starts_at?: string
+          total_spots?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           budget_range: string | null
