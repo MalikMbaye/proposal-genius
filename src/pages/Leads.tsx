@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ScreenshotDropZone, type AnalysisResult } from '@/components/leads/ScreenshotDropZone';
 import { LeadCard, type Lead } from '@/components/leads/LeadCard';
 import { LeadThread } from '@/components/leads/LeadThread';
+import { DMUsageMeter } from '@/components/leads/DMUsageMeter';
 import { AppLayout } from '@/components/AppLayout';
 import { useProposalStore } from '@/lib/proposalStore';
 import { Loader2, Users, MessageSquareText, FileText } from 'lucide-react';
@@ -136,14 +137,17 @@ export default function Leads() {
         ) : (
           <div className="max-w-6xl mx-auto">
             {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold mb-2 flex items-center gap-3 text-slate-100">
-                <Users className="h-8 w-8 text-primary" />
-                All Leads
-              </h1>
-              <p className="text-slate-400">
-                Your prospects from proposals and DM conversations
-              </p>
+            <div className="mb-8 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-bold mb-2 flex items-center gap-3 text-slate-100">
+                  <Users className="h-8 w-8 text-primary" />
+                  All Leads
+                </h1>
+                <p className="text-slate-400">
+                  Your prospects from proposals and DM conversations
+                </p>
+              </div>
+              <DMUsageMeter className="md:w-72" />
             </div>
 
             {/* Global Screenshot Drop Zone */}
