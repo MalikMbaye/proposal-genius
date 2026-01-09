@@ -30,18 +30,9 @@ export function DMFlowSection() {
         </div>
       </div>
 
-      {/* Stats Banner */}
+      {/* Platform Compatibility + CTA */}
       <div className="py-12 md:py-16 bg-[#080c10]">
         <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
-            <img 
-              src={statsBanner} 
-              alt="$1.5M+ Closed using this exact system" 
-              className="w-full rounded-xl"
-            />
-          </div>
-          
-          {/* Platform Compatibility + CTA */}
           <div className="text-center mt-10">
             <p className="text-slate-500 mb-3 text-sm">Works on</p>
             <div className="flex items-center justify-center gap-6 mb-8">
