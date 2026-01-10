@@ -7,11 +7,16 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
 };
 
-// DM Closer product IDs
+// DM Closer product IDs (both monthly and annual)
 const DM_PRODUCT_IDS: Record<string, string> = {
+  // Monthly
   "prod_TkMy6rPwq8SHFq": "starter",
   "prod_TkMyPJgltjMy3Y": "growth",
   "prod_TkMysm8u0ORj04": "unlimited",
+  // Annual
+  "prod_TlftkCRhng6I0w": "starter",
+  "prod_TlfuEz5dySJX9d": "growth",
+  "prod_TlfuvJXS6Ekgdy": "unlimited",
 };
 
 const logStep = (step: string, details?: unknown) => {
@@ -132,8 +137,8 @@ serve(async (req) => {
         };
 
         if (isDMSubscription) {
-          // Handle DM subscription
-          const dmTier = productType?.replace("dm_", "") || null;
+          // Handle DM subscription (extract tier from product_type like dm_starter_annual -> starter)
+          const dmTier = productType?.replace("dm_", "").replace("_annual", "") || null;
           subscriptionData.dm_subscription_tier = dmTier;
           subscriptionData.dm_subscription_id = session.subscription as string;
           subscriptionData.dm_period_end = null; // Will be set by subscription.updated event
