@@ -34,7 +34,7 @@ const PRODUCTS = {
     product_id: "prod_ThUg9Hwf9icoDz",
     mode: "payment" as const,
   },
-  // DM Closer subscriptions
+  // DM Closer subscriptions - Monthly
   dm_starter: {
     price_id: "price_1SmsEYAIOyHZaZ4i1EsxcRgz",
     product_id: "prod_TkMy6rPwq8SHFq",
@@ -48,6 +48,22 @@ const PRODUCTS = {
   dm_unlimited: {
     price_id: "price_1SmsExAIOyHZaZ4iBXeLRvLG",
     product_id: "prod_TkMysm8u0ORj04",
+    mode: "subscription" as const,
+  },
+  // DM Closer subscriptions - Annual
+  dm_starter_annual: {
+    price_id: "price_1So8XnAIOyHZaZ4iXY3G4FSo",
+    product_id: "prod_TlftkCRhng6I0w",
+    mode: "subscription" as const,
+  },
+  dm_growth_annual: {
+    price_id: "price_1So8YHAIOyHZaZ4i2rxcC84i",
+    product_id: "prod_TlfuEz5dySJX9d",
+    mode: "subscription" as const,
+  },
+  dm_unlimited_annual: {
+    price_id: "price_1So8YVAIOyHZaZ4i6Il7oTgf",
+    product_id: "prod_TlfuvJXS6Ekgdy",
     mode: "subscription" as const,
   },
 };

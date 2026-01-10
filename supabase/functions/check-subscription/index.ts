@@ -15,11 +15,16 @@ const PRODUCT_IDS = {
   pro_library: "prod_ThUg9Hwf9icoDz",
 };
 
-// DM Closer subscription product IDs
+// DM Closer subscription product IDs (monthly and annual)
 const DM_PRODUCT_IDS = {
+  // Monthly
   dm_starter: "prod_TkMy6rPwq8SHFq",
   dm_growth: "prod_TkMyPJgltjMy3Y",
   dm_unlimited: "prod_TkMysm8u0ORj04",
+  // Annual
+  dm_starter_annual: "prod_TlftkCRhng6I0w",
+  dm_growth_annual: "prod_TlfuEz5dySJX9d",
+  dm_unlimited_annual: "prod_TlfuvJXS6Ekgdy",
 };
 
 // DM tier limits
@@ -138,19 +143,20 @@ serve(async (req) => {
       }
     }
 
-    // Check for DM Closer subscriptions
+    // Check for DM Closer subscriptions (both monthly and annual)
     let dmTier: string | null = null;
     let dmSubscriptionEnd: string | null = null;
 
     for (const sub of subscriptions.data) {
       const productId = sub.items.data[0]?.price?.product;
-      if (productId === DM_PRODUCT_IDS.dm_starter) {
+      // Check monthly products
+      if (productId === DM_PRODUCT_IDS.dm_starter || productId === DM_PRODUCT_IDS.dm_starter_annual) {
         dmTier = "starter";
         dmSubscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
-      } else if (productId === DM_PRODUCT_IDS.dm_growth) {
+      } else if (productId === DM_PRODUCT_IDS.dm_growth || productId === DM_PRODUCT_IDS.dm_growth_annual) {
         dmTier = "growth";
         dmSubscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
-      } else if (productId === DM_PRODUCT_IDS.dm_unlimited) {
+      } else if (productId === DM_PRODUCT_IDS.dm_unlimited || productId === DM_PRODUCT_IDS.dm_unlimited_annual) {
         dmTier = "unlimited";
         dmSubscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
       }

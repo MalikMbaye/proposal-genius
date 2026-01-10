@@ -3,7 +3,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Zap, Check, Sparkles, TrendingUp, MessageSquare, Target } from 'lucide-react';
-import { DM_TIERS } from '@/lib/dmSubscription';
+import { DM_TIERS, BillingInterval, getDMCheckoutKey } from '@/lib/dmSubscription';
 import { cn } from '@/lib/utils';
 
 interface DMUpgradeModalProps {
@@ -21,20 +21,22 @@ export function DMUpgradeModal({ open, onOpenChange }: DMUpgradeModalProps) {
   } = useSubscription();
   
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const [billingInterval, setBillingInterval] = useState<BillingInterval>('monthly');
 
-  const handleUpgrade = async (tier: 'dm_starter' | 'dm_growth' | 'dm_unlimited') => {
+  const handleUpgrade = async (tier: 'starter' | 'growth' | 'unlimited') => {
+    const checkoutKey = getDMCheckoutKey(tier, billingInterval);
     try {
-      setCheckoutLoading(tier);
-      await openCheckout(tier);
+      setCheckoutLoading(checkoutKey);
+      await openCheckout(checkoutKey as any);
     } finally {
       setCheckoutLoading(null);
     }
   };
 
   const tiers = [
-    { key: 'starter' as const, tier: DM_TIERS.starter, checkoutKey: 'dm_starter' as const, popular: false },
-    { key: 'growth' as const, tier: DM_TIERS.growth, checkoutKey: 'dm_growth' as const, popular: true },
-    { key: 'unlimited' as const, tier: DM_TIERS.unlimited, checkoutKey: 'dm_unlimited' as const, popular: false },
+    { key: 'starter' as const, tier: DM_TIERS.starter, popular: false },
+    { key: 'growth' as const, tier: DM_TIERS.growth, popular: true },
+    { key: 'unlimited' as const, tier: DM_TIERS.unlimited, popular: false },
   ];
 
   const currentTierIndex = dm_tier ? tiers.findIndex(t => t.key === dm_tier) : -1;
@@ -55,6 +57,37 @@ export function DMUpgradeModal({ open, onOpenChange }: DMUpgradeModalProps) {
           </DialogDescription>
         </DialogHeader>
 
+        {/* Billing Toggle */}
+        <div className="flex justify-center">
+          <div className="inline-flex items-center p-1 bg-muted rounded-lg">
+            <button
+              onClick={() => setBillingInterval('monthly')}
+              className={cn(
+                "px-4 py-2 text-sm font-medium rounded-md transition-all",
+                billingInterval === 'monthly'
+                  ? "bg-background shadow text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setBillingInterval('annual')}
+              className={cn(
+                "px-4 py-2 text-sm font-medium rounded-md transition-all flex items-center gap-2",
+                billingInterval === 'annual'
+                  ? "bg-background shadow text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Annual
+              <span className="text-xs px-1.5 py-0.5 bg-primary/10 text-primary rounded-full">
+                Save 25%
+              </span>
+            </button>
+          </div>
+        </div>
+
         {/* Benefits reminder */}
         <div className="grid grid-cols-3 gap-3 py-4 border-y border-border">
           <div className="text-center">
@@ -73,12 +106,17 @@ export function DMUpgradeModal({ open, onOpenChange }: DMUpgradeModalProps) {
 
         {/* Pricing tiers */}
         <div className="space-y-3 my-4">
-          {tiers.map(({ key, tier, checkoutKey, popular }, index) => {
+          {tiers.map(({ key, tier, popular }, index) => {
             const isCurrentTier = dm_tier === key;
             const isDowngrade = index < currentTierIndex;
-            const price = is_pitchgenius_customer && key === 'growth' && tier.pitchgeniusPrice
-              ? tier.pitchgeniusPriceDisplay
-              : tier.priceDisplay;
+            const pricing = billingInterval === 'annual' ? tier.annual : tier.monthly;
+            
+            // PitchGenius discount only applies to monthly growth
+            const price = is_pitchgenius_customer && key === 'growth' && billingInterval === 'monthly' && 'pitchgeniusPriceDisplay' in tier.monthly
+              ? tier.monthly.pitchgeniusPriceDisplay
+              : pricing.priceDisplay;
+
+            const checkoutKey = getDMCheckoutKey(key, billingInterval);
 
             return (
               <div
@@ -117,9 +155,16 @@ export function DMUpgradeModal({ open, onOpenChange }: DMUpgradeModalProps) {
                   <div className="text-right">
                     <div className="flex items-baseline gap-1">
                       <span className="text-2xl font-bold">{price}</span>
-                      <span className="text-sm text-muted-foreground">{tier.period}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {billingInterval === 'annual' ? '/year' : '/month'}
+                      </span>
                     </div>
-                    {is_pitchgenius_customer && key === 'growth' && tier.pitchgeniusPrice && (
+                    {billingInterval === 'annual' && 'savings' in tier.annual && (
+                      <p className="text-xs text-primary font-medium">
+                        {tier.annual.savings}
+                      </p>
+                    )}
+                    {billingInterval === 'monthly' && is_pitchgenius_customer && key === 'growth' && 'pitchgeniusPrice' in tier.monthly && (
                       <p className="text-xs text-primary font-medium">
                         PitchGenius member discount!
                       </p>
@@ -141,7 +186,7 @@ export function DMUpgradeModal({ open, onOpenChange }: DMUpgradeModalProps) {
                     className="w-full" 
                     size="lg"
                     variant={popular ? "default" : "outline"}
-                    onClick={() => handleUpgrade(checkoutKey)}
+                    onClick={() => handleUpgrade(key)}
                     disabled={checkoutLoading !== null}
                   >
                     {checkoutLoading === checkoutKey ? (
