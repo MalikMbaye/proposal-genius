@@ -169,15 +169,6 @@ export function HeroSection() {
               From the first DM to the final signature. AI-powered proposals + real-time DM coaching that's closed $1.5M+ in deals.
             </p>
             
-            {/* Expectation setting - what you get */}
-            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-6 max-w-lg animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              <p className="text-sm text-light-foreground font-medium mb-2">
-                Every generation includes 7 deliverables:
-              </p>
-              <p className="text-sm text-light-muted">
-                Proposal, deck prompt, contract, emails, invoice, one-pager. <strong className="text-light-foreground">That's not overkill — that's options.</strong> Use what fits your client.
-              </p>
-            </div>
             
             {/* CTA */}
             <div className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
