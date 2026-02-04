@@ -7,10 +7,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Product IDs for lookup
+// Product IDs for lookup (new $10/month Pro Access)
 const PRODUCT_IDS = {
-  pro_monthly: "prod_ThUXIPr5J8gFxB",
+  pro_monthly: "prod_Tv3sv9kMDNrN8s",
+  pro_monthly_legacy: "prod_ThUXIPr5J8gFxB", // Old $27/month product
+  pro_monthly_legacy_2: "prod_Thr75cnQjVAQ9b", // Old Pro Access Monthly
   lifetime: "prod_ThUa3NfcWYtQPp",
+  lifetime_2: "prod_Thr7zNfpSc4ezH", // Second lifetime product
   extra_proposals: "prod_ThUfMRmOSMp6nx",
   pro_library: "prod_ThUg9Hwf9icoDz",
 };
@@ -99,9 +102,16 @@ serve(async (req) => {
     let hasProMonthly = false;
     let subscriptionEnd: string | null = null;
 
+    // Check for any Pro subscription (current or legacy)
+    const proProductIds = [
+      PRODUCT_IDS.pro_monthly,
+      PRODUCT_IDS.pro_monthly_legacy,
+      PRODUCT_IDS.pro_monthly_legacy_2,
+    ];
+
     for (const sub of subscriptions.data) {
       const productId = sub.items.data[0]?.price?.product;
-      if (productId === PRODUCT_IDS.pro_monthly) {
+      if (proProductIds.includes(productId as string)) {
         hasProMonthly = true;
         subscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
         break;

@@ -18,6 +18,7 @@ import { DMHeroTeaser } from "@/components/landing/DMHeroTeaser";
 import { DMFlowSection } from "@/components/landing/DMFlowSection";
 import { SocialProofToast } from "@/components/SocialProofToast";
 import { ExitIntentPopup } from "@/components/ExitIntentPopup";
+import { PromoBanner } from "@/components/landing/PromoBanner";
 
 export default function Index() {
   return (
@@ -25,6 +26,9 @@ export default function Index() {
       {/* Conversion optimization components */}
       <SocialProofToast />
       <ExitIntentPopup />
+      
+      {/* Promotional Banner - $100K Giveaway */}
+      <PromoBanner />
       
       <Navbar />
       

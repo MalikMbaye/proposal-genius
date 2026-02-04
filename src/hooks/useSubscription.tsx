@@ -5,7 +5,7 @@ import { analytics } from '@/lib/analytics';
 
 export interface SubscriptionStatus {
   subscribed: boolean;
-  subscription_type: 'pro_monthly' | 'pro_annual' | 'lifetime' | null;
+  subscription_type: 'pro_monthly' | 'lifetime' | null;
   has_lifetime: boolean;
   has_pro_library: boolean;
   subscription_end: string | null;
@@ -30,7 +30,7 @@ interface SubscriptionContextType extends SubscriptionStatus {
   checkIpUsage: () => Promise<{ can_generate: boolean; remaining: number; proposals_used: number }>;
   checkLifetimeAvailability: () => Promise<{ available: boolean; spots_remaining: number }>;
   recordUsage: () => Promise<void>;
-  openCheckout: (productType: 'pro_monthly' | 'pro_annual' | 'lifetime' | 'extra_proposals' | 'pro_library' | 'dm_starter' | 'dm_growth' | 'dm_unlimited') => Promise<void>;
+  openCheckout: (productType: 'pro_monthly' | 'lifetime' | 'extra_proposals' | 'pro_library' | 'dm_starter' | 'dm_growth' | 'dm_unlimited') => Promise<void>;
   openCustomerPortal: () => Promise<void>;
 }
 
@@ -165,7 +165,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const openCheckout = useCallback(async (productType: 'pro_monthly' | 'pro_annual' | 'lifetime' | 'extra_proposals' | 'pro_library' | 'dm_starter' | 'dm_growth' | 'dm_unlimited') => {
+  const openCheckout = useCallback(async (productType: 'pro_monthly' | 'lifetime' | 'extra_proposals' | 'pro_library' | 'dm_starter' | 'dm_growth' | 'dm_unlimited') => {
     // Track checkout started
     analytics.subscriptionCheckoutStarted(productType);
     
