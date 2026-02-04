@@ -28,7 +28,7 @@ const pricingPlans = [
   },
   {
     name: "Pro Access",
-    price: "$27",
+    price: "$19",
     originalPrice: null,
     period: "/month",
     description: "Everything you need to close bigger deals",
