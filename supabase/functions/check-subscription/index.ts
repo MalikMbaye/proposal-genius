@@ -7,11 +7,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Product IDs for lookup (new $10/month Pro Access)
+// Product IDs for lookup ($27/month Pro Access)
 const PRODUCT_IDS = {
-  pro_monthly: "prod_Tv3sv9kMDNrN8s",
+  pro_monthly: "prod_Tv4YnXxacp3iNN", // Current $27/month product
   pro_monthly_legacy: "prod_ThUXIPr5J8gFxB", // Old $27/month product
   pro_monthly_legacy_2: "prod_Thr75cnQjVAQ9b", // Old Pro Access Monthly
+  pro_monthly_legacy_3: "prod_Tv3sv9kMDNrN8s", // Old $10/month product
+  annual: "prod_Tv4bzkiFKj6Ui4", // $197 annual access
   lifetime: "prod_ThUa3NfcWYtQPp",
   lifetime_2: "prod_Thr7zNfpSc4ezH", // Second lifetime product
   extra_proposals: "prod_ThUfMRmOSMp6nx",
@@ -82,7 +84,7 @@ serve(async (req) => {
         has_pro_library: false,
         subscription_end: null,
         proposals_this_month: 0,
-        proposals_limit: 2, // Free tier - 2 proposals
+        proposals_limit: 1, // Free tier - 1 proposal
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -107,6 +109,7 @@ serve(async (req) => {
       PRODUCT_IDS.pro_monthly,
       PRODUCT_IDS.pro_monthly_legacy,
       PRODUCT_IDS.pro_monthly_legacy_2,
+      PRODUCT_IDS.pro_monthly_legacy_3,
     ];
 
     for (const sub of subscriptions.data) {
@@ -143,7 +146,7 @@ serve(async (req) => {
     for (const session of sessions.data) {
       if (session.payment_status === "paid" && session.metadata) {
         const productType = session.metadata.product_type;
-        if (productType === "lifetime") {
+        if (productType === "lifetime" || productType === "annual") {
           hasLifetime = true;
         } else if (productType === "pro_library") {
           hasProLibrary = true;

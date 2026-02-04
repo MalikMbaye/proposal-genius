@@ -5,7 +5,7 @@ import { analytics } from '@/lib/analytics';
 
 export interface SubscriptionStatus {
   subscribed: boolean;
-  subscription_type: 'pro_monthly' | 'lifetime' | null;
+  subscription_type: 'pro_monthly' | 'annual' | 'lifetime' | null;
   has_lifetime: boolean;
   has_pro_library: boolean;
   subscription_end: string | null;
@@ -30,7 +30,7 @@ interface SubscriptionContextType extends SubscriptionStatus {
   checkIpUsage: () => Promise<{ can_generate: boolean; remaining: number; proposals_used: number }>;
   checkLifetimeAvailability: () => Promise<{ available: boolean; spots_remaining: number }>;
   recordUsage: () => Promise<void>;
-  openCheckout: (productType: 'pro_monthly' | 'lifetime' | 'extra_proposals' | 'pro_library' | 'dm_starter' | 'dm_growth' | 'dm_unlimited') => Promise<void>;
+  openCheckout: (productType: 'pro_monthly' | 'annual' | 'lifetime' | 'extra_proposals' | 'pro_library' | 'dm_starter' | 'dm_growth' | 'dm_unlimited') => Promise<void>;
   openCustomerPortal: () => Promise<void>;
 }
 
@@ -41,7 +41,7 @@ const defaultStatus: SubscriptionStatus = {
   has_pro_library: false,
   subscription_end: null,
   proposals_this_month: 0,
-  proposals_limit: 2, // Free tier - 2 proposals
+  proposals_limit: 1, // Free tier - 1 proposal
   extra_proposals_purchased: 0,
   lifetime_available: true,
   lifetime_spots_remaining: 9,
@@ -165,7 +165,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const openCheckout = useCallback(async (productType: 'pro_monthly' | 'lifetime' | 'extra_proposals' | 'pro_library' | 'dm_starter' | 'dm_growth' | 'dm_unlimited') => {
+  const openCheckout = useCallback(async (productType: 'pro_monthly' | 'annual' | 'lifetime' | 'extra_proposals' | 'pro_library' | 'dm_starter' | 'dm_growth' | 'dm_unlimited') => {
     // Track checkout started
     analytics.subscriptionCheckoutStarted(productType);
     

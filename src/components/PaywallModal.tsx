@@ -31,7 +31,7 @@ export function PaywallModal({
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
-  const handleUpgrade = async (productType: 'pro_monthly' | 'lifetime' | 'extra_proposals') => {
+  const handleUpgrade = async (productType: 'pro_monthly' | 'annual' | 'extra_proposals') => {
     if (!user) {
       onOpenChange(false);
       navigate('/auth');
@@ -85,7 +85,7 @@ export function PaywallModal({
                     <p className="text-sm text-muted-foreground">Unlock unlimited potential</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-2xl font-bold">$10</span>
+                    <span className="text-2xl font-bold">$27</span>
                     <span className="text-muted-foreground">/mo</span>
                   </div>
                 </div>

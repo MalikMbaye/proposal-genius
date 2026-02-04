@@ -11,10 +11,10 @@ const pricingPlans = [
     name: "Try It Free",
     price: "$0",
     originalPrice: null,
-    period: "2 proposals",
+    period: "1 proposal",
     description: "See the quality before you buy",
     features: [
-      { text: "Generate 2 complete proposal packages", included: true },
+      { text: "Generate 1 complete proposal package", included: true },
       { text: "All 6 deliverables included", included: true },
       { text: "See the quality before you buy", included: true },
       { text: "No proposal library access", included: false },
@@ -24,11 +24,11 @@ const pricingPlans = [
     productType: null as null,
     variant: "outline" as const,
     popular: false,
-    isLifetime: false,
+    isAnnual: false,
   },
   {
     name: "Pro Access",
-    price: "$10",
+    price: "$27",
     originalPrice: null,
     period: "/month",
     description: "Everything you need to close bigger deals",
@@ -44,28 +44,28 @@ const pricingPlans = [
     productType: "pro_monthly" as const,
     variant: "hero" as const,
     popular: true,
-    isLifetime: false,
+    isAnnual: false,
   },
   {
-    name: "Lifetime Access",
-    price: "$497",
+    name: "Annual Access",
+    price: "$197",
     originalPrice: null,
     period: "one-time",
-    description: "Pay once, use forever",
+    description: "Pay once, access for a full year",
     features: [
       { text: "Everything in Pro", included: true },
-      { text: "Unlimited proposals forever", included: true },
-      { text: "All future updates included", included: true },
+      { text: "Unlimited proposals for 1 year", included: true },
+      { text: "All updates included", included: true },
       { text: "3-hour Strategic Positioning Masterclass", included: true },
-      { text: "VIP support", included: true },
+      { text: "Priority support", included: true },
     ],
-    cta: "Get Lifetime Access",
-    productType: "lifetime" as const,
+    cta: "Get Annual Access",
+    productType: "annual" as const,
     variant: "outline" as const,
     popular: false,
     badge: "Best Value 💎",
-    savings: "Save $10/month forever",
-    isLifetime: true,
+    savings: "Save over $120/year",
+    isAnnual: true,
   },
 ];
 
@@ -77,15 +77,7 @@ export function PricingSection() {
     subscribed, 
     subscription_type, 
     has_lifetime,
-    lifetime_available,
-    lifetime_spots_remaining,
-    checkLifetimeAvailability
   } = useSubscription();
-  
-  // Check lifetime availability on mount
-  useEffect(() => {
-    checkLifetimeAvailability();
-  }, [checkLifetimeAvailability]);
 
   const handlePlanClick = async (plan: typeof pricingPlans[0]) => {
     // Free tier - just go to generate
@@ -94,15 +86,9 @@ export function PricingSection() {
       return;
     }
 
-    // Lifetime not available if already subscribed (only at signup)
-    if (plan.productType === 'lifetime' && subscribed) {
-      toast.error('Lifetime access is only available for new users');
-      return;
-    }
-
-    // Lifetime sold out
-    if (plan.productType === 'lifetime' && !lifetime_available) {
-      toast.error('Lifetime access is sold out');
+    // Annual not available if already has lifetime/annual
+    if (plan.productType === 'annual' && has_lifetime) {
+      toast.error('You already have annual/lifetime access');
       return;
     }
 
@@ -138,18 +124,17 @@ export function PricingSection() {
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {pricingPlans.map((plan) => {
             const isCurrentPlan = subscribed && subscription_type === plan.productType;
-            const isLifetimeSoldOut = plan.isLifetime && !lifetime_available;
-            const isLifetimeUnavailable = plan.isLifetime && subscribed && !has_lifetime;
-            const isDisabled = isCurrentPlan || isLifetimeSoldOut || isLifetimeUnavailable;
+            const isAnnualUnavailable = plan.isAnnual && has_lifetime;
+            const isDisabled = isCurrentPlan || isAnnualUnavailable;
             
             return (
               <div 
                 key={plan.name}
-                className={`relative rounded-2xl p-8 ${
-                  plan.popular 
-                    ? 'bg-card border-2 border-primary shadow-xl shadow-primary/10' 
-                    : 'bg-card/50 border border-border/50'
-                } ${isCurrentPlan ? 'ring-2 ring-success' : ''} ${isLifetimeSoldOut ? 'opacity-75' : ''}`}
+              className={`relative rounded-2xl p-8 ${
+                plan.popular 
+                  ? 'bg-card border-2 border-primary shadow-xl shadow-primary/10' 
+                  : 'bg-card/50 border border-border/50'
+              } ${isCurrentPlan ? 'ring-2 ring-success' : ''}`}
               >
                 {/* Popular badge */}
                 {plan.popular && !isCurrentPlan && (
@@ -165,23 +150,8 @@ export function PricingSection() {
                   </div>
                 )}
                 
-                {/* Sold out badge for lifetime */}
-                {isLifetimeSoldOut && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-destructive text-white text-sm font-bold rounded-full">
-                    Sold Out
-                  </div>
-                )}
-                
-                {/* Limited spots badge for lifetime */}
-                {plan.isLifetime && lifetime_available && !isCurrentPlan && !subscribed && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-amber-500 text-white text-sm font-bold rounded-full flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    Only {lifetime_spots_remaining} spots left!
-                  </div>
-                )}
-                
-                {/* Badge (for lifetime - only show if not sold out and no other badge) */}
-                {plan.badge && !plan.popular && !isCurrentPlan && !plan.isLifetime && (
+                {/* Badge for annual */}
+                {plan.badge && !plan.popular && !isCurrentPlan && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-accent-secondary text-white text-sm font-bold rounded-full">
                     {plan.badge}
                   </div>
@@ -199,17 +169,15 @@ export function PricingSection() {
                       {plan.originalPrice}
                     </span>
                   )}
-                  <span className={`text-4xl font-bold ${isLifetimeSoldOut ? 'line-through text-muted-foreground' : ''}`}>
+                  <span className="text-4xl font-bold">
                     {plan.price}
                   </span>
                   <span className="text-muted-foreground ml-1">{plan.period}</span>
                 </div>
                 
                 <p className="text-sm text-muted-foreground mb-8">
-                  {isLifetimeSoldOut 
-                    ? 'This offer has ended' 
-                    : isLifetimeUnavailable
-                    ? 'Only available for new users'
+                  {isAnnualUnavailable
+                    ? 'You already have annual access'
                     : plan.description
                   }
                 </p>
@@ -240,10 +208,8 @@ export function PricingSection() {
                 >
                   {isCurrentPlan 
                     ? 'Current Plan' 
-                    : isLifetimeSoldOut 
-                    ? 'Sold Out'
-                    : isLifetimeUnavailable
-                    ? 'Not Available'
+                    : isAnnualUnavailable
+                    ? 'Already Purchased'
                     : plan.cta
                   }
                   {!isDisabled && (
@@ -252,7 +218,7 @@ export function PricingSection() {
                 </Button>
                 
                 {/* Savings note */}
-                {plan.savings && !isLifetimeSoldOut && (
+                {plan.savings && (
                   <p className="text-sm text-success text-center mt-4 font-medium">
                     {plan.savings}
                   </p>
