@@ -51,6 +51,8 @@ import { useDeckGenerationJob, DeckJob } from "@/hooks/useDeckGenerationJob";
 import { businessTypes } from "@/components/BusinessTypeSelector";
 import { toast } from "@/hooks/use-toast";
 import { generatePptxFromPrompt } from "@/lib/generatePptx";
+import { useSubscription } from "@/hooks/useSubscription";
+import { PaywallModal } from "@/components/PaywallModal";
 
 // Asset generation loading steps by type
 const assetLoadingSteps: Record<string, { label: string }[]> = {
@@ -139,6 +141,11 @@ export default function Preview() {
   const [showDeckConfetti, setShowDeckConfetti] = useState(false);
   const [hasShownConfetti, setHasShownConfetti] = useState(false);
   const previousDeckStatus = useRef<string | null>(null);
+  const [showPaywall, setShowPaywall] = useState(false);
+  
+  // Subscription check for downloads
+  const { subscribed, has_lifetime } = useSubscription();
+  const canDownload = subscribed || has_lifetime;
   
   // First-visit tour system
   const { 
@@ -489,6 +496,12 @@ Key requirements:
   };
 
   const handleDownload = () => {
+    // Check subscription before allowing download
+    if (!canDownload) {
+      setShowPaywall(true);
+      return;
+    }
+    
     const blob = new Blob([currentContent], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -505,6 +518,11 @@ Key requirements:
   };
 
   const handleExportPDF = () => {
+    // Check subscription before allowing download
+    if (!canDownload) {
+      setShowPaywall(true);
+      return;
+    }
     const doc = new jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -681,6 +699,12 @@ Key requirements:
   };
 
   const handleDownloadPptx = async () => {
+    // Check subscription before allowing download
+    if (!canDownload) {
+      setShowPaywall(true);
+      return;
+    }
+    
     const promptToUse = deliverables?.deckPrompt;
     
     if (!promptToUse) {
@@ -1011,11 +1035,18 @@ Key requirements:
               {activeTab === "deck" && hasContent && (
                 <>
                   {deckData.pdfUrl && (
-                    <Button size="sm" asChild>
-                      <a href={deckData.pdfUrl} target="_blank" rel="noopener noreferrer" download>
-                        <FileDown className="mr-2 h-4 w-4" />
-                        Download PDF
-                      </a>
+                    <Button 
+                      size="sm" 
+                      onClick={() => {
+                        if (!canDownload) {
+                          setShowPaywall(true);
+                          return;
+                        }
+                        window.open(deckData.pdfUrl, '_blank');
+                      }}
+                    >
+                      <FileDown className="mr-2 h-4 w-4" />
+                      Download PDF
                     </Button>
                   )}
                   {deliverables?.deckPrompt && (
@@ -1346,6 +1377,12 @@ Key requirements:
           showTerminal={true}
         />
       )}
+
+      {/* Paywall Modal for free users trying to download */}
+      <PaywallModal
+        open={showPaywall}
+        onOpenChange={setShowPaywall}
+      />
       </div>
     </>
   );
