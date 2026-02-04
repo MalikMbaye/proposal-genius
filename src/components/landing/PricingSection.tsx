@@ -1,21 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Check, X, ArrowRight, Shield, Zap, CreditCard, Clock, Sparkles } from "lucide-react";
+import { Check, X, ArrowRight, Shield, Zap, CreditCard, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscription } from "@/hooks/useSubscription";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
-// Launch promo state type
-interface LaunchPromoState {
-  promo_available: boolean;
-  spots_remaining: number;
-  total_spots: number;
-  discount_percent: number;
-  promo_price: string;
-  promo_code?: string;
-}
 
 const pricingPlans = [
   {
@@ -23,7 +12,6 @@ const pricingPlans = [
     price: "$0",
     originalPrice: null,
     period: "2 proposals",
-    billingNote: null,
     description: "See the quality before you buy",
     features: [
       { text: "Generate 2 complete proposal packages", included: true },
@@ -37,14 +25,12 @@ const pricingPlans = [
     variant: "outline" as const,
     popular: false,
     isLifetime: false,
-    isAnnual: false,
   },
   {
-    name: "Pro Annual",
-    price: "$27",
-    originalPrice: "$40",
+    name: "Pro Access",
+    price: "$10",
+    originalPrice: null,
     period: "/month",
-    billingNote: "Billed annually at $197 (save 18%)",
     description: "Everything you need to close bigger deals",
     features: [
       { text: "Unlimited proposals per month", included: true },
@@ -55,18 +41,16 @@ const pricingPlans = [
       { text: "Priority support", included: true },
     ],
     cta: "Get Pro Access",
-    productType: "pro_annual" as const,
+    productType: "pro_monthly" as const,
     variant: "hero" as const,
     popular: true,
     isLifetime: false,
-    isAnnual: true,
   },
   {
     name: "Lifetime Access",
     price: "$497",
     originalPrice: null,
     period: "one-time",
-    billingNote: null,
     description: "Pay once, use forever",
     features: [
       { text: "Everything in Pro", included: true },
@@ -80,9 +64,8 @@ const pricingPlans = [
     variant: "outline" as const,
     popular: false,
     badge: "Best Value 💎",
-    savings: "Save $27/month forever",
+    savings: "Save $10/month forever",
     isLifetime: true,
-    isAnnual: false,
   },
 ];
 
@@ -99,35 +82,10 @@ export function PricingSection() {
     checkLifetimeAvailability
   } = useSubscription();
   
-  // Launch promo state (separate from lifetime spots)
-  const [launchPromo, setLaunchPromo] = useState<LaunchPromoState>({
-    promo_available: false,
-    spots_remaining: 0,
-    total_spots: 10,
-    discount_percent: 50,
-    promo_price: "$97",
-  });
-  
   // Check lifetime availability on mount
   useEffect(() => {
     checkLifetimeAvailability();
   }, [checkLifetimeAvailability]);
-  
-  // Check launch promo availability separately
-  useEffect(() => {
-    const checkLaunchPromo = async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('check-launch-promo');
-        if (!error && data) {
-          setLaunchPromo(data);
-        }
-      } catch (err) {
-        console.error('Error checking launch promo:', err);
-      }
-    };
-    
-    checkLaunchPromo();
-  }, []);
 
   const handlePlanClick = async (plan: typeof pricingPlans[0]) => {
     // Free tier - just go to generate
@@ -247,13 +205,6 @@ export function PricingSection() {
                   <span className="text-muted-foreground ml-1">{plan.period}</span>
                 </div>
                 
-                {/* Billing note for annual */}
-                {plan.billingNote && (
-                  <p className="text-xs text-primary font-medium mb-2">
-                    {plan.billingNote}
-                  </p>
-                )}
-                
                 <p className="text-sm text-muted-foreground mb-8">
                   {isLifetimeSoldOut 
                     ? 'This offer has ended' 
@@ -326,36 +277,7 @@ export function PricingSection() {
             30-day money-back guarantee
           </div>
         </div>
-        
       </div>
-      
-      {/* Launch Promo Banner - Full Width - Uses separate promo tracking */}
-      {launchPromo.promo_available && (
-        <div className="relative overflow-hidden bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-red-500/10 border-y border-amber-500/30 py-8 mt-16">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgZmlsbD0iI2ZmYmYwMCIgZmlsbC1vcGFjaXR5PSIuMSIgY3g9IjIwIiBjeT0iMjAiIHI9IjIiLz48L2c+PC9zdmc+')] opacity-50" />
-          <div className="container relative mx-auto px-4 text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Sparkles className="h-5 w-5 text-amber-500" />
-              <span className="text-sm font-bold uppercase tracking-wider text-amber-500">
-                Launch Special
-              </span>
-              <Sparkles className="h-5 w-5 text-amber-500" />
-            </div>
-            <h3 className="text-2xl md:text-3xl font-bold mb-2">
-              First {launchPromo.total_spots} customers get{" "}
-              <span className="text-amber-500">{launchPromo.discount_percent}% OFF</span>
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              Lock in Pro Annual for just <span className="font-bold text-foreground">{launchPromo.promo_price}</span>{" "}
-              <span className="line-through text-muted-foreground/60">$197</span> — one year of unlimited proposals
-            </p>
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/20 rounded-full text-amber-600 dark:text-amber-400 font-semibold">
-              <Clock className="h-4 w-4" />
-              Only {launchPromo.spots_remaining} spots remaining!
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 }

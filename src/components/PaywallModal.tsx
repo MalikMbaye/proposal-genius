@@ -85,14 +85,14 @@ export function PaywallModal({
                     <p className="text-sm text-muted-foreground">Unlock unlimited potential</p>
                   </div>
                   <div className="text-right">
-                    <span className="text-2xl font-bold">$27</span>
+                    <span className="text-2xl font-bold">$10</span>
                     <span className="text-muted-foreground">/mo</span>
                   </div>
                 </div>
                 <ul className="space-y-2 mb-4 text-sm">
                   <li className="flex items-center gap-2">
                     <Check className="h-4 w-4 text-success" />
-                    20 proposals per month
+                    Unlimited proposals per month
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="h-4 w-4 text-success" />
