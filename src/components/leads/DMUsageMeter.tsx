@@ -10,12 +10,11 @@ interface DMUsageMeterProps {
 }
 
 export function DMUsageMeter({ className, compact = false }: DMUsageMeterProps) {
-  const { 
-    dm_analyses_used, 
-    dm_analyses_limit, 
-    dm_tier,
-    loading 
-  } = useSubscription();
+  const subscriptionData = useSubscription();
+  const dm_analyses_used = subscriptionData?.dm_analyses_used ?? 0;
+  const dm_analyses_limit = subscriptionData?.dm_analyses_limit ?? 5;
+  const dm_tier = subscriptionData?.dm_tier;
+  const loading = subscriptionData?.loading ?? false;
 
   const isUnlimited = dm_tier === 'unlimited';
   const usagePercent = isUnlimited ? 0 : Math.min((dm_analyses_used / dm_analyses_limit) * 100, 100);
