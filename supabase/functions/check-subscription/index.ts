@@ -72,6 +72,61 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // Check for manual subscription override in database FIRST
+    const { data: manualSub } = await supabaseClient
+      .from("user_subscriptions")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .maybeSingle();
+
+    if (manualSub) {
+      logStep("Found manual subscription override", { type: manualSub.subscription_type });
+      
+      // Count proposals used this month
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+
+      const { count: proposalsThisMonth } = await supabaseClient
+        .from("proposal_usage")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .gte("created_at", startOfMonth.toISOString());
+
+      const { data: dmUsageData } = await supabaseClient
+        .from("dm_usage")
+        .select("analyses_used")
+        .eq("user_id", user.id)
+        .gte("period_start", startOfMonth.toISOString())
+        .single();
+
+      const isLifetime = manualSub.subscription_type === "lifetime" || manualSub.subscription_type === "annual";
+      const dmTier = manualSub.dm_subscription_tier;
+      const tierLimits = DM_TIER_LIMITS[dmTier as keyof typeof DM_TIER_LIMITS] || DM_TIER_LIMITS.free;
+
+      return new Response(JSON.stringify({
+        subscribed: true,
+        subscription_type: manualSub.subscription_type,
+        has_lifetime: isLifetime,
+        has_pro_library: isLifetime,
+        subscription_end: manualSub.current_period_end,
+        proposals_this_month: proposalsThisMonth || 0,
+        proposals_limit: 999999,
+        extra_proposals_purchased: manualSub.extra_proposals_purchased || 0,
+        dm_tier: dmTier,
+        dm_subscription_end: manualSub.dm_period_end,
+        dm_analyses_used: dmUsageData?.analyses_used || 0,
+        dm_analyses_limit: tierLimits.analyses,
+        dm_leads_limit: tierLimits.leads,
+        is_pitchgenius_customer: manualSub.pitchgenius_customer || false,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    // Fall back to Stripe check
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
@@ -84,7 +139,7 @@ serve(async (req) => {
         has_pro_library: false,
         subscription_end: null,
         proposals_this_month: 0,
-        proposals_limit: 1, // Free tier - 1 proposal
+        proposals_limit: 2, // Free tier - 2 proposals
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
