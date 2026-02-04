@@ -9,10 +9,10 @@ const corsHeaders = {
 
 // Stripe product/price IDs
 const PRODUCTS = {
-  // Main Pro Access - $27/month
+  // Main Pro Access - $19/month
   pro_monthly: {
-    price_id: "price_1SxEPRAIOyHZaZ4ixDWSYBju",
-    product_id: "prod_Tv4YnXxacp3iNN",
+    price_id: "price_1SxEf0AIOyHZaZ4iVCsfwN0f",
+    product_id: "prod_Tv4oAqaBWAArP9",
     mode: "subscription" as const,
   },
   // Annual Access - $197 one-time
