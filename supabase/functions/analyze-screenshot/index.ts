@@ -6,9 +6,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 // System prompt for DM analysis
@@ -186,26 +187,35 @@ ${offerContext}
 
 ${conversationHistory ? `PREVIOUS CONVERSATION CONTEXT:\n${conversationHistory}\n` : ""}`;
 
-    console.log("Calling Lovable AI for vision analysis...");
+    console.log("Calling Claude API for vision analysis...");
 
-    // Call Lovable AI Gateway with vision
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // Strip data URI prefix if present for Claude format
+    const screenshotData = screenshot.startsWith("data:") ? screenshot : `data:image/png;base64,${screenshot}`;
+    const base64Data = screenshotData.startsWith("data:") ? screenshotData.split(",")[1] : screenshotData;
+    const mediaType = screenshotData.match(/data:(image\/[^;]+)/)?.[1] || "image/png";
+
+    // Call Anthropic Claude API with vision
+    const aiResponse = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "x-api-key": ANTHROPIC_API_KEY!,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 4000,
+        system: fullSystemPrompt,
         messages: [
-          { role: "system", content: fullSystemPrompt },
           {
             role: "user",
             content: [
               {
-                type: "image_url",
-                image_url: {
-                  url: screenshot.startsWith("data:") ? screenshot : `data:image/png;base64,${screenshot}`,
+                type: "image",
+                source: {
+                  type: "base64",
+                  media_type: mediaType,
+                  data: base64Data,
                 },
               },
               {
@@ -220,19 +230,16 @@ ${conversationHistory ? `PREVIOUS CONVERSATION CONTEXT:\n${conversationHistory}\
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
-      console.error("AI API error:", aiResponse.status, errorText);
+      console.error("Claude API error:", aiResponse.status, errorText);
       
       if (aiResponse.status === 429) {
         throw new Error("Rate limit exceeded. Please try again in a moment.");
       }
-      if (aiResponse.status === 402) {
-        throw new Error("AI usage limit reached. Please add credits to continue.");
-      }
-      throw new Error(`AI analysis failed: ${aiResponse.status}`);
+      throw new Error(`Claude API error: ${aiResponse.status}`);
     }
 
     const aiResult = await aiResponse.json();
-    const content = aiResult.choices?.[0]?.message?.content;
+    const content = aiResult.content?.[0]?.text;
 
     if (!content) {
       throw new Error("No response from AI");
