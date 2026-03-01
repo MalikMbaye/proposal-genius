@@ -351,9 +351,9 @@ serve(async (req) => {
       }
     });
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY is not configured');
     }
 
     // Rate limiting
@@ -420,32 +420,33 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
 
     // Streaming mode
     if (stream) {
-      console.log('Starting streaming response via Lovable AI...');
+      console.log('Starting streaming response via Claude...');
       
       if (!userId) {
         await recordAnonymousUsage(clientIp);
       }
       
-      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+          'x-api-key': ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'google/gemini-2.5-pro',
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: proposalOnly ? 4000 : 8000,
+          system: systemPrompt,
+          stream: true,
           messages: [
-            { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt }
           ],
-          stream: true,
-          max_tokens: proposalOnly ? 4000 : 8000,
         }),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Lovable AI error:', response.status, errorText);
+        console.error('Claude API error:', response.status, errorText);
         
         if (response.status === 429) {
           return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }), {
@@ -453,16 +454,10 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
-        if (response.status === 402) {
-          return new Response(JSON.stringify({ error: 'AI credits depleted. Please add credits.' }), {
-            status: 402,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
-        }
-        throw new Error(`AI gateway error: ${response.status}`);
+        throw new Error(`Claude API error: ${response.status}`);
       }
 
-      // Transform OpenAI-compatible SSE to our format
+      // Transform Anthropic SSE to our format
       const encoder = new TextEncoder();
       const decoder = new TextDecoder();
       
@@ -481,12 +476,14 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
               
               try {
                 const parsed = JSON.parse(data);
-                const content = parsed.choices?.[0]?.delta?.content;
-                if (content) {
+                // Handle Anthropic's streaming format
+                if (parsed.type === 'content_block_delta' && parsed.delta?.text) {
                   controller.enqueue(encoder.encode(`data: ${JSON.stringify({ 
                     type: 'delta', 
-                    text: content 
+                    text: parsed.delta.text 
                   })}\n\n`));
+                } else if (parsed.type === 'message_stop') {
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'done' })}\n\n`));
                 }
               } catch (e) {
                 // Skip unparseable lines
@@ -509,25 +506,26 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
     }
 
     // Non-streaming mode
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-pro',
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: proposalOnly ? 4000 : 8000,
+        system: systemPrompt,
         messages: [
-          { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        max_tokens: proposalOnly ? 4000 : 8000,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Lovable AI error:', response.status, errorText);
+      console.error('Claude API error:', response.status, errorText);
       
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }), {
@@ -535,19 +533,13 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: 'AI credits depleted. Please add credits.' }), {
-          status: 402,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      throw new Error(`AI gateway error: ${response.status} - ${errorText}`);
+      throw new Error(`Claude API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    const fullText = data.choices?.[0]?.message?.content || '';
-    const inputTokens = data.usage?.prompt_tokens || 0;
-    const outputTokens = data.usage?.completion_tokens || 0;
+    const fullText = data.content?.[0]?.text || '';
+    const inputTokens = data.usage?.input_tokens || 0;
+    const outputTokens = data.usage?.output_tokens || 0;
 
     console.log('Received AI response, length:', fullText.length, 'tokens:', inputTokens + outputTokens);
 

@@ -74,29 +74,35 @@ Return ONLY the redacted text, nothing else. No explanations.
 PROPOSAL TEXT:
 ${proposalText}`;
 
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error("ANTHROPIC_API_KEY is not configured");
+    }
+
+    const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 8000,
         messages: [
           { role: 'user', content: redactionPrompt }
         ],
-        max_tokens: 8000,
       }),
     });
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
-      logStep('AI API error', { status: aiResponse.status, error: errorText });
-      throw new Error(`AI API error: ${aiResponse.status}`);
+      logStep('Claude API error', { status: aiResponse.status, error: errorText });
+      throw new Error(`Claude API error: ${aiResponse.status}`);
     }
 
     const aiData = await aiResponse.json();
-    const redactedText = aiData.choices?.[0]?.message?.content || '';
+    const redactedText = aiData.content?.[0]?.text || '';
 
     logStep('Redaction complete', { 
       originalLength: proposalText.length, 

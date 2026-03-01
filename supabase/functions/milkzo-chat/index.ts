@@ -670,23 +670,28 @@ serve(async (req) => {
       messages[0].content += "\n\n[CONTEXT: This is an anonymous visitor. Focus on piquing curiosity and getting them to sign up or book a call.]";
     }
     
-    // Call Lovable AI
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    // Call Anthropic Claude API
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error("ANTHROPIC_API_KEY is not configured");
     }
     
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // Extract system message and user messages for Claude format
+    const systemContent = messages[0].content;
+    const userMessages = messages.slice(1);
+    
+    const aiResponse = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages,
+        model: "claude-sonnet-4-20250514",
         max_tokens: 500,
-        temperature: 0.8,
+        system: systemContent,
+        messages: userMessages,
       }),
     });
     
@@ -697,20 +702,14 @@ serve(async (req) => {
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      if (aiResponse.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "MilkZo needs more coffee money. Please try again later." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
       
       const errorText = await aiResponse.text();
-      console.error("AI gateway error:", aiResponse.status, errorText);
+      console.error("Claude API error:", aiResponse.status, errorText);
       throw new Error("AI service temporarily unavailable");
     }
     
     const aiData = await aiResponse.json();
-    let responseText = aiData.choices?.[0]?.message?.content || "Hmm, my genius brain glitched for a second. Try asking that again?";
+    let responseText = aiData.content?.[0]?.text || "Hmm, my genius brain glitched for a second. Try asking that again?";
     
     // Sanitize output before sending
     responseText = sanitizeOutput(responseText);
