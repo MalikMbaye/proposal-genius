@@ -109,6 +109,38 @@ export type Database = {
           },
         ]
       }
+      dm_messages: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          thread_id: string
+          type: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          id?: string
+          thread_id: string
+          type?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          thread_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dm_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "dm_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dm_snapshots: {
         Row: {
           analysis: Json
@@ -140,6 +172,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      dm_threads: {
+        Row: {
+          created_at: string
+          heat_level: string | null
+          id: string
+          last_activity: string | null
+          name: string
+          qualification_score: number | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          heat_level?: string | null
+          id?: string
+          last_activity?: string | null
+          name?: string
+          qualification_score?: number | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          heat_level?: string | null
+          id?: string
+          last_activity?: string | null
+          name?: string
+          qualification_score?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       dm_usage: {
         Row: {
@@ -801,6 +869,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_settings: {
+        Row: {
+          created_at: string
+          id: string
+          offer_context: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          offer_context?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          offer_context?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_subscriptions: {
         Row: {
