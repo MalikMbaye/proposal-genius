@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, Building2, Mail, Briefcase, FileText, Trophy, CreditCard, Crown, Sparkles, RotateCcw, HelpCircle } from "lucide-react";
+import { Loader2, ArrowLeft, Building2, Mail, Briefcase, FileText, Trophy, CreditCard, Crown, Sparkles, RotateCcw, HelpCircle, Lock, KeyRound } from "lucide-react";
 import { FileUploadButton } from "@/components/FileUploadButton";
 import { useFirstVisitTour } from "@/hooks/useFirstVisitTour";
 
@@ -165,6 +165,36 @@ export default function Profile() {
                     <p className="text-xs text-muted-foreground">
                       Email cannot be changed
                     </p>
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 rounded-lg border border-border bg-card/50">
+                    <div>
+                      <p className="font-medium flex items-center gap-2">
+                        <Lock className="h-4 w-4 text-muted-foreground" />
+                        Password
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Change your account password
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={async () => {
+                        try {
+                          const { error } = await supabase.auth.resetPasswordForEmail(user?.email || '', {
+                            redirectTo: `${window.location.origin}/reset-password`,
+                          });
+                          if (error) throw error;
+                          toast.success('Password reset email sent! Check your inbox.');
+                        } catch (err: any) {
+                          toast.error(err.message || 'Failed to send reset email');
+                        }
+                      }}
+                    >
+                      <KeyRound className="mr-2 h-4 w-4" />
+                      Change Password
+                    </Button>
                   </div>
 
                   <div className="space-y-2">
