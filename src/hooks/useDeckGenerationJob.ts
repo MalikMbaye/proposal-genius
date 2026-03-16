@@ -29,7 +29,7 @@ export function useDeckGenerationJob(options: UseDeckGenerationJobOptions = {}) 
   const { proposalId, onComplete, onError } = options;
   const [currentJob, setCurrentJob] = useState<DeckJob | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mountedRef = useRef(true);
 
   // Cleanup on unmount

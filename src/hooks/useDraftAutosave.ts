@@ -20,7 +20,7 @@ interface DraftData {
 
 export function useDraftAutosave() {
   const { user } = useAuth();
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [draftLoaded, setDraftLoaded] = useState(false);

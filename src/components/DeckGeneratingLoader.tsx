@@ -103,7 +103,7 @@ export function DeckGeneratingLoader({ clientName }: DeckGeneratingLoaderProps) 
     // Progress through stages with varying durations
     const durations = [8000, 15000, 20000, 15000, 10000];
     let totalTime = 0;
-    const timeouts: NodeJS.Timeout[] = [];
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
     
     durations.forEach((duration, index) => {
       const timeout = setTimeout(() => {
