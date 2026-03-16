@@ -134,7 +134,7 @@ export default function Preview() {
   const [generatingAsset, setGeneratingAsset] = useState<TabId | null>(null);
   const [assetGenerationSteps, setAssetGenerationSteps] = useState<LoadingStep[]>([]);
   const [assetGenerationProgress, setAssetGenerationProgress] = useState(0);
-  const assetProgressInterval = useRef<NodeJS.Timeout | null>(null);
+  const assetProgressInterval = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [lightMode, setLightMode] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
