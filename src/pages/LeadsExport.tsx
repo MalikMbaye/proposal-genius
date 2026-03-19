@@ -117,7 +117,7 @@ export default function LeadsExport() {
       arr.sort((a, b) => new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime());
     } else {
       arr.sort((a, b) => {
-        const heatDiff = heatRank(b.heat_level) - heatRank(a.heat_level);
+        const heatDiff = heatRank(b.status) - heatRank(a.status);
         if (heatDiff !== 0) return heatDiff;
         const scoreDiff = (b.qualification_score ?? 0) - (a.qualification_score ?? 0);
         if (scoreDiff !== 0) return scoreDiff;
