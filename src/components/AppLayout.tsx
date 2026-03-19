@@ -21,6 +21,7 @@ import {
   Phone,
   MessageSquare,
   Home,
+  DownloadCloud,
   Pencil,
   Menu,
   Loader2,
