@@ -40,6 +40,7 @@ import {
   Phone,
   MessageSquare,
   Home,
+  DownloadCloud,
   Pencil,
   Menu,
 } from "lucide-react";
