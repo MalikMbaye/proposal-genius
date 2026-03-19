@@ -190,7 +190,7 @@ export default function LeadsExport() {
     const cellBorders = { top: cellBorder, bottom: cellBorder, left: cellBorder, right: cellBorder };
     const cellMargins = { top: 60, bottom: 60, left: 100, right: 100 };
 
-    const leadSections: Paragraph[] = [];
+    const leadSections: (Paragraph | Table)[] = [];
 
     sorted.forEach((lead, idx) => {
       if (idx > 0) {
