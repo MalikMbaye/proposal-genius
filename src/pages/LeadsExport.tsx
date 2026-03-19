@@ -25,6 +25,7 @@ interface MergedLead {
   current_stage: string | null;
   created_at: string | null;
   updated_at: string | null;
+  dm_prospect_name: string | null;
   source: "Direct" | "DM Closer" | "Both";
 }
 
