@@ -40,6 +40,7 @@ import {
   Phone,
   MessageSquare,
   Home,
+  DownloadCloud,
   Pencil,
   Menu,
 } from "lucide-react";
@@ -880,6 +881,14 @@ Key requirements:
         >
           <Phone className="h-4 w-4" />
           <span className="flex-1 text-left">Call Scripts</span>
+        </Link>
+        <Link
+          to="/leads-export"
+          onClick={onNavigate}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-slate-400 hover:text-slate-100 hover:bg-slate-700"
+        >
+          <DownloadCloud className="h-4 w-4" />
+          <span className="flex-1 text-left">Leads Export</span>
         </Link>
       </nav>
       
