@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { DownloadCloud, FileJson, FileSpreadsheet, Clock, Flame, Users, MessageSquare, Filter } from "lucide-react";
+import { DownloadCloud, FileJson, FileSpreadsheet, FileText, Clock, Flame, Users, MessageSquare, Filter } from "lucide-react";
 import { format } from "date-fns";
+import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, HeadingLevel, AlignmentType, BorderStyle, WidthType, ShadingType } from "docx";
+import { saveAs } from "file-saver";
 
 type SortMode = "priority" | "chronological";
 type SourceFilter = "all" | "direct" | "dm";
@@ -171,6 +173,137 @@ export default function LeadsExport() {
     markExported();
   }
 
+  async function downloadDOCX() {
+    if (sorted.length === 0) return;
+
+    const heatEmoji = (h: string | null) => {
+      switch (h?.toLowerCase()) {
+        case "hot": return "🔥";
+        case "warm": return "🟠";
+        case "cool": return "🔵";
+        case "cold": return "⚪";
+        default: return "—";
+      }
+    };
+
+    const cellBorder = { style: BorderStyle.SINGLE, size: 1, color: "D1D5DB" };
+    const cellBorders = { top: cellBorder, bottom: cellBorder, left: cellBorder, right: cellBorder };
+    const cellMargins = { top: 60, bottom: 60, left: 100, right: 100 };
+
+    const leadSections: (Paragraph | Table)[] = [];
+
+    sorted.forEach((lead, idx) => {
+      if (idx > 0) {
+        leadSections.push(new Paragraph({ spacing: { before: 200 } }));
+      }
+
+      leadSections.push(
+        new Paragraph({
+          heading: HeadingLevel.HEADING_2,
+          spacing: { before: 300, after: 100 },
+          children: [
+            new TextRun({ text: `${heatEmoji(lead.heat_level)} ${lead.dm_prospect_name || lead.name}`, bold: true, size: 28, font: "Arial" }),
+          ],
+        })
+      );
+
+      const details: [string, string][] = [
+        ["Lead Name", lead.name],
+        ["DM Prospect Name", lead.dm_prospect_name || "—"],
+        ["Heat Level", (lead.heat_level ?? "Unknown").toUpperCase()],
+        ["Qualification Score", lead.qualification_score != null ? `${lead.qualification_score}/100` : "—"],
+        ["Platform", lead.platform ?? "—"],
+        ["Status", lead.status ?? "—"],
+        ["Stage", lead.current_stage ?? "—"],
+        ["Budget", lead.budget_range ?? "—"],
+        ["Timeline", lead.timeline ?? "—"],
+        ["Goals", lead.goals ?? "—"],
+        ["Pain Points", lead.pain_points?.join(", ") ?? "—"],
+        ["Source", lead.source],
+        ["Created", lead.created_at ? format(new Date(lead.created_at), "MMM d, yyyy") : "—"],
+      ];
+
+      const tableRows = details.map(([label, value]) =>
+        new TableRow({
+          children: [
+            new TableCell({
+              borders: cellBorders,
+              margins: cellMargins,
+              width: { size: 2800, type: WidthType.DXA },
+              shading: { fill: "F3F4F6", type: ShadingType.CLEAR },
+              children: [new Paragraph({ children: [new TextRun({ text: label, bold: true, size: 20, font: "Arial", color: "374151" })] })],
+            }),
+            new TableCell({
+              borders: cellBorders,
+              margins: cellMargins,
+              width: { size: 6560, type: WidthType.DXA },
+              children: [new Paragraph({ children: [new TextRun({ text: value, size: 20, font: "Arial", color: "1F2937" })] })],
+            }),
+          ],
+        })
+      );
+
+      leadSections.push(
+        new Table({
+          width: { size: 9360, type: WidthType.DXA },
+          columnWidths: [2800, 6560],
+          rows: tableRows,
+        })
+      );
+    });
+
+    const doc = new Document({
+      styles: {
+        default: { document: { run: { font: "Arial", size: 22 } } },
+        paragraphStyles: [
+          {
+            id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true,
+            run: { size: 36, bold: true, font: "Arial", color: "D97706" },
+            paragraph: { spacing: { before: 240, after: 120 } },
+          },
+          {
+            id: "Heading2", name: "Heading 2", basedOn: "Normal", next: "Normal", quickFormat: true,
+            run: { size: 28, bold: true, font: "Arial" },
+            paragraph: { spacing: { before: 200, after: 80 } },
+          },
+        ],
+      },
+      sections: [
+        {
+          properties: {
+            page: {
+              size: { width: 12240, height: 15840 },
+              margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 },
+            },
+          },
+          children: [
+            new Paragraph({
+              heading: HeadingLevel.HEADING_1,
+              children: [new TextRun({ text: "Black Lotus Ventures — Leads Export", bold: true, size: 36, font: "Arial", color: "D97706" })],
+            }),
+            new Paragraph({
+              spacing: { after: 100 },
+              children: [new TextRun({ text: `Generated ${format(new Date(), "MMMM d, yyyy 'at' h:mm a")} · ${sorted.length} leads · Sorted by ${sortMode}`, size: 20, font: "Arial", color: "6B7280" })],
+            }),
+            new Paragraph({
+              spacing: { after: 300 },
+              children: [
+                new TextRun({ text: `Direct: ${stats.direct}`, size: 20, font: "Arial", color: "3B82F6" }),
+                new TextRun({ text: `  ·  DM Closer: ${stats.dm}`, size: 20, font: "Arial", color: "10B981" }),
+                new TextRun({ text: `  ·  Total: ${stats.total}`, size: 20, font: "Arial", color: "6B7280" }),
+              ],
+            }),
+            ...leadSections,
+          ],
+        },
+      ],
+    });
+
+    const buffer = await Packer.toBlob(doc);
+    saveAs(buffer, `blv-leads-export-${sortMode}-${dateStr}.docx`);
+    markExported();
+  }
+
   function markExported() {
     const ts = new Date().toISOString();
     localStorage.setItem("blv-leads-last-exported", ts);
@@ -296,7 +429,7 @@ export default function LeadsExport() {
 
         {/* Export Cards */}
         {sorted.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Card className="bg-slate-800 border-slate-700 hover:border-amber-500/50 transition-all cursor-pointer group" onClick={downloadJSON}>
               <CardContent className="flex flex-col items-center justify-center p-8 text-center">
                 <FileJson className="h-12 w-12 text-amber-400 mb-4 group-hover:scale-110 transition-transform" />
@@ -311,11 +444,22 @@ export default function LeadsExport() {
             <Card className="bg-slate-800 border-slate-700 hover:border-amber-500/50 transition-all cursor-pointer group" onClick={downloadCSV}>
               <CardContent className="flex flex-col items-center justify-center p-8 text-center">
                 <FileSpreadsheet className="h-12 w-12 text-emerald-400 mb-4 group-hover:scale-110 transition-transform" />
-                <h3 className="text-lg font-bold text-white mb-1">Download as CSV / Google Sheet</h3>
+                <h3 className="text-lg font-bold text-white mb-1">Download as CSV</h3>
                 <p className="text-sm text-slate-400 mb-4">Open in Excel, Sheets, or any spreadsheet tool</p>
                 <Button variant="outline" className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10">
                   <DownloadCloud className="mr-2 h-4 w-4" />
                   Export CSV
+                </Button>
+              </CardContent>
+            </Card>
+            <Card className="bg-slate-800 border-slate-700 hover:border-blue-500/50 transition-all cursor-pointer group" onClick={downloadDOCX}>
+              <CardContent className="flex flex-col items-center justify-center p-8 text-center">
+                <FileText className="h-12 w-12 text-blue-400 mb-4 group-hover:scale-110 transition-transform" />
+                <h3 className="text-lg font-bold text-white mb-1">Download as DOCX</h3>
+                <p className="text-sm text-slate-400 mb-4">Formatted report for Google Docs or Word</p>
+                <Button variant="outline" className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10">
+                  <DownloadCloud className="mr-2 h-4 w-4" />
+                  Export DOCX
                 </Button>
               </CardContent>
             </Card>
