@@ -144,6 +144,14 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            <Route
+              path="/leads-export"
+              element={
+                <ProtectedRoute>
+                  <LeadsExport />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/learn" element={<Learn />} />
             <Route path="/learn/:slug" element={<LearnArticle />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
