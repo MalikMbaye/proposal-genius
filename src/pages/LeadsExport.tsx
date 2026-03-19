@@ -208,10 +208,9 @@ export default function LeadsExport() {
       const details: [string, string][] = [
         ["Lead Name", lead.name],
         ["DM Prospect Name", lead.dm_prospect_name || "—"],
-        ["Heat Level", (lead.heat_level ?? "Unknown").toUpperCase()],
+        ["Status", (lead.status ?? "Unknown").toUpperCase()],
         ["Qualification Score", lead.qualification_score != null ? `${lead.qualification_score}/100` : "—"],
         ["Platform", lead.platform ?? "—"],
-        ["Status", lead.status ?? "—"],
         ["Stage", lead.current_stage ?? "—"],
         ["Budget", lead.budget_range ?? "—"],
         ["Timeline", lead.timeline ?? "—"],
