@@ -28,6 +28,7 @@ import Library from "./pages/Library";
 import UploadProposals from "./pages/UploadProposals";
 import Help from "./pages/Help";
 import LifetimeSuccess from "./pages/LifetimeSuccess";
+import LeadsExport from "./pages/LeadsExport";
 
 const queryClient = new QueryClient();
 
@@ -142,6 +143,14 @@ const App = () => (
                   <LifetimeSuccess />
                 </ProtectedRoute>
               } 
+            />
+            <Route
+              path="/leads-export"
+              element={
+                <ProtectedRoute>
+                  <LeadsExport />
+                </ProtectedRoute>
+              }
             />
             <Route path="/learn" element={<Learn />} />
             <Route path="/learn/:slug" element={<LearnArticle />} />
