@@ -84,7 +84,6 @@ export default function LeadsExport() {
         name: l.name,
         platform: l.platform,
         status: l.status,
-        heat_level: l.heat_level,
         qualification_score: l.qualification_score,
         budget_range: l.budget_range,
         goals: l.goals,
