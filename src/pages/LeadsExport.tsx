@@ -64,14 +64,18 @@ export default function LeadsExport() {
         .select("*")
         .eq("user_id", user!.id);
 
-      // Fetch dm_snapshots with their lead_ids
+      // Fetch dm_snapshots with their lead_ids and analysis
       const { data: snapshots } = await supabase
         .from("dm_snapshots")
-        .select("lead_id");
+        .select("lead_id, analysis");
 
-      const snapshotLeadIds = new Set(
-        (snapshots ?? []).map((s) => s.lead_id)
-      );
+      // Build map: lead_id -> prospect_name from analysis JSON
+      const snapshotMap = new Map<string, string | null>();
+      for (const s of snapshots ?? []) {
+        const analysis = s.analysis as any;
+        const prospectName = analysis?.prospect_name ?? analysis?.name ?? null;
+        snapshotMap.set(s.lead_id, prospectName);
+      }
 
       // Merge: if a lead has a snapshot, mark as "Both"
       const merged: MergedLead[] = (directLeads ?? []).map((l) => ({
