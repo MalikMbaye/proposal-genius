@@ -18,7 +18,6 @@ interface MergedLead {
   name: string;
   platform: string | null;
   status: string | null;
-  heat_level: string | null;
   qualification_score: number | null;
   budget_range: string | null;
   goals: string | null;
