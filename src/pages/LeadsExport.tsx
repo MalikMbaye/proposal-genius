@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { DownloadCloud, FileJson, FileSpreadsheet, Clock, Flame, Users, MessageSquare, Filter } from "lucide-react";
+import { DownloadCloud, FileJson, FileSpreadsheet, FileText, Clock, Flame, Users, MessageSquare, Filter } from "lucide-react";
 import { format } from "date-fns";
+import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, HeadingLevel, AlignmentType, BorderStyle, WidthType, ShadingType } from "docx";
+import { saveAs } from "file-saver";
 
 type SortMode = "priority" | "chronological";
 type SourceFilter = "all" | "direct" | "dm";
