@@ -173,6 +173,137 @@ export default function LeadsExport() {
     markExported();
   }
 
+  async function downloadDOCX() {
+    if (sorted.length === 0) return;
+
+    const heatEmoji = (h: string | null) => {
+      switch (h?.toLowerCase()) {
+        case "hot": return "🔥";
+        case "warm": return "🟠";
+        case "cool": return "🔵";
+        case "cold": return "⚪";
+        default: return "—";
+      }
+    };
+
+    const cellBorder = { style: BorderStyle.SINGLE, size: 1, color: "D1D5DB" };
+    const cellBorders = { top: cellBorder, bottom: cellBorder, left: cellBorder, right: cellBorder };
+    const cellMargins = { top: 60, bottom: 60, left: 100, right: 100 };
+
+    const leadSections: Paragraph[] = [];
+
+    sorted.forEach((lead, idx) => {
+      if (idx > 0) {
+        leadSections.push(new Paragraph({ spacing: { before: 200 } }));
+      }
+
+      leadSections.push(
+        new Paragraph({
+          heading: HeadingLevel.HEADING_2,
+          spacing: { before: 300, after: 100 },
+          children: [
+            new TextRun({ text: `${heatEmoji(lead.heat_level)} ${lead.dm_prospect_name || lead.name}`, bold: true, size: 28, font: "Arial" }),
+          ],
+        })
+      );
+
+      const details: [string, string][] = [
+        ["Lead Name", lead.name],
+        ["DM Prospect Name", lead.dm_prospect_name || "—"],
+        ["Heat Level", (lead.heat_level ?? "Unknown").toUpperCase()],
+        ["Qualification Score", lead.qualification_score != null ? `${lead.qualification_score}/100` : "—"],
+        ["Platform", lead.platform ?? "—"],
+        ["Status", lead.status ?? "—"],
+        ["Stage", lead.current_stage ?? "—"],
+        ["Budget", lead.budget_range ?? "—"],
+        ["Timeline", lead.timeline ?? "—"],
+        ["Goals", lead.goals ?? "—"],
+        ["Pain Points", lead.pain_points?.join(", ") ?? "—"],
+        ["Source", lead.source],
+        ["Created", lead.created_at ? format(new Date(lead.created_at), "MMM d, yyyy") : "—"],
+      ];
+
+      const tableRows = details.map(([label, value]) =>
+        new TableRow({
+          children: [
+            new TableCell({
+              borders: cellBorders,
+              margins: cellMargins,
+              width: { size: 2800, type: WidthType.DXA },
+              shading: { fill: "F3F4F6", type: ShadingType.CLEAR },
+              children: [new Paragraph({ children: [new TextRun({ text: label, bold: true, size: 20, font: "Arial", color: "374151" })] })],
+            }),
+            new TableCell({
+              borders: cellBorders,
+              margins: cellMargins,
+              width: { size: 6560, type: WidthType.DXA },
+              children: [new Paragraph({ children: [new TextRun({ text: value, size: 20, font: "Arial", color: "1F2937" })] })],
+            }),
+          ],
+        })
+      );
+
+      leadSections.push(
+        new Table({
+          width: { size: 9360, type: WidthType.DXA },
+          columnWidths: [2800, 6560],
+          rows: tableRows,
+        })
+      );
+    });
+
+    const doc = new Document({
+      styles: {
+        default: { document: { run: { font: "Arial", size: 22 } } },
+        paragraphStyles: [
+          {
+            id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true,
+            run: { size: 36, bold: true, font: "Arial", color: "D97706" },
+            paragraph: { spacing: { before: 240, after: 120 } },
+          },
+          {
+            id: "Heading2", name: "Heading 2", basedOn: "Normal", next: "Normal", quickFormat: true,
+            run: { size: 28, bold: true, font: "Arial" },
+            paragraph: { spacing: { before: 200, after: 80 } },
+          },
+        ],
+      },
+      sections: [
+        {
+          properties: {
+            page: {
+              size: { width: 12240, height: 15840 },
+              margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 },
+            },
+          },
+          children: [
+            new Paragraph({
+              heading: HeadingLevel.HEADING_1,
+              children: [new TextRun({ text: "Black Lotus Ventures — Leads Export", bold: true, size: 36, font: "Arial", color: "D97706" })],
+            }),
+            new Paragraph({
+              spacing: { after: 100 },
+              children: [new TextRun({ text: `Generated ${format(new Date(), "MMMM d, yyyy 'at' h:mm a")} · ${sorted.length} leads · Sorted by ${sortMode}`, size: 20, font: "Arial", color: "6B7280" })],
+            }),
+            new Paragraph({
+              spacing: { after: 300 },
+              children: [
+                new TextRun({ text: `Direct: ${stats.direct}`, size: 20, font: "Arial", color: "3B82F6" }),
+                new TextRun({ text: `  ·  DM Closer: ${stats.dm}`, size: 20, font: "Arial", color: "10B981" }),
+                new TextRun({ text: `  ·  Total: ${stats.total}`, size: 20, font: "Arial", color: "6B7280" }),
+              ],
+            }),
+            ...leadSections,
+          ],
+        },
+      ],
+    });
+
+    const buffer = await Packer.toBlob(doc);
+    saveAs(buffer, `blv-leads-export-${sortMode}-${dateStr}.docx`);
+    markExported();
+  }
+
   function markExported() {
     const ts = new Date().toISOString();
     localStorage.setItem("blv-leads-last-exported", ts);
