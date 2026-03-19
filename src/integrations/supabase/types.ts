@@ -319,7 +319,6 @@ export type Database = {
           created_at: string | null
           current_stage: string | null
           goals: string | null
-          heat_level: string | null
           id: string
           last_activity: string | null
           name: string
@@ -337,7 +336,6 @@ export type Database = {
           created_at?: string | null
           current_stage?: string | null
           goals?: string | null
-          heat_level?: string | null
           id?: string
           last_activity?: string | null
           name: string
@@ -355,7 +353,6 @@ export type Database = {
           created_at?: string | null
           current_stage?: string | null
           goals?: string | null
-          heat_level?: string | null
           id?: string
           last_activity?: string | null
           name?: string

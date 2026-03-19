@@ -1,0 +1,1 @@
+ALTER TABLE public.leads DROP COLUMN heat_level;
