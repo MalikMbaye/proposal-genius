@@ -18,7 +18,6 @@ interface MergedLead {
   name: string;
   platform: string | null;
   status: string | null;
-  heat_level: string | null;
   qualification_score: number | null;
   budget_range: string | null;
   goals: string | null;
@@ -85,7 +84,6 @@ export default function LeadsExport() {
         name: l.name,
         platform: l.platform,
         status: l.status,
-        heat_level: l.heat_level,
         qualification_score: l.qualification_score,
         budget_range: l.budget_range,
         goals: l.goals,
@@ -119,7 +117,7 @@ export default function LeadsExport() {
       arr.sort((a, b) => new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime());
     } else {
       arr.sort((a, b) => {
-        const heatDiff = heatRank(b.heat_level) - heatRank(a.heat_level);
+        const heatDiff = heatRank(b.status) - heatRank(a.status);
         if (heatDiff !== 0) return heatDiff;
         const scoreDiff = (b.qualification_score ?? 0) - (a.qualification_score ?? 0);
         if (scoreDiff !== 0) return scoreDiff;
@@ -202,7 +200,7 @@ export default function LeadsExport() {
           heading: HeadingLevel.HEADING_2,
           spacing: { before: 300, after: 100 },
           children: [
-            new TextRun({ text: `${heatEmoji(lead.heat_level)} ${lead.dm_prospect_name || lead.name}`, bold: true, size: 28, font: "Arial" }),
+            new TextRun({ text: `${heatEmoji(lead.status)} ${lead.dm_prospect_name || lead.name}`, bold: true, size: 28, font: "Arial" }),
           ],
         })
       );
@@ -210,10 +208,9 @@ export default function LeadsExport() {
       const details: [string, string][] = [
         ["Lead Name", lead.name],
         ["DM Prospect Name", lead.dm_prospect_name || "—"],
-        ["Heat Level", (lead.heat_level ?? "Unknown").toUpperCase()],
+        ["Status", (lead.status ?? "Unknown").toUpperCase()],
         ["Qualification Score", lead.qualification_score != null ? `${lead.qualification_score}/100` : "—"],
         ["Platform", lead.platform ?? "—"],
-        ["Status", lead.status ?? "—"],
         ["Stage", lead.current_stage ?? "—"],
         ["Budget", lead.budget_range ?? "—"],
         ["Timeline", lead.timeline ?? "—"],
