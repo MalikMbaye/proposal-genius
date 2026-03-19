@@ -429,7 +429,7 @@ export default function LeadsExport() {
 
         {/* Export Cards */}
         {sorted.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <Card className="bg-slate-800 border-slate-700 hover:border-amber-500/50 transition-all cursor-pointer group" onClick={downloadJSON}>
               <CardContent className="flex flex-col items-center justify-center p-8 text-center">
                 <FileJson className="h-12 w-12 text-amber-400 mb-4 group-hover:scale-110 transition-transform" />
@@ -444,11 +444,22 @@ export default function LeadsExport() {
             <Card className="bg-slate-800 border-slate-700 hover:border-amber-500/50 transition-all cursor-pointer group" onClick={downloadCSV}>
               <CardContent className="flex flex-col items-center justify-center p-8 text-center">
                 <FileSpreadsheet className="h-12 w-12 text-emerald-400 mb-4 group-hover:scale-110 transition-transform" />
-                <h3 className="text-lg font-bold text-white mb-1">Download as CSV / Google Sheet</h3>
+                <h3 className="text-lg font-bold text-white mb-1">Download as CSV</h3>
                 <p className="text-sm text-slate-400 mb-4">Open in Excel, Sheets, or any spreadsheet tool</p>
                 <Button variant="outline" className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10">
                   <DownloadCloud className="mr-2 h-4 w-4" />
                   Export CSV
+                </Button>
+              </CardContent>
+            </Card>
+            <Card className="bg-slate-800 border-slate-700 hover:border-blue-500/50 transition-all cursor-pointer group" onClick={downloadDOCX}>
+              <CardContent className="flex flex-col items-center justify-center p-8 text-center">
+                <FileText className="h-12 w-12 text-blue-400 mb-4 group-hover:scale-110 transition-transform" />
+                <h3 className="text-lg font-bold text-white mb-1">Download as DOCX</h3>
+                <p className="text-sm text-slate-400 mb-4">Formatted report for Google Docs or Word</p>
+                <Button variant="outline" className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10">
+                  <DownloadCloud className="mr-2 h-4 w-4" />
+                  Export DOCX
                 </Button>
               </CardContent>
             </Card>
