@@ -92,7 +92,8 @@ export default function LeadsExport() {
         current_stage: l.current_stage,
         created_at: l.created_at,
         updated_at: l.updated_at,
-        source: snapshotLeadIds.has(l.id)
+        dm_prospect_name: snapshotMap.has(l.id) ? snapshotMap.get(l.id) ?? null : null,
+        source: snapshotMap.has(l.id)
           ? ("Both" as const)
           : ("Direct" as const),
       }));
