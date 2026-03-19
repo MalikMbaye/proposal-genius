@@ -200,7 +200,7 @@ export default function LeadsExport() {
           heading: HeadingLevel.HEADING_2,
           spacing: { before: 300, after: 100 },
           children: [
-            new TextRun({ text: `${heatEmoji(lead.heat_level)} ${lead.dm_prospect_name || lead.name}`, bold: true, size: 28, font: "Arial" }),
+            new TextRun({ text: `${heatEmoji(lead.status)} ${lead.dm_prospect_name || lead.name}`, bold: true, size: 28, font: "Arial" }),
           ],
         })
       );
