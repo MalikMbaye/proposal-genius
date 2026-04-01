@@ -418,6 +418,33 @@ PRICING GUIDANCE:
 
 Generate ALL 6 deliverables with the exact section headers specified. Use --- as separator between each major section.`;
 
+    // Helper: call Claude with retry on 429
+    async function callClaudeWithRetry(body: Record<string, unknown>, maxRetries = 3): Promise<Response> {
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'x-api-key': ANTHROPIC_API_KEY!,
+            'anthropic-version': '2023-06-01',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        });
+
+        if (response.status === 429 && attempt < maxRetries - 1) {
+          const retryAfter = parseInt(response.headers.get('retry-after') || '0', 10);
+          const delay = retryAfter > 0 ? retryAfter * 1000 : Math.min(2000 * Math.pow(2, attempt), 15000);
+          console.log(`[RETRY] Claude 429, waiting ${delay}ms (attempt ${attempt + 1}/${maxRetries})`);
+          await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+
+        return response;
+      }
+      // Should not reach here, but satisfy TS
+      throw new Error('Max retries exceeded');
+    }
+
     // Streaming mode
     if (stream) {
       console.log('Starting streaming response via Claude...');
@@ -426,22 +453,12 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
         await recordAnonymousUsage(clientIp);
       }
       
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'x-api-key': ANTHROPIC_API_KEY,
-          'anthropic-version': '2023-06-01',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: proposalOnly ? 4000 : 8000,
-          system: systemPrompt,
-          stream: true,
-          messages: [
-            { role: 'user', content: userPrompt }
-          ],
-        }),
+      const response = await callClaudeWithRetry({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: proposalOnly ? 4000 : 8000,
+        system: systemPrompt,
+        stream: true,
+        messages: [{ role: 'user', content: userPrompt }],
       });
 
       if (!response.ok) {
@@ -449,7 +466,7 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
         console.error('Claude API error:', response.status, errorText);
         
         if (response.status === 429) {
-          return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }), {
+          return new Response(JSON.stringify({ error: 'AI is temporarily busy. Please wait 30 seconds and try again.' }), {
             status: 429,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
