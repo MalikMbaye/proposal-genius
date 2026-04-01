@@ -523,21 +523,11 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
     }
 
     // Non-streaming mode
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: proposalOnly ? 4000 : 8000,
-        system: systemPrompt,
-        messages: [
-          { role: 'user', content: userPrompt }
-        ],
-      }),
+    const response = await callClaudeWithRetry({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: proposalOnly ? 4000 : 8000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
     });
 
     if (!response.ok) {
@@ -545,7 +535,7 @@ Generate ALL 6 deliverables with the exact section headers specified. Use --- as
       console.error('Claude API error:', response.status, errorText);
       
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }), {
+        return new Response(JSON.stringify({ error: 'AI is temporarily busy. Please wait 30 seconds and try again.' }), {
           status: 429,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
