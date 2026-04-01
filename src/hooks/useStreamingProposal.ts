@@ -82,7 +82,12 @@ export function useStreamingProposal() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
+        let errorMessage = `HTTP error: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          if (errorData?.error) errorMessage = errorData.error;
+        } catch {}
+        throw new Error(errorMessage);
       }
 
       const reader = response.body?.getReader();
